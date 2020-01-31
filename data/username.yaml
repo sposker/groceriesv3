@@ -1,0 +1,713 @@
+- Apples:
+    defaults:
+    - - 1574375571.2876346
+      - 6
+    - - 1574473000.064611
+      - 4
+    group: g00
+    note: ''
+    uid: i00
+- Plums:
+    defaults:
+    - - 1574375571.2876346
+      - 4
+    group: g00
+    note: ''
+    uid: i01
+- Tomato:
+    defaults:
+    - - 1574375571.2876346
+      - ''
+    group: g00
+    note: ''
+    uid: i02
+- Onion:
+    defaults:
+    - - 1574288866.4900024
+      - 1
+    group: g00
+    note: ''
+    uid: i03
+- Lettuce:
+    defaults:
+    - - 1574375571.2876346
+      - ''
+    group: g00
+    note: ''
+    uid: i04
+- Red Potato:
+    defaults:
+    - - 1573776209.0
+      - ''
+    group: g00
+    note: ''
+    uid: i05
+- Brown Potato:
+    defaults:
+    - - 1573776208.6566176
+      - ''
+    group: g00
+    note: ''
+    uid: i06
+- Bagged Salad:
+    defaults:
+    - - 1574288866.0
+      - ''
+    group: g00
+    note: ''
+    uid: i07
+- Honey Ham:
+    defaults:
+    - - 1574375571.2876346
+      - ''
+    group: g01
+    note: 3/4 lb
+    uid: i08
+- Italian Salad:
+    defaults:
+    - - 1574375571.2876346
+      - ''
+    group: g01
+    note: 1/2 lb
+    uid: i09
+- Potato Salad:
+    defaults:
+    - - 1573776208.6566176
+      - ''
+    group: g01
+    note: ''
+    uid: i10
+- Muffins:
+    defaults:
+    - - 1574375571.2876346
+      - ''
+    group: g02
+    note: ''
+    uid: i11
+- Cherry Pie:
+    defaults:
+    - - 1574288866.4900024
+      - ''
+    group: g02
+    note: ''
+    uid: i12
+- Cherry Turnover:
+    defaults:
+    - - 1570242285.0
+      - ''
+    - - 1574375571.0
+      - '6'
+    group: g02
+    note: ''
+    uid: i13
+- Honey Wheat Bread:
+    defaults:
+    - - 1574375571.2876346
+      - ''
+    group: g03
+    note: ''
+    uid: i14
+- Plain Bagels:
+    defaults:
+    - - 1574375571.2876346
+      - ''
+    group: g03
+    note: ''
+    uid: i15
+- Cinnamon Raisin Bagels:
+    defaults:
+    - - 1571880309.6715567
+      - ''
+    group: g03
+    note: ''
+    uid: i16
+- Steak:
+    defaults:
+    - - 1574375571.2876346
+      - ''
+    group: g04
+    note: If on sale
+    uid: i17
+- Sausage:
+    defaults:
+    - - 1570242285.1823304
+      - ''
+    group: g04
+    note: ''
+    uid: i18
+- Chicken:
+    defaults:
+    - - 1574375392.6761515
+      - ''
+    group: g04
+    note: ''
+    uid: i19
+- Pork:
+    defaults:
+    - - 1573776208.6566176
+      - ''
+    group: g04
+    note: ''
+    uid: i20
+- Fish:
+    defaults:
+    - - 1574375392.6761515
+      - ''
+    group: g04
+    note: ''
+    uid: i21
+- Milk:
+    defaults:
+    - - 1570156424.394691
+      - ''
+    - - 1574375571.2876346
+      - 2
+    group: g05
+    note: ''
+    uid: i22
+- Yogurt:
+    defaults:
+    - - 1569623335.965605
+      - ''
+    - - 1570156424.394691
+      - 6
+    - - 1574375571.2876346
+      - 4
+    group: g05
+    note: ''
+    uid: i23
+- Swiss Cheese:
+    defaults:
+    - - 1570156424.394691
+      - ''
+    group: g05
+    note: ''
+    uid: i24
+- Camembert:
+    defaults:
+    - - 1574375571.2876346
+      - ''
+    group: g05
+    note: ''
+    uid: i25
+- Dubliner:
+    defaults:
+    - - 1573776208.6566176
+      - ''
+    group: g05
+    note: ''
+    uid: i26
+- Edam:
+    defaults:
+    - - 1571755691.376793
+      - ''
+    group: g05
+    note: ''
+    uid: i27
+- Sharp Cheddar:
+    defaults:
+    - - 1573776208.6566176
+      - ''
+    group: g05
+    note: ''
+    uid: i28
+- Ketchup:
+    defaults:
+    - - 1574375392.6761515
+      - ''
+    group: g06
+    note: ''
+    uid: i29
+- Mustard:
+    defaults:
+    - - 1574375392.6761515
+      - ''
+    group: g06
+    note: ''
+    uid: i30
+- Mayo:
+    defaults:
+    - - 1574375393.0
+      - ''
+    group: g06
+    note: ''
+    uid: i31
+- Balsamic Vinegrette:
+    defaults:
+    - - 1574375392.6761515
+      - ''
+    group: g06
+    note: ''
+    uid: i32
+- French Dressing:
+    defaults:
+    - - 1574375392.6761515
+      - ''
+    group: g06
+    note: ''
+    uid: i33
+- Ranch Dressing:
+    defaults:
+    - - 1573842564.7718768
+      - ''
+    group: g06
+    note: ''
+    uid: i34
+- Cherry Preserves:
+    defaults:
+    - - 1574375392.6761515
+      - ''
+    group: g06
+    note: ''
+    uid: i35
+- Blueberry Preserves:
+    defaults:
+    - - 1573842564.7718768
+      - ''
+    group: g06
+    note: ''
+    uid: i36
+- Jalepenos:
+    defaults:
+    - - 1574375392.6761515
+      - ''
+    group: g06
+    note: ''
+    uid: i37
+- Bread and Butter Chips:
+    defaults:
+    - - 1574375571.2876346
+      - ''
+    group: g06
+    note: ''
+    uid: i38
+- Sweet Pickles:
+    defaults:
+    - - 1573842564.7718768
+      - ''
+    group: g06
+    note: ''
+    uid: i39
+- Dill Pickle Chips:
+    defaults:
+    - - 1569623335.965605
+      - ''
+    group: g06
+    note: ''
+    uid: i40
+- Dill Pickle Spears:
+    defaults:
+    - - 1573842564.7718768
+      - ''
+    group: g06
+    note: ''
+    uid: i41
+- Nu Salt:
+    defaults:
+    - - 1573776208.6566176
+      - ''
+    group: g06
+    note: ''
+    uid: i42
+- Pepper Corns:
+    defaults:
+    - - 1573776208.6566176
+      - ''
+    group: g06
+    note: ''
+    uid: i43
+- Angel Hair:
+    defaults:
+    - - 1573842564.7718768
+      - ''
+    group: g03
+    note: ''
+    uid: i44
+- Spaghetti:
+    defaults:
+    - - 1573842564.7718768
+      - ''
+    group: g03
+    note: ''
+    uid: i45
+- Penne:
+    defaults:
+    - - 1573776208.6566176
+      - ''
+    group: g03
+    note: ''
+    uid: i46
+- Marinara Sauce:
+    defaults:
+    - - 1570452059.0
+      - '2'
+    group: g03
+    note: ''
+    uid: i47
+- Alfredo Sauce:
+    defaults:
+    - - 1571880310.0
+      - ''
+    group: g03
+    note: ''
+    uid: i48
+- Vodka Sauce:
+    defaults:
+    - - 1569623335.965605
+      - ''
+    group: g03
+    note: ''
+    uid: i49
+- Clam Sauce:
+    defaults:
+    - - 1573776208.6566176
+      - ''
+    group: g03
+    note: ''
+    uid: i50
+- Ravioli:
+    defaults:
+    - - 1569623355.6413283
+      - ''
+    - - 1574375392.6761515
+      - 2
+    group: g07
+    note: ''
+    uid: i51
+- Minestrone:
+    defaults:
+    - - 1574375392.6761515
+      - ''
+    group: g07
+    note: ''
+    uid: i52
+- Chicken Noodle:
+    defaults:
+    - - 1574375571.2876346
+      - ''
+    group: g07
+    note: ''
+    uid: i53
+- Chicken and Sausage Gumbo:
+    defaults:
+    - - 1574375392.6761515
+      - ''
+    group: g07
+    note: ''
+    uid: i54
+- Other Soup:
+    defaults:
+    - - 1574375571.2876346
+      - ''
+    group: g07
+    note: ''
+    uid: i55
+- Coffee:
+    defaults:
+    - - 1573776208.6566176
+      - ''
+    group: g08
+    note: ''
+    uid: i56
+- Hot Chocolate:
+    defaults:
+    - - 1572373269.835494
+      - ''
+    group: g08
+    note: ''
+    uid: i57
+- Apples and Cinnamon Oatmeal:
+    defaults:
+    - - 1569623335.965605
+      - ''
+    group: g08
+    note: ''
+    uid: i58
+- Maple and Brown Sugar Oatmeal:
+    defaults:
+    - - 1573776208.6566176
+      - ''
+    group: g08
+    note: ''
+    uid: i59
+- Honey Nut Cheerios:
+    defaults:
+    - - 1570452058.743983
+      - ''
+    group: g08
+    note: ''
+    uid: i60
+- Honey Bunches Of Oats:
+    defaults:
+    - - 1573776208.6566176
+      - ''
+    group: g08
+    note: ''
+    uid: i61
+- Frosted Wheat:
+    defaults:
+    - - 1574375571.2876346
+      - ''
+    group: g08
+    note: ''
+    uid: i62
+- Sun Chips:
+    defaults:
+    - - 1574375571.2876346
+      - ''
+    group: g09
+    note: ''
+    uid: i63
+- White Corn Tortilla Chips:
+    defaults:
+    - - 1573776208.6566176
+      - ''
+    group: g09
+    note: ''
+    uid: i64
+- Tostitos Red Salsa Dip:
+    defaults:
+    - - 1574375571.2876346
+      - ''
+    group: g09
+    note: ''
+    uid: i65
+- Tostitos Yellow Queso Dip:
+    defaults:
+    - - 1571755691.376793
+      - ''
+    group: g09
+    note: ''
+    uid: i66
+- Cheez Its:
+    defaults:
+    - - 1569623335.965605
+      - ''
+    group: g09
+    note: ''
+    uid: i67
+- Popcorn:
+    defaults:
+    - - 1573776208.6566176
+      - ''
+    group: g09
+    note: ''
+    uid: i68
+- Tapioca Pudding:
+    defaults:
+    - - 1573776208.6566176
+      - ''
+    group: g09
+    note: ''
+    uid: i69
+- Sugarfree Chocolate Snackpacks:
+    defaults:
+    - - 1570452058.743983
+      - ''
+    group: g09
+    note: ''
+    uid: i70
+- Diet Coke:
+    defaults:
+    - - 1574375571.2876346
+      - ''
+    group: g10
+    note: ''
+    uid: i71
+- Gatorade:
+    defaults:
+    - - 1570242097.1558356
+      - ''
+    group: g10
+    note: ''
+    uid: i72
+- Tide Pods:
+    defaults:
+    - - 1569623335.965605
+      - ''
+    group: g11
+    note: ''
+    uid: i73
+- Bleach:
+    defaults:
+    - - 1569623335.965605
+      - ''
+    group: g11
+    note: ''
+    uid: i74
+- Fabric Softener:
+    defaults:
+    - - 1573776208.6566176
+      - ''
+    group: g11
+    note: ''
+    uid: i75
+- Detergent:
+    defaults:
+    - - 1573776208.6566176
+      - ''
+    group: g11
+    note: ''
+    uid: i76
+- Comet Cleaner:
+    defaults:
+    - - 1569623335.965605
+      - ''
+    group: g11
+    note: ''
+    uid: i77
+- Pinesol:
+    defaults:
+    - - 1573776208.6566176
+      - ''
+    group: g11
+    note: ''
+    uid: i78
+- Toilet Paper:
+    defaults:
+    - - 1569623335.9666047
+      - ''
+    group: g11
+    note: ''
+    uid: i79
+- Paper Towels:
+    defaults:
+    - - 1573776208.6566176
+      - ''
+    group: g11
+    note: ''
+    uid: i80
+- Kleenex:
+    defaults:
+    - - 1569623335.9666047
+      - ''
+    group: g11
+    note: ''
+    uid: i81
+- Lasagna:
+    defaults:
+    - - 1574375571.2876346
+      - ''
+    group: g12
+    note: ''
+    uid: i82
+- Macaroni and Beef:
+    defaults:
+    - - 1574375571.2876346
+      - ''
+    group: g12
+    note: ''
+    uid: i83
+- Other Tv Dinners:
+    defaults:
+    - - 1574375571.2876346
+      - ''
+    group: g12
+    note: ''
+    uid: i84
+- Supreme Pizza:
+    defaults:
+    - - 1569623335.9666047
+      - ''
+    - - 1574288866.4900024
+      - 1
+    group: g12
+    note: ''
+    uid: i85
+- 4 Meat Pizza:
+    defaults:
+    - - 1569623335.9666047
+      - ''
+    group: g12
+    note: ''
+    uid: i86
+- Vanilla Bean:
+    defaults:
+    - - 1572373269.835494
+      - ''
+    - - 1574375571.2876346
+      - 2
+    group: g12
+    note: ''
+    uid: i87
+- Shampoo:
+    defaults:
+    - - 1572373269.835494
+      - ''
+    group: g13
+    note: ''
+    uid: i88
+- Body Wash:
+    defaults:
+    - - 1569623335.9666047
+      - ''
+    group: g13
+    note: ''
+    uid: i89
+- Toothpaste:
+    defaults:
+    - - 1569623335.9666047
+      - ''
+    group: g13
+    note: ''
+    uid: i90
+- Bic Razors:
+    defaults:
+    - - 1569623335.9666047
+      - ''
+    group: g13
+    note: ''
+    uid: i91
+- Axe Deodorant:
+    defaults:
+    - - 1569623335.9666047
+      - ''
+    group: g13
+    note: ''
+    uid: i92
+- Contact Lens Solution:
+    defaults:
+    - - 1569623335.9666047
+      - ''
+    group: g13
+    note: ''
+    uid: i93
+- PB & Chocolate Cliff Bars:
+    defaults:
+    - - 1569623335.9666047
+      - ''
+    - - 1574288866.4900024
+      - 1
+    group: g14
+    note: ''
+    uid: i94
+- Tennis Balls:
+    defaults:
+    - - 1569623335.9666047
+      - ''
+    - - 1574288866.4900024
+      - 4
+    group: g14
+    note: ''
+    uid: i95
+- Black Sunflower Seed:
+    defaults:
+    - - 1574288866.4900024
+      - ''
+    group: g14
+    note: ''
+    uid: i96
+- Niger Seed:
+    defaults:
+    - - 1569623335.9666047
+      - ''
+    group: g14
+    note: ''
+    uid: i97
+- Minute Rice:
+    defaults:
+    - - 1573776208.6566176
+      - ''
+    group: g03
+    note: ''
+    uid: i98

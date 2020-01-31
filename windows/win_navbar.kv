@@ -1,0 +1,58 @@
+#:import Factory kivy.factory.Factory
+
+<WinButton>
+#    color: app.elem_color
+    n: 40
+    size_hint: (None, None)
+    size: dp(self.n), dp(self.n)
+    pos_hint: {'center_x': .5, 'center_y':.525}
+
+<NavBarButton>
+    color: app.elem_color
+    size_hint: (None, None)
+    size: (self.parent.height - 4, self.parent.height)
+
+<NavSpinner>
+    background_color: app.elem_color
+    background_normal: app.elem_color_string
+    color: app.lh_color
+    font_size: self.height - 4
+    foreground_color: app.text_color
+    halign: 'left'
+    size: (self.parent.height * 3, self.parent.height - 4)
+    size_hint: (None, None)
+    text_autoupdate: True
+    text_color: app.text_color
+    on_text:
+        self.jump(self.text)
+
+<SpinnerButton>
+
+    color: app.elem_color
+    halign: 'center'
+    text_color: app.text_color
+    size_hint_y: None
+    size: (1, root.height)
+    on_release:
+        self.jump()
+
+<WinNavBar>
+
+    pos_hint: {'center_x': .5, 'top': 1}
+    id: toolbar
+    title: 'main'
+    md_bg_color: app.theme_cls.primary_color
+    background_palette: "Primary"
+    elevation: 10
+#    right_action_items:
+
+#    canvas.before:
+#        Color:
+#            rgba: app.elem_color
+#        Rectangle:
+#            size: self.size
+#            pos: self.pos
+
+
+
+

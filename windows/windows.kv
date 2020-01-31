@@ -1,0 +1,100 @@
+#:kivy 2.0
+#:import Factory kivy.factory.Factory
+#:import Clock kivy.clock
+
+#:import MDCard kivymd.uix.card
+#:import MDRectangleFlatIconButton kivymd.uix.button
+#:import MDLabel kivymd.uix.label
+#:import MDTextFieldRound kivymd.uix.textfield
+#:import MDProgressLoader kivymd.uix.progressloader
+#:import MDSpinner kivymd.uix.spinner
+
+#: import ListPreview widget_sections.preview
+#: import SearchBar widget_sections.search
+#: import GroupSelection widget_sections.selection
+#: import WinNavBar windows.win_navbar
+
+
+
+
+<MainScreen@Screen>
+    name: "main"
+
+#    NavBar:
+#        size_hint: 1, .08
+
+
+    WinNavBar:
+        pos_hint: {'center_x': .5, 'top': 1}
+        id: toolbar
+        title: 'main'
+        md_bg_color: app.theme_cls.primary_color
+        background_palette: "Primary"
+        elevation: 10
+
+    GroupScrollHelper:
+        id: selection
+        size_hint: None, None
+        height: root.height*.99 - toolbar.height
+        width: app.screenwidth/ (1.618*2)
+        pos_hint: {'x':.005, 'y':.005}
+
+#    ListFunctionsBar:
+#        size_hint: (.3, .07)
+#        pos_hint: {'x':.68, 'y':.75}
+#
+#    SearchWidget:
+#        size_hint: (.3, .075)
+#        pos_hint: {'x':.68, 'y':.83}
+#
+    ListScrollHelper:
+        size_hint: None, None
+        pos: selection.width + 12, selection.pos[1]
+        width: app.screenwidth/2 - selection.width
+        height: (selection.height / 1.618)*1.2
+
+
+
+# <WinLoader@MDProgressLoader>:
+
+
+
+
+<LoadScreen>
+    name: "loading"
+
+#    canvas:
+#        Color:
+#            rgba: app.bg_color
+#        Rectangle:
+#            size: self.size
+#            pos: self.pos
+
+    MDSpinner:
+        id: spinner
+        size_hint: None, None
+        size: dp(120), dp(120)
+        color: app.lh_color
+        pos_hint: {"center_x": 0.5, "center_y":0.5}
+
+    Image:
+        source: 'src\\desktop96.png'
+        pos_hint: {"center_x": 0.5, "center_y":0.5}
+        size_hint:0.25, 0.25
+    MDLabel:
+        color: app.text_color
+        halign: 'center'
+        pos_hint:{"center_x": 0.5, "top":0.425}
+        size_hint:1, .1
+        text: "Loading..."
+        font_size: app.text_base_size * 4/5
+
+<GroManager>
+    id: manager
+    current: "main"
+
+    LoadScreen:
+        name: "loading"
+
+    MainScreen:
+        name: 'main'

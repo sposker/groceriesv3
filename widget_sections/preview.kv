@@ -1,0 +1,121 @@
+#:import TwoLineIconListItem kivymd.uix.list
+#:import GroupScrollBar widget_sections.selection
+#:import MDIconButton kivymd.uix.button
+#:import MDTextField kivymd.uix.button
+
+<ItemExpanded>:
+    orientation: "vertical"
+#    padding: dp(10)
+#    spacing: dp(10)
+    size_hint_y: None
+    height: self.minimum_height
+
+    TwoLineIconListItem:
+        text: "(050)-123-45-67"
+        secondary_text:
+            "[color=%s]Mobile[/color]" \
+            % get_hex_from_color(app.theme_cls.primary_color)
+
+        IconLeftWidget:
+            icon: "phone"
+
+    TwoLineIconListItem:
+        text: "kivydevelopment@gmail.com"
+        secondary_text:
+            "[color=%s]Work[/color]" \
+            % get_hex_from_color(app.theme_cls.primary_color)
+
+        IconLeftWidget:
+            icon: "email"
+
+<ItemCard>
+    orientation: "vertical"
+    size_hint: 1, None
+    height: self.minimum_height
+    pos_hint: {"center_x": .5, "center_y": .5}
+
+    BoxLayout:
+        name: 'primary'
+        id: box
+        size_hint: 1, None
+        height: dp(72)
+
+        Widget:
+            size_hint: .05, 1
+
+        MDLabel:
+            text: root.item_name
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            size_hint: .7, 1
+            theme_text_color: 'Custom'
+            text_color: app.text_color
+            halign: 'left'
+            font_size: 22
+
+        MDFlatButton:
+            name: 'amount'
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            theme_text_color: 'Custom'
+            text_color: app.text_color
+            font_size: 24
+            on_release:
+
+        MDIconButton:
+            name: 'chevron'
+            icon: "chevron-down"
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            on_release:
+                root.state = not root.state
+                root.move(root.state)
+
+        Widget:
+            size_hint: .05, 1
+
+    BoxLayout:
+        name: 'expansion'
+        size_hint: 1, None
+        height: 0
+        opacity: 0
+
+
+        MDTextField:
+            name: 'note_input'
+
+        MDIconButton:
+            name: 'history'
+
+        MDIconButton:
+            name: 'delete_card'
+
+
+
+
+
+<ListScrollHelper>
+
+    size_hint: (.95, 1)
+    canvas:
+        Color:
+            rgba: app.elem_color
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [(self.height/12)]
+
+    ListScrollBar:
+
+        size_hint: .95, 1
+        color: app.elem_color
+        do_scroll_x: False
+        do_scroll_y: True
+        scroll_type: ['bars']
+        smooth_scroll_end: 10
+        smooth_scroll_end: 10
+
+        ItemCardContainer:
+            spacing: dp(2)
+            orientation: 'vertical'
+            size_hint: None, None
+            height: 0
+            width: self.parent.width
+            minimum_height: self.parent.height

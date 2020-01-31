@@ -1,0 +1,18 @@
+Produce
+Deli
+Bakery
+Pasta
+Grains
+Meat
+Dairy
+Condiments
+Dressing
+Soups
+Cans
+Breakfast
+Snacks
+Drinks
+Household Supplies
+Frozen
+Toiletries
+Walmart

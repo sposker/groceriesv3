@@ -1,0 +1,385 @@
+#:import MDRectangleFlatIconButton kivymd.uix.button
+#:import MDLabel kivymd.uix.label
+
+<AddItemDialog>
+    separator_color: app.trans
+    size_hint: (None, None)
+    size: (600, 350)
+    auto_dismiss: False
+    title: ''
+    title_size: 0
+
+    RelativeLayout:
+        size: self.parent.size
+
+        Label:
+
+            text: 'Group/ Location:'
+            size_hint: (.2, .3)
+            pos_hint: {'x':.05, 'y': .7}
+            font_size: self.height/4
+            color: app.text_color
+
+        TextInput:
+            size_hint: (2/3, .15)
+            pos_hint: {'x': 1/3, 'y': .37}
+
+            background_active: app.elem_color_string
+            background_color: app.bg_color
+            background_normal: ''
+            cursor_color: app.text_color
+#            font_name: app.font_path
+            font_size: self.height/2
+            foreground_color: app.text_color
+            multiline: False
+            selection_color: (1,1,1,.4)
+            text: ''
+            write_tab: False
+
+            on_text_validate:
+                root.do_add()
+
+        Label:
+            text: 'Item Name:'
+            size_hint: (.2, .3)
+            pos_hint: {'x':.05, 'y': .3}
+
+#            font_name: app.font_path
+            font_size: self.height/4
+            color: app.text_color
+
+        AddItemSpinner:
+            size_hint: (2/3, .15)
+            pos_hint: {'x': 1/3, 'y': .775}
+
+            background_color: app.bg_color
+            background_normal: ''
+            color: app.lh_color
+#            font_name: app.font_path
+            font_size: self.height/2
+            foreground_color: app.text_color
+            text_autoupdate: True
+            text_color: app.text_color
+
+
+        NavBarButton:
+            size_hint: (.45, .2)
+            pos_hint: {'x': .02, 'y': .02}
+            source: 'src\\cancel96.png'
+            on_release:
+                root.dismiss()
+
+        NavBarButton:
+            size_hint: (.45, .2)
+            pos_hint: {'x': .52, 'y': .02}
+            source: 'src\\plus96.png'
+            on_release:
+                root.do_add()
+
+<ClearListDialog>
+
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, .75
+        Rectangle:
+            size: self._window.size if self._window else (0, 0)
+        Color:
+            rgba: 0,0,0,.1
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    background_color: app.trans
+    separator_color: app.trans
+    size_hint: (None, None)
+    size: (600, 400)
+    auto_dismiss: False
+    title: ''
+    title_size: 0
+
+    BoxLayout:
+        orientation: 'vertical'
+        color: app.text_color
+        size: self.parent.size
+        font_size: 24
+
+        Label:
+            text: 'Clear list? All items will be removed.'
+            color: self.parent.color
+            font_size: self.parent.font_size
+
+        Button:
+            text: 'Clear list'
+            color: self.parent.color
+            font_size: self.parent.font_size
+            on_release:
+                app.clear_list()
+                root.dismiss()
+        Button:
+            text: 'Cancel'
+            color: self.parent.color
+            font_size: self.parent.font_size
+            on_release:
+                root.dismiss()
+
+<CompleteDialog>
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, .75
+        Rectangle:
+            size: self._window.size if self._window else (0, 0)
+        Color:
+            rgba: 0,0,0,.1
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    background_color: app.trans
+    separator_color: app.trans
+    size_hint: (None, None)
+    size: (600, 400)
+    auto_dismiss: False
+    title: ''
+    title_size: 0
+
+    BoxLayout:
+        color: app.text_color
+        font_size: 24
+        orientation: 'vertical'
+
+        Label:
+            text: root.message
+            color: self.parent.color
+            font_size: self.parent.font_size
+            size_hint: (1,.6)
+
+        Button:
+            text: 'OK'
+            color: self.parent.color
+            font_size: self.parent.font_size
+            size_hint: (1,.2)
+            on_release:
+                root.do_exit()
+
+
+
+<ExitButton@MDRectangleFlatIconButton>
+
+
+    font_size: self.parent.font_size
+    size_hint: (None, .7/3)
+    width: app.screenwidth/6 - 20
+    pos_hint: {'center_x': .5}
+    text_color: app.text_color
+
+
+<ExitDialog>
+
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, .75
+        Rectangle:
+            size: self._window.size if self._window else (0, 0)
+        Color:
+            rgba: 0,0,0,.1
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    separator_color: app.trans
+    size_hint: (None, None)
+    size: (app.screenwidth/6, app.screenheight/5)
+    auto_dismiss: False
+    title: ''
+    title_size: 0
+
+    BoxLayout:
+        orientation: 'vertical'
+        color: app.text_color
+        font_size: 24
+        spacing: dp(8)
+
+        MDLabel:
+            text: 'Really quit?'
+            font_size: self.parent.font_size + 8
+            halign: 'center'
+            color: self.parent.color
+            size_hint: (1, .3)
+            pos_hint: {'center_x': .5, 'center_y': .7}
+
+        ExitButton:
+            text: '  Cancel'
+            icon: 'cancel'
+            on_release:
+                root.dismiss()
+        ExitButton:
+            text: '  Save and exit'
+            icon: 'content-save-outline'
+            on_release:
+                root.do_save()
+        ExitButton:
+            text: '  Exit without saving'
+            icon: 'exit-run'
+            on_release:
+                root.do_exit()
+
+<FilePickerDialog>
+
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, .75
+        Rectangle:
+            size: self._window.size if self._window else (0, 0)
+        Color:
+            rgba: 0,0,0,.1
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    background_color: app.trans
+    separator_color: app.trans
+    size_hint: (None, None)
+    size: (600, 400)
+    title: ''
+    title_size: 0
+
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        FileChooserListView:
+            id: filechooser
+            path: root.filepicker_path
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: "Cancel"
+                color: app.text_color
+                on_release: root.dismiss()
+
+            Button:
+                text: "Load"
+                color: app.text_color
+                on_release: root.load(filechooser.path, filechooser.selection)
+
+<SaveDialog>
+
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, .75
+        Rectangle:
+            size: self._window.size if self._window else (0, 0)
+        Color:
+            rgba: 0,0,0,.1
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    background_color: app.trans
+    separator_color: app.trans
+    size_hint: (None, None)
+    size: (600, 400)
+    auto_dismiss: False
+    title: ''
+    title_size: 0
+
+    FloatLayout:
+
+        Label:
+            text: 'Complete List?'
+            color: app.text_color
+#            font_name: app.font_path
+            font_size: 36
+            size_hint: (1, .25)
+            pos_hint: {'x':0, 'y': .75}
+
+        ListFunctionsButton:
+            size_hint: (.47, .25)
+            pos_hint: {'x':.02, 'y': .5}
+            source: 'src\\print96.png'
+            on_release:
+                root.print_list()
+
+        Label:
+            text: 'Save and Print'
+            color: app.text_color
+#            font_name: app.font_path
+            font_size: 20
+            size_hint: (.47, .1)
+            pos_hint: {'x':.02, 'y': .4}
+
+        ListFunctionsButton:
+            size_hint: (.47, .25)
+            pos_hint: {'x':.51, 'y': .5}
+            source: 'src\\email96.png'
+            on_release:
+                root.email_list()
+
+        Label:
+            text: 'Save and Email'
+            color: app.text_color
+#            font_name: app.font_path
+            font_size: 20
+            size_hint: (.47, .1)
+            pos_hint: {'x':.51, 'y': .4}
+
+        ListFunctionsButton:
+            size_hint: (.47, .25)
+            pos_hint: {'x':.02, 'y': .1}
+            source: 'src\\save96.png'
+            on_release:
+                root.save_list()
+
+        Label:
+            text: 'Save'
+            color: app.text_color
+#            font_name: app.font_path
+            font_size: 20
+            size_hint: (.47, .1)
+            pos_hint: {'x':.02, 'y': 0}
+
+        ListFunctionsButton:
+            size_hint: (.47, .25)
+            pos_hint: {'x':.51, 'y': .1}
+            source: 'src\\cancel96.png'
+            on_release:
+                root.dismiss()
+
+        Label:
+            text: 'Return to Program'
+            color: app.text_color
+#            font_name: app.font_path
+            font_size: 20
+            size_hint: (.47, .1)
+            pos_hint: {'x':.51, 'y': 0}
+
+<SettingsDialog>
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, .75
+        Rectangle:
+            size: self._window.size if self._window else (0, 0)
+        Color:
+            rgba: app.trans
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    background_color: 1, 1, 1, 0
+    separator_color: 1, 1, 1, 0
+#    title_size: app.text_scale * 1.25
+#    title_color: app.theme.header_text
+    size_hint: None, None
+    size: (600, 400)
+#    auto_dismiss: False
+    title: 'Placeholder'
+
+    Button:
+        size_hint:(.1, .4)
+        text: 'DISMISS'
+        on_release:
+            root.do_exit()
+
+# End popups

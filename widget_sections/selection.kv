@@ -1,0 +1,129 @@
+#:kivy 2.0
+#:import platform kivy.utils
+
+#:import MDLabel kivymd.uix.label
+#:import MDFlatButton kivymd.uix.button
+
+<SectionDivider@MDLabel>
+    canvas.before:
+        Color:
+            rgba: app.elem_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    size_hint: None, 1
+    width: dp(2)
+    size_hint: None, .5
+    pos_hint: {'center_x': .5, 'center_y': .5}
+
+<SectionTitle>
+
+    MDLabel:
+        size_hint: 1, None
+        font_style: 'H4'
+        halign: 'center'
+        color: 1,1,1,1
+        height: app.item_row_height*9/8
+        text: root.group
+
+<SectionAddItem>
+
+    canvas.before:
+        Color:
+            rgba: app.bg_color
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: 40, 40, 40, 40
+
+    size_hint: None, None
+    height: app.item_row_height*9/8
+
+    MDFlatButton:
+        size_hint: 1, 1
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        font_style: 'custom'
+        halign: 'center'
+        text_color: app.text_color
+        text: 'Add Item'
+        font_size: 24
+
+    SectionDivider:
+
+
+    ItemCheckbox:
+        size_hint: None, 1
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        icon: 'cart-plus'
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+
+
+<DisplaySubsection>
+
+    app: app
+    spacing: dp(6)
+    size_hint: 1, None
+
+<ToggleLayout>
+
+
+
+    app: app
+    orientation: 'horizontal'
+    font_size: 22
+    size_hint: 1, None
+    height: app.item_row_height
+
+    MDFlatButton:
+
+        text: root.display_name
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        size_hint: 1, 1
+        font_style: 'custom'
+        halign: 'center'
+        text_color: app.text_color
+        font_size: 20
+        on_release:
+            self.parent.toggle()
+
+    SectionDivider:
+
+    ItemCheckbox:
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        icon: 'checkbox-blank-outline'
+        size_hint: None, 1
+        width: self.width
+        on_release:
+            self.parent.toggle()
+
+
+<GroupScrollHelper>
+
+    Label:
+        size_hint: (.98, 1)
+
+    GroupScrollBar:
+
+<GroupScrollBar>
+
+    bar_width: self.parent.width * 0.016
+    color: app.elem_color
+    do_scroll_x: False
+    do_scroll_y: True
+    scroll_type: ['bars']
+    smooth_scroll_end: 10
+
+    GroupDisplay:
+        canvas.before:
+            Color:
+                rgba: app.elem_color
+            RoundedRectangle:
+                size: self.size
+                pos: self.pos
+                radius: 40, 0, 40, 40
+
+        orientation: 'vertical'
+        size_hint: .982, None
