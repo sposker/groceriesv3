@@ -1,20 +1,27 @@
 from collections import deque
 from operator import itemgetter
 
+from kivy.animation import Animation
 from kivy.clock import Clock
+from kivy.factory import Factory
+from kivy.metrics import dp
 from kivy.properties import OptionProperty, NumericProperty
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.dropdown import DropDown
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.scrollview import ScrollView
 
 from kivymd.app import MDApp
-from kivymd.uix.button import MDFloatingActionButton, MDIconButton
+from kivymd.uix.button import MDFloatingActionButton, MDIconButton, MDFlatButton
 from kivymd.uix.card import MDCard
 from kivymd.uix.list import TwoLineRightIconListItem
 from kivymd.uix.menu import MDDropdownMenu
 
 from logical.stores import ShoppingList
 from logical import hide_widget
+
+
 # from widget_sections.selection import GroupScrollBar
 
 
@@ -71,6 +78,7 @@ class ItemCardContainer(BoxLayout):
 
     _instance = None
     state = OptionProperty('creation', options=['item_group', 'creation', 'item_name'])
+    stepped_height = 0
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -98,9 +106,10 @@ class ItemCardContainer(BoxLayout):
     def add_card(self, item, creation_time):
         """Add a item to the preview via toggle button"""
         card = ItemCard(item, creation_time)
-        self.adjust_height(card._height)
+        self.adjust_height(card.default_height)
+        self.stepped_height += card.default_height + self.spacing
         self.add_widget(card)
-        print(self.height, 'added')
+        print(self.height, self.stepped_height, 'added')
         return card
 
     # TODO: First/Last widget +8 dp for MD spec
@@ -121,8 +130,9 @@ class ItemCardContainer(BoxLayout):
     def remove_card(self, card):
         """Remove an item from the preview"""
         self.adjust_height(-card.height)
+        self.stepped_height -= (card.default_height + self.spacing)
         self.remove_widget(card)
-        print(self.height, 'removed')
+        print(self.height, self.stepped_height, 'removed')
 
     def sort_display(self, prop: str):
         """Called with name of card attributes"""
@@ -137,30 +147,49 @@ class ItemCardContainer(BoxLayout):
 class ItemCard(MDCard):
     """Item Preview Widget"""
 
-    _height = 72
+    default_height = 72
     _expansion_height = 60
-    state = False
-    names = {'amount',
-             'chevron',
-             'expansion',
-             'history',
-             'delete_card',
-             'note_input',
-             }
+    expanded = False
+    visible = {'amount',
+               'chevron',
+               'item_title',
+               }
+    _hidden_at_start = {'expansion',
+                        'history',
+                        'delete_card',
+                        'note_input',
+                        }
 
     def __init__(self, item, creation_time, **kwargs):
+        # simple item properties
         self.item = item
         self._creation = creation_time
         self.note = ''
+
+        # work with item defaults list
+        self.defaults_list = item.defaults.copy()
+        self.defaults_list.sort(key=itemgetter(0))
+        self.defaults_list = [str(num) for _, num in self.defaults_list]
+
+        # set up animations and properties
         super().__init__(**kwargs)
         self._get_widget_refs()
+        self._make_animations()
 
-        def random_icon():
-            import random
-            i = random.randint(0, 10)
-            return str(i)
+        # create dropdown
+        self.defaults_dropdown = FloatingStack(self.defaults_list.copy(), self.amount)
+        # self.defaults_dropdown.bind(on_select=lambda _, x: setattr(self.amount, 'text', x))
 
-        self.amount.text = random_icon()
+    def _make_animations(self):
+        eh = self._expansion_height
+
+        self.expand_anim = Animation(size=(self.width, self.default_height + eh), duration=.12)
+        self.expand_anim.bind(on_progress=lambda _, __, progress: self._anim_progress(eh, progress))
+        self.expand_anim.bind(on_complete=lambda _, __: self._anim_complete(eh, False))
+
+        self.contract_anim = Animation(size=(self.width, self.default_height), duration=.12)
+        self.contract_anim.bind(on_progress=lambda _, __, progress: self._anim_progress(-eh, progress))
+        self.contract_anim.bind(on_complete=lambda _, __: self._anim_complete(-eh, True))
 
     def _get_widget_refs(self):
         """Get reference to buttons/menus via name attribute; skip widgets without names"""
@@ -170,40 +199,47 @@ class ItemCard(MDCard):
             except AttributeError:
                 pass
             else:
-                print(name)
                 self.__dict__[name] = child
 
-            try:
-                name = getattr(child.parent, 'name')
-            except AttributeError:
-                pass
-            else:
-                if name == 'expansion':
-                    hide_widget(child)
+        self._make_hidden()
+        # TODO: widgets disabled on expand
+        # TODO: Try manually creating saved attrs for widgets to work with function 'hide_widget'
 
-    def expand(self):
-        print('expand', self.chevron)
-        self.chevron.icon = 'chevron-up'
+    def _make_hidden(self, dohide=True):
+        for attr in self._hidden_at_start:
+            child = getattr(self, attr)
+            hide_widget(child, dohide=dohide)
+
+    def _adjust_widgets(self):
+        self.primary.remove_widget(self.defaults_floater)
+        self.primary.remove_widget(self.chevron)
+        self.primary.add_widget(self.chevron, index=3)
+        self.primary.add_widget(self.defaults_floater, index=2)
+
+    def _anim_progress(self, delta, progress):
+        """Increment the size of card and container"""
+
         with ItemCardContainer() as f:
-            f.adjust_height(self._expansion_height, offset=0)
-            self.height += self._expansion_height
-            self._expansion.height = self._expansion_height
-            self._expansion.opacity = 1
+            f.height = f.stepped_height + round(delta*progress)
+        self.expansion.height = self.default_height + round(delta * progress)
 
-    def contract(self):
-        print('contract', self.amount)
-        self.chevron.icon = 'chevron-down'
+    def _anim_complete(self, increment, dohide):
+        """Update the stepped height of the container so the next animation uses new base value;
+        Adjust widget visibility as animation is now complete
+        """
+
         with ItemCardContainer() as f:
-            f.adjust_height(-self._expansion_height, offset=0)
-            self.height -= self._expansion_height
-            self._expansion.height = 0
-            self._expansion.opacity = 0
+            f.stepped_height += increment
+        return self._make_hidden(dohide=dohide)
 
-    def move(self, state):
-        if state:
-            return self.expand()
+    def move(self):
+        if not self.expanded:
+            self.chevron.icon = 'chevron-up'
+            self.expand_anim.start(self)
         else:
-            return self.contract()
+            self.chevron.icon = 'chevron-down'
+            self.contract_anim.start(self)
+        self.expanded = not self.expanded
 
     @property
     def creation(self):
@@ -226,16 +262,72 @@ class ItemCard(MDCard):
         return self.item_name, self.item_group, self.amount.text, self.note
 
 
-class ItemExpanded(BoxLayout):
-    """Expanded list preview widget, allows editing"""
+class FloatingStack(DropDown):
+    """Stacked default buttons"""
 
-    def __init__(self, parent, **kwargs):
-        self.item = parent.item
+    orientation = 'vertical'
+    spacing = dp(4)
+
+    def __init__(self, defaults, main_btn, **kwargs):
         super().__init__(**kwargs)
+        self.main_button = main_btn
+        current = defaults.pop(defaults.index(main_btn.text))
+        widgets = []
 
-    def populate(self):
-        ...
+        while defaults:
+            value = defaults.pop()
+            widgets.append(FloatingButton(value))
 
+        widgets.append(FloatingButton(current))
+        add = FloatingButton('+')
+        widgets.append(add)
+
+        for w in widgets:
+            self.add_widget(w)
+
+    def dismiss(self):
+        self.main_button.expanded = False
+        Clock.schedule_once(self._real_dismiss, self.min_state_time)
+
+    def do_add_value(self):
+        print('add_value')
+        self.dismiss()
+
+
+class FloatingButton(MDFloatingActionButton):
+    """Floating values for defaults selection"""
+
+    def __init__(self, value, **kwargs):
+        self.spacing = self.padding = dp(4)
+        self.pos_hint = {'center_x': .5, 'center_y': .6}
+        super().__init__(**kwargs)
+        self.text = value  # TODO
+        if value == '':
+            self.icon = 'minus-circle-outline'
+        elif value == '+':
+            self.icon = 'plus-circle-outline'
+        else:
+            self.icon = f'numeric-{value}-circle-outline'
+
+    def on_release(self):
+        if self.text == '+':
+            return self.parent.parent.do_add_value()
+        else:
+            self.parent.parent.main_button.text = self.text
+            self.parent.parent.dismiss()
+
+
+class DefaultsButton(MDFlatButton):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.expanded = False
+
+    def display_values(self):
+        if not self.expanded:
+            stack = FloatingStack(self.root.defaults_list.copy(), self)
+            self.root.primary.add_widget(stack)
+            self.expanded = True
 
 # class ListFunctionsBar(GridLayout):
 #     pass

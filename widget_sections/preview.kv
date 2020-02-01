@@ -3,32 +3,17 @@
 #:import MDIconButton kivymd.uix.button
 #:import MDTextField kivymd.uix.button
 
-<ItemExpanded>:
-    orientation: "vertical"
-#    padding: dp(10)
-#    spacing: dp(10)
-    size_hint_y: None
-    height: self.minimum_height
+<FloatingButton>
+    size_hint: None, None
+    size: dp(46), dp(46)
+    elevation: 5
+    md_bg_color: app.theme_cls.primary_color
+    text_color: 1, 1, 1, 1
 
-    TwoLineIconListItem:
-        text: "(050)-123-45-67"
-        secondary_text:
-            "[color=%s]Mobile[/color]" \
-            % get_hex_from_color(app.theme_cls.primary_color)
 
-        IconLeftWidget:
-            icon: "phone"
-
-    TwoLineIconListItem:
-        text: "kivydevelopment@gmail.com"
-        secondary_text:
-            "[color=%s]Work[/color]" \
-            % get_hex_from_color(app.theme_cls.primary_color)
-
-        IconLeftWidget:
-            icon: "email"
 
 <ItemCard>
+    id: card
     orientation: "vertical"
     size_hint: 1, None
     height: self.minimum_height
@@ -42,50 +27,66 @@
 
         Widget:
             size_hint: .05, 1
+            disabled: True
 
         MDLabel:
+            name: 'item_title'
             text: root.item_name
-            pos_hint: {'center_x': .5, 'center_y': .5}
+            pos_hint: {'x': .05, 'center_y': .5}
             size_hint: .7, 1
             theme_text_color: 'Custom'
             text_color: app.text_color
             halign: 'left'
             font_size: 22
 
-        MDFlatButton:
+
+        DefaultsButton:
+            root: card
             name: 'amount'
-            pos_hint: {'center_x': .5, 'center_y': .5}
+            pos: chev.pos[0] - self. width, box.pos[1]
+            size_hint: None, None
             theme_text_color: 'Custom'
             text_color: app.text_color
+            text: card.defaults_list[-1]
             font_size: 24
+            size: dp(72), dp(72)
             on_release:
+                root.defaults_dropdown.open(self)
+
 
         MDIconButton:
+            id: chev
             name: 'chevron'
             icon: "chevron-down"
-            pos_hint: {'center_x': .5, 'center_y': .5}
+            pos_hint: {'right': 1, 'center_y': .5}
+            size_hint: None, 1
+            height: self.size[1]
             on_release:
-                root.state = not root.state
-                root.move(root.state)
+                root.move()
 
         Widget:
             size_hint: .05, 1
+            disabled: True
+
 
     BoxLayout:
         name: 'expansion'
         size_hint: 1, None
-        height: 0
-        opacity: 0
-
+        height: root._expansion_height
 
         MDTextField:
             name: 'note_input'
+            pos_hint: {'center_x': .5, 'center_y': .5}
 
         MDIconButton:
             name: 'history'
+            icon: "history"
+            pos_hint: {'center_x': .5, 'center_y': .5}
 
         MDIconButton:
             name: 'delete_card'
+            icon: "delete"
+            pos_hint: {'center_x': .5, 'center_y': .5}
 
 
 
@@ -93,14 +94,14 @@
 
 <ListScrollHelper>
 
-    size_hint: (.95, 1)
-    canvas:
-        Color:
-            rgba: app.elem_color
-        RoundedRectangle:
-            size: self.size
-            pos: self.pos
-            radius: [(self.height/12)]
+#    size_hint: (.95, 1)
+#    canvas:
+#        Color:
+#            rgba: app.elem_color
+#        RoundedRectangle:
+#            size: self.size
+#            pos: self.pos
+#            radius: [(self.height/12)]
 
     ListScrollBar:
 
