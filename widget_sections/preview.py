@@ -1,3 +1,4 @@
+import time
 from operator import itemgetter
 
 from kivy.animation import Animation
@@ -19,36 +20,10 @@ from kivymd.uix.list import TwoLineRightIconListItem
 from kivymd.uix.menu import MDDropdownMenu
 
 from logical import hide_widget
-from logical.stores import ShoppingList, ItemPool
+from logical.items import GroceryItem
+from logical.pools_and_lists import ItemPool, ShoppingList
 
-# from widget_sections.selection import GroupScrollBar
-
-
-# class LPDNumberInput(TextInput):
-#
-#     ...
-#
-#
-# class LPNoteInput(TextInput):
-#
-#     ...
-#
-#
-# class OptionsButton(ButtonBehavior, Image):
-#
-#     ...
-#
-#
-# class DefaultsDropdownButton(Button):
-#
-#     ...
-#
-#
-# class LPDContainer(GridLayout):
-#     cols = 1
-#
-#
-from windows.dialogues import DefaultsDialog
+from windows.dialogs import DefaultsDialog
 
 
 class DefaultsDropdown(MDDropdownMenu):
@@ -105,17 +80,25 @@ class ItemCardContainer(BoxLayout):
             h -= offset
         self.height = self.height + h
 
-    def add_card(self, toggle, creation_time, nfo=None):
+    def add_card(self, toggle=None,):
         """Add a item to the preview via toggle button"""
-        if toggle is None:  # TODO: Handle new item
-            nfo()
-            ...
-        card = ItemCard(toggle, creation_time)
+        card = ItemCard(toggle=toggle)
         self.adjust_height(card.default_height)
         self.stepped_height += card.default_height + self.spacing
         self.add_widget(card)
         print(self.height, self.stepped_height, 'added')
         return card
+
+    def dialog_add_card(self, info):
+        db = MDApp.get_running_app().db
+        name = info['name']
+        group = info['group']
+        item = GroceryItem(name,
+                           group=group,
+                           defaults=None,
+                           note=None,
+                           uid=None)
+        db.new_items[item.uid] = item
 
     # TODO: First/Last widget +8 dp for MD spec
     # def add_widget(self, widget, index=0, canvas=None):
@@ -127,16 +110,18 @@ class ItemCardContainer(BoxLayout):
     #     self.final_node = widget
     #     widget.height += 8
 
-    def construct_grocery_list(self):
-        """Convert preview items into actual list"""
+    def convert_to_pool(self):
+        """Convert preview items into ItemPool"""
         items = {w.list_fields for w in self.children}
-        pool = ItemPool(items)
-        return ShoppingList(pool, MDApp.get_running_app().db.stores['default'])
+        return ItemPool(items)
 
     def remove_card(self, card):
         """Remove an item from the preview"""
-        if card.toggle.state == 'down':  # called from card's delete button rather than from toggle itself
-            return card.toggle.menu_delete()
+        try:
+            if card.toggle.state == 'down':
+                return card.toggle.menu_delete()
+        except AttributeError:  # Card with no associated toggle button
+            pass
 
         self.adjust_height(-card.height)
         self.stepped_height -= (card.height + self.spacing)
@@ -165,19 +150,20 @@ class ItemCard(MDCard):
                'chevron',
                'item_title',
                }
-    _hidden_at_start = {'expansion',
-                        'history',
-                        'delete_card',
-                        'note_input',
+    _hidden_at_start = {
+                        'expansion': (48.0, None, 1.0, False),
+                        'history': (60, None, 1.0, False),
+                        'delete_card': (34.0, 1, 1.0, True),
+                        'note_input': (48.0, None, 1.0, True),
                         }
 
-    def __init__(self, toggle, creation_time, **kwargs):
+
+    def __init__(self, toggle=None, item=None, **kwargs):
         # simple item properties
         self.toggle = toggle
-        self.item = toggle.item
-        self._creation = creation_time
+        self.item = toggle.item if toggle else item
+        self._creation = time.time()
         self.note = ''
-        self.node = None
 
         # work with item defaults list
         self.defaults_list = self.item.defaults.copy()
@@ -187,21 +173,29 @@ class ItemCard(MDCard):
         # set up animations and properties
         super().__init__(**kwargs)
         self._get_widget_refs()
-        self._make_animations()
 
         # create dropdown
         self.defaults_dropdown = DropdownStack(self.defaults_list.copy(), self.amount)
 
-    def _make_animations(self):
+    @property
+    def expand_anim(self):
         eh = self._expansion_height
 
-        self.expand_anim = Animation(size=(self.width, self.default_height + eh), duration=.12)
-        self.expand_anim.bind(on_progress=lambda _, __, progress: self._anim_progress(eh, progress))
-        self.expand_anim.bind(on_complete=lambda _, __: self._anim_complete(eh, False))
+        expand_anim = Animation(size=(self.width, self.default_height + eh), duration=.12)
+        expand_anim.bind(on_progress=lambda _, __, progress: self._anim_progress(eh, progress))
+        expand_anim.bind(on_complete=lambda _, __: self._anim_complete(eh))
 
-        self.contract_anim = Animation(size=(self.width, self.default_height), duration=.12)
-        self.contract_anim.bind(on_progress=lambda _, __, progress: self._anim_progress(-eh, progress))
-        self.contract_anim.bind(on_complete=lambda _, __: self._anim_complete(-eh, True))
+        return expand_anim
+
+    @property
+    def contract_anim(self):
+        eh = self._expansion_height
+
+        contract_anim = Animation(size=(self.width, self.default_height), duration=.12)
+        contract_anim.bind(on_progress=lambda _, __, progress: self._anim_progress(-eh, progress))
+        contract_anim.bind(on_complete=lambda _, __: self._anim_complete(-eh))
+
+        return contract_anim
 
     def _get_widget_refs(self):
         """Get reference to buttons/menus via name attribute; skip widgets without names"""
@@ -212,37 +206,36 @@ class ItemCard(MDCard):
                 pass
             else:
                 self.__dict__[name] = child
+                if child.name in self._hidden_at_start:
+                    # child.saved_attrs = self._hidden_at_start[child.name]
+                    hide_widget(child)
 
-        self._make_hidden()
-        # TODO: widgets disabled on expand
-        # TODO: Try manually creating saved attrs for widgets to work with function 'hide_widget'
-
-    def _make_hidden(self, dohide=True):
-        for attr in self._hidden_at_start:
+    def _make_hidden(self):
+        for attr, values in zip(self._hidden_at_start, self._hardcoded_attrs):
             child = getattr(self, attr)
-            hide_widget(child, dohide=dohide)
-
-    def _adjust_widgets(self):
-        self.primary.remove_widget(self.defaults_floater)
-        self.primary.remove_widget(self.chevron)
-        self.primary.add_widget(self.chevron, index=3)
-        self.primary.add_widget(self.defaults_floater, index=2)
+            try:
+                child.height, child.size_hint[1], child.opacity, child.disabled = child.saved_attrs
+            except AttributeError:
+                child.saved_attrs = values
+                child.height, child.size_hint[1], child.opacity, child.disabled = 0, None, 0, True
+            else:
+                del child.saved_attrs
 
     def _anim_progress(self, delta, progress):
         """Increment the size of card and container"""
 
         with ItemCardContainer() as f:
-            f.height = f.stepped_height + round(delta*progress)
+            f.height = f.stepped_height + round(delta * progress)
         self.expansion.height = self.default_height + round(delta * progress)
 
-    def _anim_complete(self, increment, dohide):
+    def _anim_complete(self, increment):
         """Update the stepped height of the container so the next animation uses new base value;
         Adjust widget visibility as animation is now complete
         """
 
         with ItemCardContainer() as f:
             f.stepped_height += increment
-        return self._make_hidden(dohide=dohide)
+        return self._make_hidden()
 
     def move(self):
         if not self.expanded:

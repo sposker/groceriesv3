@@ -8,6 +8,6 @@ body = '\n'.join([f'{uid}:{item.name}:l05:Aisle 05:FALSE' for uid, item in db.it
 
 for store in ['giant', 'shoppers', 'safeway', 'hmart', 'lidl']:
     storename = f'\\{store}.txt'
-    with open(r'C:\Users\Oliver\PycharmProjects\groceriesv3\data\stores' + storename, 'w') as f:
+    with open(r'C:\Users\Oliver\PycharmProjects\groceriesv3\data\_stores' + storename, 'w') as f:
         f.write(body)
         f.write('\n')

@@ -1,7 +1,7 @@
 #:import GroupScrollBar widget_sections.selection
 #:import MDIconButton kivymd.uix.button
 #:import MDTextField kivymd.uix.button
-#:import DefaultsDialog windows.dialogues
+#:import DefaultsDialog windows.dialogs
 
 <FloatingStack>
     canvas.before:
@@ -134,9 +134,3 @@
             width: self.parent.width
             minimum_height: self.parent.height
 
-            canvas:
-                Color:
-                    rgba: .1, .1, .6, .4
-                Rectangle:
-                    size: self.parent.width, self.parent.height
-                    pos: 0, -self.minimum_height

@@ -1,28 +1,58 @@
 #:import MDIconButton kivymd.uix.button
 
+<MyMDIconButton>
+    user_font_size: '36sp'
+    size_hint: 1/7, 1
+    theme_text_color: 'Custom'
+    text_color: app.theme_cls.primary_color
+    tooltip_bg_color: app.dh_color
+    tooltip_text_color: app.text_color
+
+
 <ListFunctionsBar>
 
-    MDIconButton:
+    size_hint: 1, .1
+
+    MyMDIconButton:
         name: 'toggle_asc_desc'
         icon: "sort-ascending"
-    MDIconButton:
+        tooltip_text: "Sort: Ascending"
+
+    MyMDIconButton:
         name: 'alphabetical'
         icon: "sort-alphabetical"
-    MDIconButton:
+        tooltip_text: 'SortBy: A-Z'
+
+    MyMDIconButton:
         name: 'group'
         icon: "cards-outline"
-    MDIconButton:
+        tooltip_text: 'SortBy: Group'
+
+    MyMDIconButton:
         name: 'time'
         icon: "clock-fast"
-    MDIconButton:
+        tooltip_text: "SortBy: Time Added"
+
+    MyMDIconButton:
+        name: 'open'
+        icon: "folder-open-outline"
+        tooltip_text: 'Load List'
+
+    MyMDIconButton:
         name: 'reset'
         icon: "restart"
-    MDIconButton:
+        tooltip_text: 'Clear List'
+
+    MyMDIconButton:
         name: 'save'
         icon: "content-save-outline"
+        tooltip_text: 'Save List'
+
 
 
 <SearchBar>
+    size_hint: 1, .105
+    normal_color: app.bg_color
 
     icon_type: 'left'
     icon_left: 'magnify'

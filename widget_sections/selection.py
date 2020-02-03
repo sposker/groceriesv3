@@ -22,7 +22,7 @@ from kivymd.icon_definitions import md_icons
 
 import logical
 from widget_sections.preview import ItemCardContainer
-from windows.dialogues import AddItemDialog
+from windows.dialogs import AddItemDialog
 
 
 class SectionTitle(MDCard):
@@ -93,9 +93,8 @@ class ToggleLayout(MDCard):
 
     def toggle(self):
         if self.state == 'normal':
-            t = time()
             with ItemCardContainer() as f:
-                self.card = f.add_card(self, t)
+                self.card = f.add_card(toggle=self)
             self.state = 'down'
             graphics = [pair[0] for pair in [self.__class__.icon.options, self.children_color]]
         else:

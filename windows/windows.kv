@@ -14,8 +14,17 @@
 #: import GroupSelection widget_sections.selection
 #: import WinNavBar windows.win_navbar
 
+<Divider@Widget>
+    canvas.after:
+        Color:
+            rgba: app.dh_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
 
-
+    size_hint: .9, None
+    height: dp(2)
+    pos_hint: {'center_x': .5, 'center_y': .5}
 
 <MainScreen@Screen>
     name: "main"
@@ -43,40 +52,32 @@
             size_hint: 1/1.618, 1
 
         BoxLayout:
+            canvas.before:
+                Color:
+                    rgba: app.elem_color
+                RoundedRectangle:
+                    size: self.size
+                    pos: self.pos
+                    radius: [24, 24, 24, 24]
             orientation: 'vertical'
             size_hint: (1 - 1/1.618), 1
             padding: dp(8)
             spacing: dp(4)
 
-            Widget:
-                size_hint: 1, .05
-
             SearchBar:
-                canvas:
-                    Color:
-                        rgba: .1, .6, .1, .4
-                    Rectangle:
-                        size: self.size
-                        pos: self.pos
-                size_hint: 1, .105
+
+            Divider:
 
             ListFunctionsBar:
-                size_hint: 1, .1
 
-                canvas:
-                    Color:
-                        rgba: .6, .1, .1, .4
-                    Rectangle:
-                        size: self.size
-                        pos: self.pos
-
+            Divider:
 
             ListScrollHelper:
-                id: preview_scroll
 
-# <WinLoader@MDProgressLoader>:
-
-
+            Widget:
+                size_hint: .9, None
+                height: dp(2)
+                pos_hint: {'center_x': .5, 'center_y': .5}
 
 
 <LoadScreen>

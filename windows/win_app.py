@@ -12,7 +12,7 @@ from logical.database import Database
 
 
 GENERAL = ['preview', 'search', 'selection']
-SPECIFIC_WIN = ['win_navbar', 'dialogues']
+SPECIFIC_WIN = ['win_navbar', 'dialogs']
 APP_KV_PATH = r'windows\windows.kv'
 
 DARK_HIGHLIGHT = (0.1568627450980392, 0.16862745098039217, 0.18823529411764706, 1)  # Darkest Gray
@@ -76,6 +76,7 @@ class WinApp(MDApp):
         self.db = Database('data/username.yaml')
 
     def build(self):
+        """Load various .kv files and create screen manager."""
         Builder.load_file(APP_KV_PATH)
         for f in widgets_list:
             Builder.load_file(f)
@@ -90,6 +91,17 @@ class WinApp(MDApp):
         self.theme_cls.accent_hue = '800'
         self.theme_cls.theme_style = 'Dark'
         # self.accent_color = [255 / 255, 64 / 255, 129 / 255, 1]
+
+    def load_user_settings(self):
+        """Reads the user settings file for things like save path, etc."""  # TODO: specify what this loads
+        pass
+
+    def exit_routine(self, gro_list=None):
+        db_path = ...
+        if gro_list:
+            self.db.set_new_defaults(gro_list)
+            self.db.dump_local(db_path)
+        MDApp.get_running_app().stop()
 
 
 class GroManager(ScreenManager):

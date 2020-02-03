@@ -1,12 +1,13 @@
 import datetime
 import os
-
-import yaml
 import time
 import socket
 
+import yaml
+
 from logical.items import DisplayGroup, GroceryItem
-from logical.stores import ShoppingList, Store
+from logical.stores import Store
+from logical.pools_and_lists import ShoppingList
 
 
 class Database:
@@ -56,7 +57,7 @@ class Database:
         def _do_load(file_object):
             for entries_list in yaml.load_all(file_object, Loader=yaml.Loader):
                 for entry in entries_list:
-                    name = [key for key in entry][0]
+                    name = list(entry)[0]
                     kwargs = entry[name]
 
                     _item = GroceryItem(name, **kwargs)
@@ -126,7 +127,6 @@ class Database:
             yaml.dump(data, f)
 
     def dump_local(self, db_path):
-        import os
         new_filename = os.getcwd() + '\\dbs\\' + self.get_date() + self.filename
         os.rename(self.filename, new_filename)
 

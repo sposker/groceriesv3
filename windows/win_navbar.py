@@ -5,8 +5,6 @@ from kivymd.uix.label import MDLabel
 from kivymd.uix.card import MDCard
 from kivymd.uix.toolbar import MDToolbar
 
-from windows.dialogues import ExitDialog
-
 
 class NavBarSpinner(MDFlatButton):
     """Spinner for groups"""
@@ -28,7 +26,7 @@ class WinNavBar(MDToolbar):
         Window.minimize()
 
     @staticmethod
-    def toggle_max(_):
+    def toggle_max(btn):
         """Maximize and restore the window"""
         try:
             _ = Window.is_maximized
@@ -37,9 +35,11 @@ class WinNavBar(MDToolbar):
 
         if Window.is_maximized:
             Window.restore()
+            btn.icon = 'window-maximize'
             Window.is_maximized = False
         else:
             Window.maximize()
+            btn.icon = 'window-restore'
             Window.is_maximized = True
 
     @staticmethod
