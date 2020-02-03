@@ -3,7 +3,6 @@ import smtplib
 import ssl
 from datetime import datetime
 from operator import itemgetter
-from time import time
 
 from kivy.clock import Clock
 from kivy.properties import StringProperty, ObjectProperty
@@ -18,7 +17,7 @@ from kivymd.uix.label import MDLabel
 from kivymd.uix.button import MDRaisedButton, MDIconButton
 from kivymd.uix.textfield import MDTextField
 
-from logical.stores import ShoppingList
+from logical.pools_and_lists import ShoppingList
 
 
 class GroceriesAppBaseDialog(Popup):
@@ -56,25 +55,31 @@ class AddItemDialog(GroceriesAppBaseDialog):
 
         self.dismiss()
         with ItemCardContainer() as f:
-            f.add_card(None, time())
+            f.add_card(None)
 
 
 class ClearListDialog(GroceriesAppBaseDialog):
-    pass
+
+    @staticmethod
+    def clear_list():
+        from widget_sections.preview import ItemCardContainer
+        with ItemCardContainer() as f:
+            children = f.children.copy()
+            for card in children:
+                f.remove_card(card)
 
 
 class CompleteDialog(GroceriesAppBaseDialog):
     """Shown when list is completed"""
-    # message = ''
 
-    # def __init__(self, message, gro_list, **kwargs):
-    #     self.message = message
-    #     self.gro_list = gro_list
-    #     super().__init__(**kwargs)
-    #
-    # def do_exit(self):
-    #     app = App.get_running_app()
-    #     app.exit_routine(gro_list=self.gro_list)
+    def __init__(self, message, gro_list, **kwargs):
+        self.message = message
+        self.gro_list = gro_list
+        super().__init__(**kwargs)
+
+    def do_exit(self):
+        app = MDApp.get_running_app()
+        app.exit_routine(gro_list=self.gro_list)
 
 
 class DefaultsDialogButton(MDIconButton):
@@ -126,7 +131,7 @@ class ExitDialog(GroceriesAppBaseDialog):
     def do_save(self):
         from widget_sections.preview import ItemCardContainer
         with ItemCardContainer() as f:
-            gro_list = f.construct_grocery_list()
+            gro_list = f.convert_to_pool()
         Factory.SaveDialog(gro_list, MDApp.get_running_app().db).open()
         self.dismiss()
 
@@ -153,14 +158,17 @@ class FilePickerDialog(GroceriesAppBaseDialog):
 
 
 class SaveDialog(GroceriesAppBaseDialog):
-    """Save the list"""
+    """Show options for saving ItemPool to disk, with or without formatting"""
 
-    def __init__(self, gro_list, db, **kwargs):
+    def __init__(self, item_pool, db, **kwargs):
         super().__init__(**kwargs)
-        self.gro_list = gro_list
+        self.item_pool = item_pool
         self.db = db
+        self.gro_list = None
 
-
+    def make_list(self, store_name='default'):
+        store = self.db.stores[store_name]
+        self.gro_list = ShoppingList(self.item_pool, store)
 
     @staticmethod
     def send_email(content):
@@ -173,10 +181,8 @@ class SaveDialog(GroceriesAppBaseDialog):
         # Create a secure SSL context
         context = ssl.create_default_context()
         with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
-            server.login("len.r.wilkinson@gmail.com", password)
+            server.login(sender_email, password)
             server.sendmail(sender_email, receiver_email, content)
-
-
 
     def print_list(self):
         self.gro_list.format_plaintext()
@@ -188,7 +194,7 @@ class SaveDialog(GroceriesAppBaseDialog):
     def email_list(self):
         self.gro_list.format_plaintext()
         self.gro_list.write()
-        self.send_email(self.gro_list.format_email())
+        self.send_email(self.gro_list.email_content)
 
         self.complete('List sent via Email')
 

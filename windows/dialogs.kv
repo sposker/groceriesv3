@@ -59,7 +59,7 @@
             size_hint: .7, 1
 
             AddItemSpinner:
-                size_hint: (1, .35)
+                size_hint: (1, .25)
 
                 background_color: app.bg_color
                 background_normal: ''
@@ -93,24 +93,6 @@
 
 <ClearListDialog>
 
-    canvas.before:
-        Color:
-            rgba: 0, 0, 0, .75
-        Rectangle:
-            size: self._window.size if self._window else (0, 0)
-        Color:
-            rgba: 0,0,0,.1
-        Rectangle:
-            size: self.size
-            pos: self.pos
-
-    background_color: app.trans
-    separator_color: app.trans
-    size_hint: (None, None)
-    size: (600, 400)
-    title: ''
-    title_size: 0
-
     BoxLayout:
         orientation: 'vertical'
         color: app.text_color
@@ -118,43 +100,30 @@
         font_size: 24
 
         Label:
-            text: 'Clear list? All items will be removed.'
+            text: 'Remove all items from list?'
             color: self.parent.color
             font_size: self.parent.font_size
+            size_hint: 1, 2/3
 
-        Button:
-            text: 'Clear list'
-            color: self.parent.color
-            font_size: self.parent.font_size
-            on_release:
-                app.clear_list()
-                root.dismiss()
-        Button:
-            text: 'Cancel'
-            color: self.parent.color
-            font_size: self.parent.font_size
-            on_release:
-                root.dismiss()
+        BoxLayout:
+            font_size: 24
+
+            DialogButton:
+                text: '    Cancel'
+                icon: 'cancel'
+                size_hint: .4, .5
+                on_release:
+                    root.dismiss()
+
+            DialogButton:
+                text: '    Clear list'
+                icon: 'delete-forever'
+                size_hint: .4, .5
+                on_release:
+                    root.clear_list()
+                    root.dismiss()
 
 <CompleteDialog>
-    canvas.before:
-        Color:
-            rgba: 0, 0, 0, .75
-        Rectangle:
-            size: self._window.size if self._window else (0, 0)
-        Color:
-            rgba: 0,0,0,.1
-        Rectangle:
-            size: self.size
-            pos: self.pos
-
-    background_color: app.trans
-    separator_color: app.trans
-    size_hint: (None, None)
-    size: (600, 400)
-    auto_dismiss: False
-    title: ''
-    title_size: 0
 
     BoxLayout:
         color: app.text_color
@@ -316,15 +285,6 @@
                     root.email_list()
 
             DialogButton:
-                text: '  Save'
-                icon: 'content-save-outline'
-                size_hint: 1, 1
-                pos_hint: {'center_x': .5}
-                text_color: app.text_color
-                on_release:
-                    root.save_list()
-
-            DialogButton:
                 text: '  Cancel'
                 icon: 'cancel'
                 size_hint: 1, 1
@@ -332,6 +292,15 @@
                 text_color: app.text_color
                 on_release:
                     root.dismiss()
+
+            DialogButton:
+                text: '  Save'
+                icon: 'content-save-outline'
+                size_hint: 1, 1
+                pos_hint: {'center_x': .5}
+                text_color: app.text_color
+                on_release:
+                    root.save_list()
 
 
 <SettingsDialog>
