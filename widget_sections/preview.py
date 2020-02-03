@@ -19,7 +19,6 @@ from kivymd.uix.list import TwoLineRightIconListItem
 from kivymd.uix.menu import MDDropdownMenu
 
 from logical import hide_widget
-from logical.doubly_linked_list import Node, DoublyLinkedList
 from logical.stores import ShoppingList, ItemPool
 
 # from widget_sections.selection import GroupScrollBar
@@ -86,7 +85,6 @@ class ItemCardContainer(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.dl_list = DoublyLinkedList()
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
