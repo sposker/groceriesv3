@@ -1,22 +1,26 @@
 import datetime
+import os
+
 import yaml
 import time
 import socket
 
 from logical.items import DisplayGroup, GroceryItem
-from logical.stores import ShoppingList
+from logical.stores import ShoppingList, Store
 
 
-class DataBase:
+class Database:
     """Handles parsing database files and creating python objects"""
 
     groups = {}
     items = {}
     new_items = {}
+    stores = {'default': None}
 
-    def __init__(self, item_db, syntax=None, from_file=None):
+    def __init__(self, item_db, syntax=None, from_file=None, fullpath=None):
         self.filename = item_db
         self.file_object = from_file
+        self.fullpath = fullpath
 
         if not syntax:
             self._setup()
@@ -25,17 +29,30 @@ class DataBase:
             self._load_network_file()
         # TODO: elif 'other_syntaxes?':
 
+    # noinspection PyTypeChecker
     def _setup(self, mobile=False):
-        _path = 'data/groups.txt'
+        _path = 'data' if not self.fullpath else self.fullpath
 
-        with open(_path) as f:
+        with open(os.path.join(_path, 'groups.txt')) as f:
             for i, line in enumerate(f):
                 if line:
                     _grp = DisplayGroup(line[:-1], uid=i)
                     self.groups[_grp.uid] = _grp
 
-    def _load_yaml(self, from_file=None):
+        for root, dirs, filenames in os.walk(os.path.join(_path, 'stores')):
+            for filename in filenames:
+                truncated = filename[:-4]
+                pool = set()
+                with open(os.path.join(root, filename)) as file:
+                    for line in file:
+                        uid, item_name, location, location_name, special = line.split(':')
+                        pool.add((uid, item_name, location, location_name, special[:-1]))
+                store = Store(truncated, pool)
+                self.stores[truncated] = store
+            # noinspection PyUnboundLocalVariable
+            self.stores['default'] = store
 
+    def _load_yaml(self, from_file=None):
         def _do_load(file_object):
             for entries_list in yaml.load_all(file_object, Loader=yaml.Loader):
                 for entry in entries_list:

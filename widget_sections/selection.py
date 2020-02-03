@@ -22,6 +22,7 @@ from kivymd.icon_definitions import md_icons
 
 import logical
 from widget_sections.preview import ItemCardContainer
+from windows.dialogues import AddItemDialog
 
 
 class SectionTitle(MDCard):
@@ -42,6 +43,9 @@ class SectionAddItem(MDCard, ButtonBehavior):
     def __init__(self, grp, **kwargs):
         super().__init__(**kwargs)
         self.group = grp.name
+
+    def on_release(self):
+        AddItemDialog(self.group).open()
 
 
     #     Clock.schedule_once(self._set_width, 2)
@@ -91,14 +95,14 @@ class ToggleLayout(MDCard):
         if self.state == 'normal':
             t = time()
             with ItemCardContainer() as f:
-                self.card = f.add_card(self.item, t)
+                self.card = f.add_card(self, t)
             self.state = 'down'
             graphics = [pair[0] for pair in [self.__class__.icon.options, self.children_color]]
         else:
+            self.state = 'normal'
             with ItemCardContainer() as f:
                 f.remove_card(self.card)
                 self.card = None
-            self.state = 'normal'
             graphics = [pair[1] for pair in [self.__class__.icon.options, self.children_color]]
 
         self._graphics_toggle(graphics)
@@ -122,8 +126,7 @@ class ToggleLayout(MDCard):
     def _do_split(string):
         _half, _ = half, x = divmod(len(string), 2)
         if string[half] == ' ':
-            string[half] = '\n'
-            return string
+            return string[:half] + '\n' + string[half+1:]
         while True:
             if x:
                 half += 1

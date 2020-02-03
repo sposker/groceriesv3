@@ -1,0 +1,104 @@
+i00:Apples:l05:Aisle 05:FALSE
+i01:Plums:l05:Aisle 05:FALSE
+i02:Tomato:l05:Aisle 05:FALSE
+i03:Onion:l05:Aisle 05:FALSE
+i04:Lettuce:l05:Aisle 05:FALSE
+i05:Red Potato:l05:Aisle 05:FALSE
+i06:Brown Potato:l05:Aisle 05:FALSE
+i07:Bagged Salad:l05:Aisle 05:FALSE
+i08:Honey Ham:l05:Aisle 05:FALSE
+i09:Italian Salad:l05:Aisle 05:FALSE
+i10:Potato Salad:l05:Aisle 05:FALSE
+i11:Muffins:l05:Aisle 05:FALSE
+i12:Cherry Pie:l05:Aisle 05:FALSE
+i13:Cherry Turnover:l05:Aisle 05:FALSE
+i14:Honey Wheat Bread:l05:Aisle 05:FALSE
+i15:Plain Bagels:l05:Aisle 05:FALSE
+i16:Cinnamon Raisin Bagels:l05:Aisle 05:FALSE
+i17:Steak:l05:Aisle 05:FALSE
+i18:Sausage:l05:Aisle 05:FALSE
+i19:Chicken:l05:Aisle 05:FALSE
+i20:Pork:l05:Aisle 05:FALSE
+i21:Fish:l05:Aisle 05:FALSE
+i22:Milk:l05:Aisle 05:FALSE
+i23:Yogurt:l05:Aisle 05:FALSE
+i24:Swiss Cheese:l05:Aisle 05:FALSE
+i25:Camembert:l05:Aisle 05:FALSE
+i26:Dubliner:l05:Aisle 05:FALSE
+i27:Edam:l05:Aisle 05:FALSE
+i28:Sharp Cheddar:l05:Aisle 05:FALSE
+i29:Ketchup:l05:Aisle 05:FALSE
+i30:Mustard:l05:Aisle 05:FALSE
+i31:Mayo:l05:Aisle 05:FALSE
+i32:Balsamic Vinegrette:l05:Aisle 05:FALSE
+i33:French Dressing:l05:Aisle 05:FALSE
+i34:Ranch Dressing:l05:Aisle 05:FALSE
+i35:Cherry Preserves:l05:Aisle 05:FALSE
+i36:Blueberry Preserves:l05:Aisle 05:FALSE
+i37:Jalepenos:l05:Aisle 05:FALSE
+i38:Bread and Butter Chips:l05:Aisle 05:FALSE
+i39:Sweet Pickles:l05:Aisle 05:FALSE
+i40:Dill Pickle Chips:l05:Aisle 05:FALSE
+i41:Dill Pickle Spears:l05:Aisle 05:FALSE
+i42:Nu Salt:l05:Aisle 05:FALSE
+i43:Pepper Corns:l05:Aisle 05:FALSE
+i44:Angel Hair:l05:Aisle 05:FALSE
+i45:Spaghetti:l05:Aisle 05:FALSE
+i46:Penne:l05:Aisle 05:FALSE
+i47:Marinara Sauce:l05:Aisle 05:FALSE
+i48:Alfredo Sauce:l05:Aisle 05:FALSE
+i49:Vodka Sauce:l05:Aisle 05:FALSE
+i50:Clam Sauce:l05:Aisle 05:FALSE
+i51:Ravioli:l05:Aisle 05:FALSE
+i52:Minestrone:l05:Aisle 05:FALSE
+i53:Chicken Noodle:l05:Aisle 05:FALSE
+i54:Chicken and Sausage Gumbo:l05:Aisle 05:FALSE
+i55:Other Soup:l05:Aisle 05:FALSE
+i56:Coffee:l05:Aisle 05:FALSE
+i57:Hot Chocolate:l05:Aisle 05:FALSE
+i58:Apples and Cinnamon Oatmeal:l05:Aisle 05:FALSE
+i59:Maple and Brown Sugar Oatmeal:l05:Aisle 05:FALSE
+i60:Honey Nut Cheerios:l05:Aisle 05:FALSE
+i61:Honey Bunches Of Oats:l05:Aisle 05:FALSE
+i62:Frosted Wheat:l05:Aisle 05:FALSE
+i63:Sun Chips:l05:Aisle 05:FALSE
+i64:White Corn Tortilla Chips:l05:Aisle 05:FALSE
+i65:Tostitos Red Salsa Dip:l05:Aisle 05:FALSE
+i66:Tostitos Yellow Queso Dip:l05:Aisle 05:FALSE
+i67:Cheez Its:l05:Aisle 05:FALSE
+i68:Popcorn:l05:Aisle 05:FALSE
+i69:Tapioca Pudding:l05:Aisle 05:FALSE
+i70:Sugarfree Chocolate Snackpacks:l05:Aisle 05:FALSE
+i71:Diet Coke:l05:Aisle 05:FALSE
+i72:Gatorade:l05:Aisle 05:FALSE
+i73:Tide Pods:l05:Aisle 05:FALSE
+i74:Bleach:l05:Aisle 05:FALSE
+i75:Fabric Softener:l05:Aisle 05:FALSE
+i76:Detergent:l05:Aisle 05:FALSE
+i77:Comet Cleaner:l05:Aisle 05:FALSE
+i78:Pinesol:l05:Aisle 05:FALSE
+i79:Toilet Paper:l05:Aisle 05:FALSE
+i80:Paper Towels:l05:Aisle 05:FALSE
+i81:Kleenex:l05:Aisle 05:FALSE
+i82:Lasagna:l05:Aisle 05:FALSE
+i83:Macaroni and Beef:l05:Aisle 05:FALSE
+i84:Other Tv Dinners:l05:Aisle 05:FALSE
+i85:Supreme Pizza:l05:Aisle 05:FALSE
+i86:4 Meat Pizza:l05:Aisle 05:FALSE
+i87:Vanilla Bean:l05:Aisle 05:FALSE
+i88:Shampoo:l05:Aisle 05:FALSE
+i89:Body Wash:l05:Aisle 05:FALSE
+i90:Toothpaste:l05:Aisle 05:FALSE
+i91:Bic Razors:l05:Aisle 05:FALSE
+i92:Axe Deodorant:l05:Aisle 05:FALSE
+i93:Contact Lens Solution:l05:Aisle 05:FALSE
+i94:PB & Chocolate Cliff Bars:l05:Aisle 05:FALSE
+i95:Tennis Balls:l05:Aisle 05:FALSE
+i96:Black Sunflower Seed:l05:Aisle 05:FALSE
+i97:Niger Seed:l05:Aisle 05:FALSE
+i98:Minute Rice:l05:Aisle 05:FALSE
+i100:Shredded parmesan cheese:l05:Aisle 05:FALSE
+i101:Catalina dressing:l05:Aisle 05:FALSE
+i102:Cascade Dishwater Powder:l05:Aisle 05:FALSE
+i103:Tilex Mold and Mildew Remover:l05:Aisle 05:FALSE
+i104:eggbeaters:l05:Aisle 05:FALSE

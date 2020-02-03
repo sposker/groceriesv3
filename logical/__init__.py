@@ -3,12 +3,12 @@ import os
 from logical.stores import Store
 
 
-for root, _, filenames in os.walk('data\\stores'):
-    for store in filenames:
-        name = store[:-4]
-        s = Store(name, store)
-        if name == 'default':
-            Store.default = s
+# for root, _, filenames in os.walk('data\\stores'):
+#     for store in filenames:
+#         name = store[:-4]
+#         s = Store(name, os.path.join(root, store))
+#         if name == 'default':
+#             Store.default = s
 
 
 def as_string(tup):

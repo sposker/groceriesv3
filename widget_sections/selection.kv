@@ -48,6 +48,8 @@
         text_color: app.text_color
         text: 'Add Item'
         font_size: 24
+        on_release:
+            self.parent.on_release()
 
     SectionDivider:
 
@@ -58,7 +60,8 @@
         icon: 'cart-plus'
         theme_text_color: 'Custom'
         text_color: app.text_color
-
+        on_release:
+            self.parent.on_release()
 
 <DisplaySubsection>
 
@@ -67,8 +70,6 @@
     size_hint: 1, None
 
 <ToggleLayout>
-
-
 
     app: app
     orientation: 'horizontal'
@@ -127,3 +128,4 @@
 
         orientation: 'vertical'
         size_hint: .982, None
+        padding: dp(6)

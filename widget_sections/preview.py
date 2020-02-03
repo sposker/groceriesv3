@@ -1,4 +1,3 @@
-from collections import deque
 from operator import itemgetter
 
 from kivy.animation import Animation
@@ -15,12 +14,13 @@ from kivy.uix.scrollview import ScrollView
 from kivymd.app import MDApp
 from kivymd.uix.button import MDFloatingActionButton, MDIconButton, MDFlatButton
 from kivymd.uix.card import MDCard
+from kivymd.uix.dialog import MDInputDialog
 from kivymd.uix.list import TwoLineRightIconListItem
 from kivymd.uix.menu import MDDropdownMenu
 
-from logical.stores import ShoppingList
 from logical import hide_widget
-
+from logical.doubly_linked_list import Node, DoublyLinkedList
+from logical.stores import ShoppingList, ItemPool
 
 # from widget_sections.selection import GroupScrollBar
 
@@ -49,6 +49,9 @@ from logical import hide_widget
 #     cols = 1
 #
 #
+from windows.dialogues import DefaultsDialog
+
+
 class DefaultsDropdown(MDDropdownMenu):
     ...
 
@@ -77,12 +80,13 @@ class ItemCardContainer(BoxLayout):
     """List preview displaying item cards"""
 
     _instance = None
-    state = OptionProperty('creation', options=['item_group', 'creation', 'item_name'])
+    sort_type = 'creation'
+    sort_desc = True
     stepped_height = 0
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.init_node = self.final_node = None
+        self.dl_list = DoublyLinkedList()
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
@@ -103,9 +107,12 @@ class ItemCardContainer(BoxLayout):
             h -= offset
         self.height = self.height + h
 
-    def add_card(self, item, creation_time):
+    def add_card(self, toggle, creation_time, nfo=None):
         """Add a item to the preview via toggle button"""
-        card = ItemCard(item, creation_time)
+        if toggle is None:  # TODO: Handle new item
+            nfo()
+            ...
+        card = ItemCard(toggle, creation_time)
         self.adjust_height(card.default_height)
         self.stepped_height += card.default_height + self.spacing
         self.add_widget(card)
@@ -122,26 +129,32 @@ class ItemCardContainer(BoxLayout):
     #     self.final_node = widget
     #     widget.height += 8
 
-    def construct_list(self):
+    def construct_grocery_list(self):
         """Convert preview items into actual list"""
         items = {w.list_fields for w in self.children}
-        return ShoppingList(items)
+        pool = ItemPool(items)
+        return ShoppingList(pool, MDApp.get_running_app().db.stores['default'])
 
     def remove_card(self, card):
         """Remove an item from the preview"""
+        if card.toggle.state == 'down':  # called from card's delete button rather than from toggle itself
+            return card.toggle.menu_delete()
+
         self.adjust_height(-card.height)
-        self.stepped_height -= (card.default_height + self.spacing)
+        self.stepped_height -= (card.height + self.spacing)
         self.remove_widget(card)
         print(self.height, self.stepped_height, 'removed')
 
-    def sort_display(self, prop: str):
+    def sort_display(self):
         """Called with name of card attributes"""
-        pairs = [getattr((widget, prop), widget) for widget in self.children]
-        ordered = sorted(pairs, key=itemgetter[0])
+        prop = self.sort_type
+        pairs = [(getattr(widget, prop), widget) for widget in self.children]
+        ordered = sorted(pairs, key=itemgetter(0))
+        if self.sort_desc:
+            ordered.reverse()
         self.clear_widgets()
         for pair in ordered:
             self.add_widget(pair[1])
-        self.state = prop
 
 
 class ItemCard(MDCard):
@@ -160,14 +173,16 @@ class ItemCard(MDCard):
                         'note_input',
                         }
 
-    def __init__(self, item, creation_time, **kwargs):
+    def __init__(self, toggle, creation_time, **kwargs):
         # simple item properties
-        self.item = item
+        self.toggle = toggle
+        self.item = toggle.item
         self._creation = creation_time
         self.note = ''
+        self.node = None
 
         # work with item defaults list
-        self.defaults_list = item.defaults.copy()
+        self.defaults_list = self.item.defaults.copy()
         self.defaults_list.sort(key=itemgetter(0))
         self.defaults_list = [str(num) for _, num in self.defaults_list]
 
@@ -177,8 +192,7 @@ class ItemCard(MDCard):
         self._make_animations()
 
         # create dropdown
-        self.defaults_dropdown = FloatingStack(self.defaults_list.copy(), self.amount)
-        # self.defaults_dropdown.bind(on_select=lambda _, x: setattr(self.amount, 'text', x))
+        self.defaults_dropdown = DropdownStack(self.defaults_list.copy(), self.amount)
 
     def _make_animations(self):
         eh = self._expansion_height
@@ -241,28 +255,37 @@ class ItemCard(MDCard):
             self.contract_anim.start(self)
         self.expanded = not self.expanded
 
+    def kvlang_remove_card(self):
+        with ItemCardContainer() as f:
+            f.remove_card(self)
+            ...
+
     @property
     def creation(self):
-        """Used for sorting"""
+        """Used for sorting by creation time"""
         return self._creation
 
     @property
     def item_name(self):
-        """Used for sorting"""
+        """Used for sorting by name"""
         return self.item.name
 
     @property
     def item_group(self):
-        """Used for sorting"""
+        """Used for sorting by group"""
         return self.item.group.name
 
     @property
     def list_fields(self):
         """Used for construction of list: Name, Group, Number, Note"""
-        return self.item_name, self.item_group, self.amount.text, self.note
+        try:
+            amount = int(self.amount.text)
+        except ValueError:
+            amount = None
+        return self.item, amount, self.note
 
 
-class FloatingStack(DropDown):
+class DropdownStack(DropDown):
     """Stacked default buttons"""
 
     orientation = 'vertical'
@@ -271,34 +294,32 @@ class FloatingStack(DropDown):
     def __init__(self, defaults, main_btn, **kwargs):
         super().__init__(**kwargs)
         self.main_button = main_btn
-        current = defaults.pop(defaults.index(main_btn.text))
-        widgets = []
+        self.widgets = [FloatingButton(v) for v in defaults]
 
-        while defaults:
-            value = defaults.pop()
-            widgets.append(FloatingButton(value))
+        self.widgets.append(FloatingButton('+'))
 
-        widgets.append(FloatingButton(current))
-        add = FloatingButton('+')
-        widgets.append(add)
-
-        for w in widgets:
+        for w in self.widgets:
             self.add_widget(w)
 
-    def dismiss(self):
-        self.main_button.expanded = False
-        Clock.schedule_once(self._real_dismiss, self.min_state_time)
+    def open(self, widget):
+        """Hide redundant dropdown option"""
+        super().open(widget)
+        for btn in self.widgets:
+            if btn.text == widget.text:
+                hide_widget(btn)
+            else:
+                hide_widget(btn, dohide=False)
 
     def do_add_value(self):
-        print('add_value')
         self.dismiss()
+        dialog = DefaultsDialog(self.main_button)
+        dialog.open()
 
 
-class FloatingButton(MDFloatingActionButton):
+class FloatingButton(MDFlatButton):
     """Floating values for defaults selection"""
 
     def __init__(self, value, **kwargs):
-        self.spacing = self.padding = dp(4)
         self.pos_hint = {'center_x': .5, 'center_y': .6}
         super().__init__(**kwargs)
         self.text = value  # TODO
@@ -323,11 +344,11 @@ class DefaultsButton(MDFlatButton):
         super().__init__(**kwargs)
         self.expanded = False
 
-    def display_values(self):
-        if not self.expanded:
-            stack = FloatingStack(self.root.defaults_list.copy(), self)
-            self.root.primary.add_widget(stack)
-            self.expanded = True
+    # def display_values(self):
+    #     if not self.expanded:
+    #         stack = DropdownStack(self.root.defaults_list.copy(), self)
+    #         self.root.primary.add_widget(stack)
+    #         self.expanded = True
 
 # class ListFunctionsBar(GridLayout):
 #     pass

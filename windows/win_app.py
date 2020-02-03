@@ -1,15 +1,14 @@
-from kivymd.app import MDApp
-from kivymd.theming import ThemeManager
-
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.clock import Clock
 
+from kivymd.app import MDApp
+from kivymd.theming import ThemeManager
 
 from windows import screenwidth, screenheight
 from logical import as_list, as_string
-from logical.database import DataBase
+from logical.database import Database
 
 
 GENERAL = ['preview', 'search', 'selection']
@@ -74,7 +73,7 @@ class WinApp(MDApp):
         super().__init__(**kwargs)
         self.sm = None
         self.set_theme()
-        self.db = DataBase('data/username.yaml')
+        self.db = Database('data/username.yaml')
 
     def build(self):
         Builder.load_file(APP_KV_PATH)

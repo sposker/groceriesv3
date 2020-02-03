@@ -1,9 +1,10 @@
 import csv
 import datetime
+import os
+from operator import itemgetter
 
 
 class Basket:
-
     baskets = set()
 
     def __init__(self, source):
@@ -24,27 +25,30 @@ class Store:
     """Maps item uids to locations in store"""
 
     default = None
-    stores = {}
 
-    def __init__(self, name, mapping):
+    def __init__(self, name, mapping, basket=None):
 
         self.name = name
-        self.data = {}
-        self._basket = None
-        with open(mapping) as f:
-            reader = csv.reader(f)
-            self.fields = next(reader)
+        self.locations = {}
+        self.item_names = {}
+        self.specials = {}
+        self.location_names = {}
 
-            for line in reader:
-                self.data[line[0]] = tuple(line[1:])
+        for item_uid, item_name, location_uid, location_name, is_special in mapping:
+            self.locations[item_uid] = location_uid
+            self.item_names[item_uid] = item_name
+            self.location_names[location_uid] = location_name
+            if is_special.upper() != 'FALSE':
+                self.specials[is_special] = location_uid
 
-        Store.stores[self.name] = self
+        self._basket = basket
 
     def __getitem__(self, item):
-        return self.data[item]
+        return self.locations[item]
 
     @property
     def basket(self, source=None):
+        """Consumer Price Index for this store; measure of store's prices"""
         if not self._basket:
             if source is None:
                 source = 'data/default_basket.csv'
@@ -52,130 +56,164 @@ class Store:
         return self._basket.index
 
 
-class ShoppingList:
-    """Grocery List object that can be merged or formatted with store mapping data"""
+class ItemPool:
+    """Pool of items wanted for a grocery list; unsorted, but may be merged with other pools"""
 
-    specials = ['unsorted', 'walmart', 'deli']
+    def __init__(self, item_pool):
+        self._items = {item.uid: (item, amount, note) for item, amount, note in item_pool}
 
-    def __init__(self, init_value, store='default'):
-
-        self.items = {}  # location.uid str -> list of tuples
-        self.header = {}
-
-        self.store = Store.stores[store]
-
-        if isinstance(init_value, dict):
-            self._from_dict(init_value)
-        else:
-            self._from_set(init_value)
-
-    def __hash__(self):
-        return hash(self.__repr__())
+    def __getitem__(self, item):
+        return self._items[item]
 
     def __add__(self, other):
-        """
-        - Iterate through a working dict to check against values in a base dict.
-        - If they match, combine into one section.
-        - Preserve values that are not affected.
-        """
-
-        if len(self.items) >= other.items:
-            base, working = self.items, other.items
-        else:
-            working, base = self.items, other.items
+        """First, merge keys that exist in both dicts by iterating through this object's items.
+         Then create a new dict by copying the other dict and overwriting the values that were merged--
+         this preserves the keys in the other dict that were not present in the first.
+         """
         half_merged = {}
-
-        for working_outer_key, working_nested in working.items():
-            half_merged_nested = {}
+        for key, value0 in self.items():
             try:
-                base_nested = base[working_outer_key]
+                value1 = other[key]
             except KeyError:
-                half_merged[working_outer_key] = working_nested  # Just copy the section if there's no overlap
+                pass
             else:
-                for nested_key in working_nested:
-                    if nested_key not in base_nested:
-                        half_merged_nested[nested_key] = working_nested[nested_key]
-                    else:
-                        half_merged_nested[nested_key] = self._merge_dict_key(nested_key, working_nested, base_nested)
-            half_merged[working_outer_key] = half_merged_nested
+                item, amount0, note0 = value0
+                _, amount1, note1 = value1
 
-        full_merged = {**base, **half_merged}  # Copy keys from base which weren't accessed, overwrite ones that were
+                if not amount0 or not amount1:
+                    amount2 = amount0 or amount1
+                else:
+                    try:
+                        amount2 = amount0 + amount1
+                    except TypeError:
+                        amount2 = f'{amount0} + {amount1}'
 
-        return ShoppingList(full_merged)  # new object returned from addition
+                if not note0 or not note1:
+                    note2 = note0 or note1
+                else:
+                    note2 = f'{note0} + {note1}'
 
-    @staticmethod
-    def _merge_dict_key(key, first, second):
-        """Add number and note values in the case of repeated items"""
-        f_num, f_note = first[key]
-        s_num, s_note = second[key]
+                half_merged[key] = (item, amount2, note2)
 
-        try:
-            c_num = str(int(f_num) + int(s_num))
-        except ValueError:
-            if len(f_num) > len(s_num):
-                c_num = f_num
-            else:
-                c_num = s_num
+        return {**other, **half_merged}  # Concise syntax for copying as described in docstring
 
-        if f_note and s_note:
-            c_note = f'{f_note}~~{s_note}'
-        else:
-            c_note = f_note if f_note else s_note
+    def items(self):
+        return self._items.items()
 
-        return c_num, c_note
 
-    def _from_dict(self, init_value):
-        self.items = init_value
-        self.build_header()
+class ShoppingList:
+    """Formatted list for a given store"""
 
-    def _from_set(self, init_value):
+    def __init__(self, pool: ItemPool, store: Store):
 
-        for triple in init_value:
+        self.store = store
+        self.header = self._email_content = self.content = None
+
+        by_location = {}
+        for uid, triple in pool.items():
             item, num, note = triple
-            key = self.store[item.uid]
-
-            # Location uids map to another dict containing items as keys mapping to GUI generated number and note values
 
             try:
-                location_dict = self.items[key]
+                location_key = store[uid]
             except KeyError:
-                self.items[key] = {item: (num, note)}
+                location_key = 'l00'  # unsorted item
+
+            try:
+                location_dict = by_location[location_key]
+            except KeyError:
+                by_location[location_key] = {item: (num, note)}
             else:
                 location_dict[item] = (num, note)
-                self.items[key] = location_dict
-        self.build_header()
+                by_location[location_key] = location_dict
 
-    def _build_header(self, needed_in_header):
+        self.build_header(by_location)
+        self.items = by_location
 
-        unsorted, walmart, deli = needed_in_header
+    def build_header(self, items_by_location: dict):
+        """Check the special item categories, the location of which may vary by store.
+        If any special categories are needed, indicate this via key-value pairs in header.
+        """
 
-        print("Needed In header:", unsorted, walmart, deli)
-
-        keys = (len(unsorted[1]) if unsorted[1] else None,
-                True if walmart[1] else False,
-                True if deli[1] else False)
-
-        header = {**{'date': self.get_date()}, **{k: v for k, v in zip(self.specials, keys)}}
-
-        return header
-
-    def build_header(self):
         needed = []
         do_build = False
-        for key in self.specials:
+        for loc_name, loc_uid in self.store.specials.items():
             try:
-                nested = self.items[key]
+                nested = items_by_location[loc_uid]
             except KeyError:
-                needed.append((key, []))
+                needed.append((loc_uid, None, 0))
             else:
-                needed.append((key, nested))
+                needed.append((loc_uid, loc_name, len(nested)))
                 do_build = True
 
+        self.header = {'date': self.get_date()}
         if do_build:
-            self.header = self._build_header(needed)
-        else:
-            self.header = {'date': self.get_date()}
+            while needed:
+                _, loc_name, num = needed.pop()
+                self.header[loc_name] = num
 
     @staticmethod
     def get_date():
-        return str(datetime.datetime.now()).split(" ")[0]
+        """Generate today's date in a path-friendly format"""
+
+        dashes = str(datetime.datetime.now()).split(" ")[0]
+        y, m, d = dashes.split('-')
+        return f'{y}.{m}.{d}.'
+
+    def write(self, do_print=False):
+        """Write list to text format.
+        Note that email functionality belongs to the GUI which is responsible for loading the credentials file.
+        """
+        date = self.get_date()
+        filename = date + 'ShoppingList'
+        path = os.getcwd()
+        abspath = f"{path}\\data\\lists\\{filename}.txt"
+
+        with open(abspath, 'w') as f:
+            f.write(self.content)
+
+        if do_print:
+            os.startfile(abspath, 'print')
+
+    def format_plaintext(self):
+        """Convert an organized set of items into a list for humans to read"""
+
+        subject = f" ShoppingList {self.header['date']}"
+        header = f"{self.header['date']}: Grocery List\n"
+        if len(self.header) != 1:
+            subject += ': '
+
+            if u := self.header['unsorted']:
+                header += f"List contains {u} unsorted item(s).\n"
+                subject += f"UNS:{u}- "
+            if w := self.header['walmart']:
+                header += f"List includes {w} Wal-mart items.\n"
+                subject += 'WAL-'
+            if h := self.header['deli']:
+                header += f"List contains {h} Deli items-- deli closes at 8pm.\n"
+                subject += 'DELI'
+
+        # convert dict-- which maps :location uid: to :nested dictionary:-- into list of tuples and sort it
+        s = sorted([(k, v) for k, v in self.items.items()], key=itemgetter(0))
+
+        body = ''
+        for location_uid, nested in s:
+            location_name = self.store.location_names[location_uid]
+            body += f'\n{location_name.capitalize()}:\n'  # No spaces for locations
+            for item, pair in nested.items():
+                location_name = item.name
+                num, note = pair
+                item_line = f'  {location_name}'  # Two spaces for items, amount on same line
+                if num:
+                    item_line += f': {num}'
+                if note:
+                    item_line += f'\n    -{note}'  # Four spaces for notes
+                item_line += '\n'
+                body += item_line
+
+        self._email_content = f'Subject: {subject}\n\n'
+        self.content = f'{header}{body}'
+
+    @property
+    def email_content(self):
+        """Avoid storing the same content twice"""
+        return self._email_content + self.content

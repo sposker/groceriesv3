@@ -32,28 +32,47 @@
         background_palette: "Primary"
         elevation: 10
 
-    GroupScrollHelper:
-        id: selection
-        size_hint: None, None
+    BoxLayout:
+        size_hint: 1, None
         height: root.height*.99 - toolbar.height
-        width: app.screenwidth/ (1.618*2)
-        pos_hint: {'x':.005, 'y':.005}
+        padding: dp(8)
+        spacing: dp(8)
 
-#    ListFunctionsBar:
-#        size_hint: (.3, .07)
-#        pos_hint: {'x':.68, 'y':.75}
-#
-#    SearchWidget:
-#        size_hint: (.3, .075)
-#        pos_hint: {'x':.68, 'y':.83}
-#
-    ListScrollHelper:
-        size_hint: None, None
-        pos: selection.width + 12, selection.pos[1]
-        width: app.screenwidth/2 - selection.width
-        height: (selection.height / 1.618)*1.2
+        GroupScrollHelper:
+            id: selection
+            size_hint: 1/1.618, 1
+
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: (1 - 1/1.618), 1
+            padding: dp(8)
+            spacing: dp(4)
+
+            Widget:
+                size_hint: 1, .05
+
+            SearchBar:
+                canvas:
+                    Color:
+                        rgba: .1, .6, .1, .4
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+                size_hint: 1, .105
+
+            ListFunctionsBar:
+                size_hint: 1, .1
+
+                canvas:
+                    Color:
+                        rgba: .6, .1, .1, .4
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
 
 
+            ListScrollHelper:
+                id: preview_scroll
 
 # <WinLoader@MDProgressLoader>:
 
