@@ -18,6 +18,8 @@ from kivymd.uix.card import MDCard
 from kivymd.uix.dialog import MDInputDialog
 from kivymd.uix.list import TwoLineRightIconListItem
 from kivymd.uix.menu import MDDropdownMenu
+from kivymd.uix.textfield import MDTextField
+from kivymd.uix.tooltip import MDTooltip
 
 from logical import hide_widget
 from logical.items import GroceryItem
@@ -80,9 +82,9 @@ class ItemCardContainer(BoxLayout):
             h -= offset
         self.height = self.height + h
 
-    def add_card(self, toggle=None,):
+    def add_card(self, toggle=None, item=None):
         """Add a item to the preview via toggle button"""
-        card = ItemCard(toggle=toggle)
+        card = ItemCard(toggle=toggle, item=item)
         self.adjust_height(card.default_height)
         self.stepped_height += card.default_height + self.spacing
         self.add_widget(card)
@@ -99,6 +101,7 @@ class ItemCardContainer(BoxLayout):
                            note=None,
                            uid=None)
         db.new_items[item.uid] = item
+        self.add_card(item=item)
 
     # TODO: First/Last widget +8 dp for MD spec
     # def add_widget(self, widget, index=0, canvas=None):
@@ -151,12 +154,11 @@ class ItemCard(MDCard):
                'item_title',
                }
     _hidden_at_start = {
-                        'expansion': (48.0, None, 1.0, False),
-                        'history': (60, None, 1.0, False),
-                        'delete_card': (34.0, 1, 1.0, True),
-                        'note_input': (48.0, None, 1.0, True),
-                        }
-
+        'expansion': (48.0, None, 1.0, False),
+        'history': (60, None, 1.0, False),
+        'delete_card': (34.0, 1, 1.0, False),
+        'note_input': (48.0, None, 1.0, False),
+    }
 
     def __init__(self, toggle=None, item=None, **kwargs):
         # simple item properties
@@ -206,20 +208,22 @@ class ItemCard(MDCard):
                 pass
             else:
                 self.__dict__[name] = child
+
                 if child.name in self._hidden_at_start:
-                    # child.saved_attrs = self._hidden_at_start[child.name]
-                    hide_widget(child)
+                    child.saved_attrs = True
+                    child.height, child.size_hint[1], child.opacity, child.disabled = 0, None, 0, True
+                    print(child.height, child.size_hint[1], child.opacity, child.disabled)
 
     def _make_hidden(self):
-        for attr, values in zip(self._hidden_at_start, self._hardcoded_attrs):
+        for attr, values in self._hidden_at_start.items():
             child = getattr(self, attr)
-            try:
-                child.height, child.size_hint[1], child.opacity, child.disabled = child.saved_attrs
-            except AttributeError:
-                child.saved_attrs = values
-                child.height, child.size_hint[1], child.opacity, child.disabled = 0, None, 0, True
+            if child.saved_attrs:
+                child.height, child.size_hint[1], child.opacity, child.disabled = values
             else:
-                del child.saved_attrs
+                if not (child.name == 'note_input' and child.text):
+                    child.height, child.size_hint[1], child.opacity, child.disabled = 0, None, 0, True
+
+            child.saved_attrs = not child.saved_attrs
 
     def _anim_progress(self, delta, progress):
         """Increment the size of card and container"""
@@ -250,6 +254,11 @@ class ItemCard(MDCard):
         with ItemCardContainer() as f:
             f.remove_card(self)
             ...
+
+    def note_text_validate(self, text):
+        self.note_display.size_hint = (1, .2)
+        self.note_display.text = text
+        self.chevron.trigger_action(duration=.1)
 
     @property
     def creation(self):
@@ -335,16 +344,22 @@ class DefaultsButton(MDFlatButton):
         super().__init__(**kwargs)
         self.expanded = False
 
-    # def display_values(self):
-    #     if not self.expanded:
-    #         stack = DropdownStack(self.root.defaults_list.copy(), self)
-    #         self.root.primary.add_widget(stack)
-    #         self.expanded = True
 
-# class ListFunctionsBar(GridLayout):
-#     pass
-#
-#
+class NoteInput(MDTextField):
+    """Input for item note"""
+
+    # def on_focus(self, _, value):
+    #     if not value and self.text:
+    #         return self.on_text_validate()
+
+    def on_text_validate(self):
+        if self.text:
+            self.root.note_text_validate(self.text)
+
+
+class PreviewIconButton(MDIconButton, MDTooltip):
+    """Larger icons and tooltip behavior"""
+
 # class ListFunctionsButton(ToggleButtonBehavior, Image):
 #
 #     def toggle(self, btn_id):

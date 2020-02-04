@@ -73,7 +73,8 @@ class WinApp(MDApp):
         super().__init__(**kwargs)
         self.sm = None
         self.set_theme()
-        self.db = Database('data/username.yaml')
+        self.path = 'data/username.yaml'
+        self.db = Database(self.path)
 
     def build(self):
         """Load various .kv files and create screen manager."""
@@ -85,22 +86,22 @@ class WinApp(MDApp):
 
     def set_theme(self):
         self.theme_cls = ThemeManager()
-        self.theme_cls.primary_palette = 'Teal'
-        self.theme_cls.primary_hue = '300'
-        self.theme_cls.accent_palette = 'Gray'
-        self.theme_cls.accent_hue = '800'
+        self.theme_cls.primary_palette = 'BlueGray'
+        self.theme_cls.primary_hue = '200'
+        self.theme_cls.accent_palette = 'Orange'
+        self.theme_cls.accent_hue = '900'
         self.theme_cls.theme_style = 'Dark'
         # self.accent_color = [255 / 255, 64 / 255, 129 / 255, 1]
 
     def load_user_settings(self):
-        """Reads the user settings file for things like save path, etc."""  # TODO: specify what this loads
+        """Reads the user settings file for things like save path, etc."""
+        # TODO: specify what this loads
         pass
 
     def exit_routine(self, gro_list=None):
-        db_path = ...
         if gro_list:
             self.db.set_new_defaults(gro_list)
-            self.db.dump_local(db_path)
+            self.db.dump_local(self.path)
         MDApp.get_running_app().stop()
 
 

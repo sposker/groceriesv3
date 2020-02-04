@@ -19,7 +19,8 @@ class Database:
     stores = {'default': None}
 
     def __init__(self, item_db, syntax=None, from_file=None, fullpath=None):
-        self.filename = item_db
+        self.filepath = item_db
+        self.path, self.file = item_db.split('/')
         self.file_object = from_file
         self.fullpath = fullpath
 
@@ -64,14 +65,14 @@ class Database:
                     self.items[_item.uid] = _item
 
         if not from_file:
-            self.file_object = open(self.filename)
+            self.file_object = open(self.filepath)
             _do_load(self.file_object)
             self.file_object.close()
         else:
             _do_load(self.file_object)
 
     def _load_network_file(self):
-        self.file_object = self.filename
+        self.file_object = self.filepath
         self._setup(mobile=True)
         self._load_yaml(from_file=True)
 
@@ -127,8 +128,11 @@ class Database:
             yaml.dump(data, f)
 
     def dump_local(self, db_path):
-        new_filename = os.getcwd() + '\\dbs\\' + self.get_date() + self.filename
-        os.rename(self.filename, new_filename)
+        path = os.path.join(os.getcwd(), self.path)
+        name = self.get_date() + self.file
+        filepath = os.path.join(self.path, name)
+        new_filename = os.path.join(path, filepath)
+        os.rename(self.filepath, new_filename)
 
         with open(db_path, 'w') as f:
             self._dump_yaml(f)

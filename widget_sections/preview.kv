@@ -3,6 +3,15 @@
 #:import MDTextField kivymd.uix.button
 #:import DefaultsDialog windows.dialogs
 
+
+<PreviewIconButton>
+    user_font_size: '26sp'
+    size_hint: None, None
+    theme_text_color: 'Custom'
+    text_color: 1, 1, 1, 1
+    tooltip_bg_color: app.dh_color
+    tooltip_text_color: app.text_color
+
 <FloatingStack>
     canvas.before:
         Color:
@@ -46,15 +55,25 @@
             size_hint: .05, 1
             disabled: True
 
-        MDLabel:
-            name: 'item_title'
-            text: root.item_name
+        BoxLayout:
             pos_hint: {'x': .05, 'center_y': .5}
             size_hint: .7, 1
-            theme_text_color: 'Custom'
-            text_color: app.text_color
-            halign: 'left'
-            font_size: 22
+
+            MDLabel:
+                name: 'item_title'
+                text: root.item_name
+                theme_text_color: 'Custom'
+                text_color: app.text_color
+                halign: 'left'
+                font_size: 22
+
+            MDLabel:
+                name: 'note_display'
+                size_hint: 0, 0
+                theme_text_color: 'Custom'
+                text_color: app.text_color
+                halign: 'left'
+                font_size: 16
 
 
         DefaultsButton:
@@ -71,7 +90,7 @@
                 root.defaults_dropdown.open(self)
 
 
-        MDIconButton:
+        PreviewIconButton:
             id: chev
             name: 'chevron'
             icon: "chevron-down"
@@ -91,20 +110,24 @@
         size_hint: 1, None
         height: root._expansion_height
 
-        MDTextField:
+        NoteInput:
+            root: card
             size_hint: 1, 1
             name: 'note_input'
             pos_hint: {'center_x': .5, 'center_y': .5}
 
-        MDIconButton:
+
+        PreviewIconButton:
             name: 'history'
             icon: "history"
             pos_hint: {'center_x': .5, 'center_y': .5}
+            tooltip_text: 'Item History'
 
-        MDIconButton:
+        PreviewIconButton:
             name: 'delete_card'
             icon: "delete"
             pos_hint: {'center_x': .5, 'center_y': .5}
+            tooltip_text: 'Remove Item'
 
             on_release:
                 root.kvlang_remove_card()

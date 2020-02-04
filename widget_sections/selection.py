@@ -82,7 +82,7 @@ class ToggleLayout(MDCard):
     item = ObjectProperty()
     state = OptionProperty('normal', options=['normal', 'down'])
     icon = OptionProperty('checkbox-blank-outline', options=['checkbox-marked-outline', 'checkbox-blank-outline'])
-    children_color = [logical.as_list(app.theme_cls.primary_color), app.text_color]
+    children_color = [logical.as_list(app.theme_cls.accent_color), app.text_color]
 
     def __init__(self, item, **kwargs):
         self.item = item

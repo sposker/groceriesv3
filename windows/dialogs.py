@@ -13,6 +13,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.spinner import Spinner
 
 from kivymd.app import MDApp
+from kivymd.uix.filemanager import MDFileManager
 from kivymd.uix.label import MDLabel
 from kivymd.uix.button import MDRaisedButton, MDIconButton
 from kivymd.uix.textfield import MDTextField
@@ -43,19 +44,24 @@ class AddItemDialog(GroceriesAppBaseDialog):
         AddItemDialog.group = group
         super().__init__(**kwargs)
 
-    # noinspection PyUnboundLocalVariable
-    def do_add(self, *_):
-        from widget_sections.preview import ItemCardContainer
-        """Called when adding a new item"""
         for widget in self.walk(restrict=True):
             if isinstance(widget, self.AddItemSpinner):
-                _group = widget.groups[widget.text]
+                self.spinner = widget
             if isinstance(widget, MDTextField):
-                _name = widget.text
+                self.field = widget
+
+        Clock.schedule_once(lambda _: setattr(self.field, 'focus', True))
+
+    # noinspection PyUnboundLocalVariable
+    def do_add(self, *_):
+        """Called when adding a new item"""
+        from widget_sections.preview import ItemCardContainer
+
+        info = {k: v for k, v in [('name', self.field.text), ('group', self.spinner.text)]}
 
         self.dismiss()
         with ItemCardContainer() as f:
-            f.add_card(None)
+            f.dialog_add_card(info)
 
 
 class ClearListDialog(GroceriesAppBaseDialog):
@@ -143,18 +149,20 @@ class ExitDialog(GroceriesAppBaseDialog):
 class FilePickerDialog(GroceriesAppBaseDialog):
     """Load Files"""
 
-    # def __init__(self, **kwargs):
-    #     self.filepicker_path = os.getcwd() + '\\lists'
-    #     super().__init__(**kwargs)
-    #
-    # def load(self, path, filename):
-    #     try:
-    #         with open(os.path.join(path, filename[0])) as stream:
-    #             app = App.get_running_app()
-    #             app.load_list(''.join([line for line in stream]))
-    #             self.dismiss()
-    #     except IndexError:
-    #         pass
+    def __init__(self, **kwargs):
+        cwd = os.getcwd()
+        print(cwd)
+        self.filepicker_path = os.path.join(cwd, 'data\\lists')
+        super().__init__(**kwargs)
+
+    def load(self, path, filename):
+        try:
+            with open(os.path.join(path, filename[0])) as stream:
+                app = MDApp.get_running_app()
+                app.load_list(''.join([line for line in stream]))
+                self.dismiss()
+        except IndexError:
+            pass
 
 
 class SaveDialog(GroceriesAppBaseDialog):
@@ -185,6 +193,7 @@ class SaveDialog(GroceriesAppBaseDialog):
             server.sendmail(sender_email, receiver_email, content)
 
     def print_list(self):
+        self.make_list()
         self.gro_list.format_plaintext()
         self.gro_list.write()
         self.print_physical()
@@ -192,6 +201,7 @@ class SaveDialog(GroceriesAppBaseDialog):
         self.complete('List saved; Printing in progress')
 
     def email_list(self):
+        self.make_list()
         self.gro_list.format_plaintext()
         self.gro_list.write()
         self.send_email(self.gro_list.email_content)
@@ -199,6 +209,7 @@ class SaveDialog(GroceriesAppBaseDialog):
         self.complete('List sent via Email')
 
     def save_list(self):
+        self.make_list()
         self.gro_list.format_plaintext()
         self.gro_list.write()
 
