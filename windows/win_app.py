@@ -1,3 +1,6 @@
+import datetime
+import os
+
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen, ScreenManager
@@ -6,6 +9,7 @@ from kivy.clock import Clock
 from kivymd.app import MDApp
 from kivymd.theming import ThemeManager
 
+from logical.pools_and_lists import ItemPool
 from windows import screenwidth, screenheight
 from logical import as_list, as_string
 from logical.database import Database
@@ -15,11 +19,10 @@ GENERAL = ['preview', 'search', 'selection']
 SPECIFIC_WIN = ['win_navbar', 'dialogs']
 APP_KV_PATH = r'windows\windows.kv'
 
-DARK_HIGHLIGHT = (0.1568627450980392, 0.16862745098039217, 0.18823529411764706, 1)  # Darkest Gray
-BACKGROUND_COLOR = (0.18823529411764706, 0.19215686274509805, 0.21176470588235294, 1)  # Dark gray
-ELEMENT_COLOR = (0.21176470588235294, 0.2235294117647059, 0.25882352941176473, 1)  # Medium Gray
+DARK_HIGHLIGHT = BACKGROUND_COLOR = (0.07058823529411765, 0.07058823529411765, 0.07058823529411765, 1)  # Dark gray
+ELEMENT_COLOR = (0.12549019607843137, 0.12549019607843137, 0.12549019607843137, 1)  # Medium Gray
 LIGHT_HIGHLIGHT = (0.39215686274509803, 0.396078431372549, 0.41568627450980394, 1)  # Lighter Gray
-TEXT_COLOR = (0.6705882352941176, 0.6705882352941176, 0.6705882352941176, 1)  # Lightest Gray
+TEXT_COLOR = (0.8862745098039215, 0.8862745098039215, 0.8862745098039215, 1)  # Lightest Gray
 APP_COLORS = [DARK_HIGHLIGHT, BACKGROUND_COLOR, ELEMENT_COLOR, LIGHT_HIGHLIGHT, TEXT_COLOR]
 
 ITEM_ROW_HEIGHT = 72
@@ -28,10 +31,11 @@ TEXT_BASE_SIZE = 40
 Window.size = (screenwidth / 2, screenheight / 2)
 Window.borderless = True
 Window.position = 'custom'
-Window.left = screenwidth/4
-Window.top = screenheight/4
-Window.icon = 'src\\main.ico'
+Window.left = screenwidth/2 - Window.size[0]/2
+Window.top = screenheight/2 - Window.size[1]/2
+Window.icon = 'data\\src\\main.ico'
 widgets_list = ['widget_sections/' + s + '.kv' for s in GENERAL] + ['windows/' + s + '.kv' for s in SPECIFIC_WIN]
+
 
 
 class WinApp(MDApp):
@@ -71,10 +75,10 @@ class WinApp(MDApp):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.sm = None
+        self._set_nonetypes()
         self.set_theme()
-        self.path = 'data/username.yaml'
-        self.db = Database(self.path)
+        self.path = 'data/username/username.yaml'
+        self.db = Database(item_db=self.path)
 
     def build(self):
         """Load various .kv files and create screen manager."""
@@ -85,47 +89,98 @@ class WinApp(MDApp):
         return self.sm
 
     def set_theme(self):
+        """Must be done as part of `__init__` method"""
         self.theme_cls = ThemeManager()
         self.theme_cls.primary_palette = 'BlueGray'
-        self.theme_cls.primary_hue = '200'
+        self.theme_cls.primary_hue = '500'
         self.theme_cls.accent_palette = 'Orange'
-        self.theme_cls.accent_hue = '900'
+        self.theme_cls.accent_hue = '700'
         self.theme_cls.theme_style = 'Dark'
-        # self.accent_color = [255 / 255, 64 / 255, 129 / 255, 1]
 
     def load_user_settings(self):
         """Reads the user settings file for things like save path, etc."""
-        # TODO: specify what this loads
-        pass
+        # 'TODO: specify what this loads'
+        try:
+            print('TODO: specify what this loads')
+        except FileNotFoundError:
+            self._load_defaults()
+
+        self.pools_path = r'data\username\pools'
+
+    def load_data(self):
+        self.load_user_settings()
+
+        s = MainScreen(name='main')
+        self.sm.add_widget(s)
+
+        now = str(datetime.datetime.now()).split(" ")[0]  # Just the date
+        now = now.replace('-', '.')  # Path-friendly formatting used for writing to disk
+
+        for _, _, pools in os.walk(self.pools_path):
+            for pool in pools:
+                if now in pool:  # today's date matches the date of an item list
+                    from widget_sections.selection import GroupDisplay
+                    itempool = ItemPool.from_file(os.path.join(self.pools_path, pool))
+                    GroupDisplay.instance.interpret_pool(itempool)
+
+    def _set_nonetypes(self):
+        """Create app attributes to be overwritten by user settings or defaults"""
+
+        attrs = {
+            'sm',
+            'username',
+            'credentials_path',
+            'pools_path',
+            'old_db_path',
+            'lists_path',
+            'theme_path',
+        }
+
+        for attr in attrs:
+            setattr(self, attr, None)
 
     def exit_routine(self, gro_list=None):
         if gro_list:
             self.db.set_new_defaults(gro_list)
-            self.db.dump_local(self.path)
+            self.db.dump_local()
         MDApp.get_running_app().stop()
+
+    def _load_defaults(self):
+        pass
 
 
 class GroManager(ScreenManager):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        print('loaded')
 
     def change(self):
         pass
-        Clock.schedule_once(setattr(self, 'current', "main"), 2)
+
+
+class MainScreen(Screen):
+    """Main Screen for app"""
 
 
 class LoadScreen(Screen):
+    """Loading screen with simple animation"""
 
-    @staticmethod
-    def do_load(*_):
-        app = MDApp.get_running_app()
-        return setattr(app.sm, 'current', "main")
+    def __init__(self, **kw):
+        super().__init__(**kw)
+        self.app = MDApp.get_running_app()
+        self._trigger = Clock.create_trigger(self.real_load)
+
+    def real_load(self, _):
+        """Displays load screen while app builds itself"""
+        self.app.load_data()
+        return Clock.schedule_once(self.swap_screen, 3)
+
+    def swap_screen(self, _):
+        """Once loading is complete, swap the screen"""
+        return setattr(self.app.sm, 'current', "main")
 
     def on_enter(self, *args):
-        pass
-        # Clock.schedule_once(self.do_load, 2)
+        self._trigger()
 
 
 if __name__ == '__main__':

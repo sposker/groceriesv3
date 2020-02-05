@@ -18,9 +18,12 @@ class Database:
     new_items = {}
     stores = {'default': None}
 
-    def __init__(self, item_db, syntax=None, from_file=None, fullpath=None):
-        self.filepath = item_db
-        self.path, self.file = item_db.split('/')
+    def __init__(self, item_db=None, syntax=None, from_file=None, fullpath=None):
+
+        if item_db:
+            self.filepath = item_db
+            self.path, self.filename = item_db.rsplit('/', maxsplit=1)
+            self.username, self.ext = self.filename.split('.')
         self.file_object = from_file
         self.fullpath = fullpath
 
@@ -33,15 +36,15 @@ class Database:
 
     # noinspection PyTypeChecker
     def _setup(self, mobile=False):
-        _path = 'data' if not self.fullpath else self.fullpath
+        content_root = 'data' if not self.fullpath else self.fullpath
 
-        with open(os.path.join(_path, 'groups.txt')) as f:
+        with open(os.path.join(content_root, 'groups.txt')) as f:
             for i, line in enumerate(f):
                 if line:
                     _grp = DisplayGroup(line[:-1], uid=i)
                     self.groups[_grp.uid] = _grp
 
-        for root, dirs, filenames in os.walk(os.path.join(_path, 'stores')):
+        for root, dirs, filenames in os.walk(os.path.join(content_root, 'stores')):
             for filename in filenames:
                 truncated = filename[:-4]
                 pool = set()
@@ -75,6 +78,14 @@ class Database:
         self.file_object = self.filepath
         self._setup(mobile=True)
         self._load_yaml(from_file=True)
+
+    def add_new_item(self, info: dict):
+        """Method for creating a new item from dialogs or loading unknown item from pool"""
+        name = info['name']
+        kwargs = {k: v for k, v in info.items() if k != 'name'}
+        item = GroceryItem(name, **kwargs)
+        self.new_items[item.uid] = item
+        return item
 
     @staticmethod
     def get_date():
@@ -113,7 +124,7 @@ class Database:
         all_items = list(self.items.values()) + list(self.new_items.values())
         for item in all_items:
             name = item.name
-            uid = item.uid if item.uid else ''
+            uid = item.uid
             group = item.group.uid
             defaults = [[float(u), v] for u, v in item.defaults]
             note = item.note
@@ -127,14 +138,14 @@ class Database:
 
             yaml.dump(data, f)
 
-    def dump_local(self, db_path):
-        path = os.path.join(os.getcwd(), self.path)
-        name = self.get_date() + self.file
-        filepath = os.path.join(self.path, name)
-        new_filename = os.path.join(path, filepath)
-        os.rename(self.filepath, new_filename)
+    def dump_local(self):
+        abs_path = os.path.join(os.getcwd(), self.path)
+        filename = f'{self.get_date()}{self.username}.{self.ext}'
+        old_db_dir = os.path.join(abs_path, 'old_database')
+        new_filepath = os.path.join(old_db_dir, filename)
+        os.rename(self.filepath, new_filepath)
 
-        with open(db_path, 'w') as f:
+        with open(self.filepath, 'w') as f:
             self._dump_yaml(f)
 
     def dump_mobile(self, pair):

@@ -61,6 +61,7 @@ class ListFunctionsBar(BoxLayout):
     def toggle_asc_desc(btn):
         """Change sort order to ascending or descending"""
         btn.icon = ({'sort-ascending', 'sort-descending'} - {btn.icon}).pop()
+        btn.tooltip_text = ({"SwitchTo: Ascending", "SwitchTo: Descending"} - {btn.tooltip_text}).pop()
         with ItemCardContainer() as f:
             f.sort_desc = not f.sort_desc
             f.sort_display()

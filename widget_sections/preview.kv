@@ -12,7 +12,7 @@
     tooltip_bg_color: app.dh_color
     tooltip_text_color: app.text_color
 
-<FloatingStack>
+<DropdownStack>
     canvas.before:
         Color:
             rgba: app.dh_color
@@ -44,6 +44,7 @@
     size_hint: 1, None
     height: self.minimum_height
     pos_hint: {"center_x": .5, "center_y": .5}
+#    elevation: 12
 
     BoxLayout:
         name: 'primary'
@@ -88,6 +89,7 @@
             size: dp(88), dp(72)
             on_release:
                 root.defaults_dropdown.open(self)
+                self.color: app.bg_color
 
 
         PreviewIconButton:
@@ -150,7 +152,7 @@
 
         ItemCardContainer:
 
-            spacing: dp(2)
+            spacing: dp(4)
             orientation: 'vertical'
             size_hint: None, None
             height: 0

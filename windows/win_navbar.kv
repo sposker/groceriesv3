@@ -1,57 +1,102 @@
 #:import Factory kivy.factory.Factory
 
-<WinButton>
-#    color: app.elem_color
-    n: 40
-    size_hint: (None, None)
-    size: dp(self.n), dp(self.n)
-    pos_hint: {'center_x': .5, 'center_y':.525}
+<WinMDIconButton@MDIconButton>
+    canvas.before:
+        Color:
+            rgba: app.elem_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    user_font_size: '30sp'
+    size_hint: None, 1
+    width: self.height
+    pos_hint: {'center_x': .5, 'top': 1}
+    theme_text_color: 'Custom'
+    text_color: app.theme_cls.primary_color
+
 
 <NavBarButton>
     color: app.elem_color
     size_hint: (None, None)
     size: (self.parent.height - 4, self.parent.height)
 
-<NavSpinner>
-    background_color: app.elem_color
+<NavBarSpinner>
+    background_color: app.bg_color
     background_normal: app.elem_color_string
-    color: app.lh_color
-    font_size: self.height - 4
+    color: app.text_color
+    font_size: 30
     foreground_color: app.text_color
-    halign: 'left'
-    size: (self.parent.height * 3, self.parent.height - 4)
-    size_hint: (None, None)
+    size_hint: None, 1
     text_autoupdate: True
-    text_color: app.text_color
+    width: 246.0980634528224
+#    text_color: app.text_color
     on_text:
         self.jump(self.text)
 
 <SpinnerButton>
 
-    color: app.elem_color
-    halign: 'center'
+    font_size: 24
+#    size_hint: (None, .7/3)
+#    width: app.screenwidth/6 - 20
+    pos_hint: {'x': 0}
+    theme_text_color: 'Custom'
     text_color: app.text_color
-    size_hint_y: None
-    size: (1, root.height)
+    halign: 'left'
+    size: self.width, self.height
     on_release:
         self.jump()
 
+<SpinnerDropdown@DropDown>
+    canvas.before:
+        Color:
+            rgba: app.dh_color
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [0, 0, 16, 16]
+
+
+#    height: app.item_row_height/2
+    background_color: app.trans_list
+    background_normal: ''
+    color: app.text_color
+    padding: dp(4)
+
 <WinNavBar>
 
-    pos_hint: {'center_x': .5, 'top': 1}
-    id: toolbar
-    title: 'main'
-    md_bg_color: "BlueGray"
-#    background_palette: "BlueGray"
-    elevation: 10
-#    right_action_items:
+    canvas.before:
+        Color:
+            rgba: app.theme_cls.primary_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
 
-#    canvas.before:
-#        Color:
-#            rgba: app.elem_color
-#        Rectangle:
-#            size: self.size
-#            pos: self.pos
+    title: 'v3.0.0'
+    icon_color: app.text_color
+    spacing: dp(4)
+    padding: dp(4)
+
+    Widget:
+        size_hint: None, 1
+        width: dp(6)
+
+    NavBarSpinner:
+        id: spinner
+        option_cls: 'SpinnerButton'
+        dropdown_cls: 'SpinnerDropdown'
+
+    Widget:
+
+    WinMDIconButton:
+        icon: 'window-minimize'
+        on_release: root.minimize()
+    WinMDIconButton:
+        icon: 'window-maximize'
+        on_release: root.toggle_max(self)
+    WinMDIconButton:
+        icon: 'window-close'
+        on_release: Factory.ExitDialog().open()
 
 
 

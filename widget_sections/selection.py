@@ -21,6 +21,7 @@ from kivymd.uix.label import MDLabel
 from kivymd.icon_definitions import md_icons
 
 import logical
+from logical.pools_and_lists import ItemPool
 from widget_sections.preview import ItemCardContainer
 from windows.dialogs import AddItemDialog
 
@@ -46,17 +47,6 @@ class SectionAddItem(MDCard, ButtonBehavior):
 
     def on_release(self):
         AddItemDialog(self.group).open()
-
-
-    #     Clock.schedule_once(self._set_width, 2)
-    #
-    # def _set_width(self, _):
-    #     for c in self.children:
-    #         try:
-    #             if c.color == MDApp.get_running_app().text_color:
-    #                 print(c, c.color)
-    #         except AttributeError:
-    #             pass
 
 
 class ItemName(MDLabel):
@@ -92,6 +82,8 @@ class ToggleLayout(MDCard):
         self.state = 'normal'
 
     def toggle(self):
+        """Defines toggle behavior for layout"""
+
         if self.state == 'normal':
             with ItemCardContainer() as f:
                 self.card = f.add_card(toggle=self)
@@ -123,6 +115,7 @@ class ToggleLayout(MDCard):
 
     @staticmethod
     def _do_split(string):
+        """`display_name` helper method"""
         _half, _ = half, x = divmod(len(string), 2)
         if string[half] == ' ':
             return string[:half] + '\n' + string[half+1:]
@@ -141,13 +134,13 @@ class ToggleLayout(MDCard):
 
     @property
     def display_name(self):
+        """Split long names into readable, multiline text"""
         name = self.item.name
         if len(name) > 20:  # Split into two lines
             _name = self._do_split(name)
         else:
             _name = name
         return _name
-
 
 
 class GroupScrollHelper(RelativeLayout):
@@ -163,6 +156,10 @@ class GroupScrollBar(ScrollView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         GroupScrollBar.instance = self
+
+    @property
+    def heights(self):
+        return GroupDisplay.instance.heights
 
 
 class DisplaySubsection(GridLayout):
@@ -230,15 +227,13 @@ class GroupDisplay(BoxLayout):
     """Widget placed in scrollview; holds DisplaySubsections (which hold toggle buttons)"""
 
     instance = None
-    heights_dict = {}
     _heights_list = []
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
         GroupDisplay.instance = self
 
-        app = MDApp.get_running_app()
+        self.app = MDApp.get_running_app()
         groups = [obj for obj in app.db.groups.values()]  # Values used for construction of display
         groups.reverse()
         self.heightplaceholder = 0
@@ -248,11 +243,33 @@ class GroupDisplay(BoxLayout):
             gridlayout = DisplaySubsection(group)
 
             top = self.heightplaceholder  # Top of grid section- pixels
-            gridlayout.height = (gridlayout.grid_rows + 9 / 8) * app.item_row_height
+            gridlayout.height = (gridlayout.grid_rows + 9 / 8) * self.app.item_row_height
             self.heightplaceholder += gridlayout.height  # Add height to running total
             gridlayout.set_position(top, self.heightplaceholder)
 
             self.add_widget(gridlayout)
             gridlayout.populate()
+            self._heights_list.append(
+                (gridlayout.group.name, gridlayout, self.heightplaceholder-gridlayout.height, self.heightplaceholder))
+
+            # self.add_widget(gridlayout)
 
         self.height = self.heightplaceholder
+
+        def unpack(args):
+            x = args[0], (args[1], 1 - args[2] / self.height, 1 - args[3] / self.height)
+            return x
+
+        self.heights = {k: v for k, v in (unpack(quad) for quad in self._heights_list)}
+
+    def interpret_pool(self, pool: ItemPool):
+        for uid, info in pool.items():
+            try:
+                item = self.app.db.items[uid]
+            except KeyError:
+                info = [info[0], (time(), info[1]), info[2]]
+                kwargs = {k: v for k, v in zip(['name', 'defaults', 'note'], info)}
+                item = self.app.db.add_new_item(kwargs)
+
+
+

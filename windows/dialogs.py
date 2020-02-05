@@ -182,12 +182,10 @@ class SaveDialog(GroceriesAppBaseDialog):
     def send_email(content):
         """Read login info from credentials and access server to send email"""
         with open('data\\credentials.txt') as f:
-            fields = [line.split(':')[1] for line in f]
+            sender_email, receiver_email, password = [line.split(':')[1] for line in f]
 
-        sender_email, receiver_email, password = fields
         port = 465  # For SSL
-        # Create a secure SSL context
-        context = ssl.create_default_context()
+        context = ssl.create_default_context()  # Create a secure SSL context
         with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
             server.login(sender_email, password)
             server.sendmail(sender_email, receiver_email, content)
@@ -208,12 +206,17 @@ class SaveDialog(GroceriesAppBaseDialog):
 
         self.complete('List sent via Email')
 
-    def save_list(self):
+    def save_formatted_list(self):
         self.make_list()
         self.gro_list.format_plaintext()
         self.gro_list.write()
 
         self.complete('List saved')
+
+    def save_incomplete(self):
+        self.item_pool.dump_yaml()
+
+        self.complete('Items saved to disk.')
 
     def complete(self, text):
         self.dismiss()

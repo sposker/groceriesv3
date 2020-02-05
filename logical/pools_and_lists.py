@@ -1,4 +1,5 @@
 import datetime
+import time
 import os
 from operator import itemgetter
 
@@ -13,15 +14,26 @@ class ItemPool:
     """Pool of items wanted for a grocery list; unsorted, but may be loaded and/or merged with other pools"""
 
     def __init__(self, item_pool):
-        self._items = {item.uid: (item, amount, note) for item, amount, note in item_pool}
+        self._items = {}
+
+        for item, amount, note in item_pool:
+            try:
+                amount = int(amount)
+            except (ValueError, TypeError):
+                amount = ''
+            self._items[item.uid] = item.name, amount, note
 
     def __getitem__(self, item):
         return self._items[item]
 
     def __add__(self, other):
-        """First, merge keys that exist in both dicts by iterating through this object's items.
-         Then create a new dict by copying the other dict and overwriting the values that were merged--
-         this preserves the keys in the other dict that were not present in the first.
+        """Merge keys that exist in both dicts by iterating through items in `self`, then create a new dict
+         by merging into a copy of the dict `other`.
+
+         This results in the following effects:
+         - Values not present in `other` are added as new entries.
+         - Values not present in `self` are preserved.
+         - Values present in both `self` and `other` are merged.
          """
         half_merged = {}
         for key, value0 in self.items():
@@ -65,27 +77,41 @@ class ItemPool:
     def from_file(cls, path):
         """Create an ItemPool object by loading data from file
         Lines in files should have the following format:
-        `item_uid`: [`amount`, `note`]
-        Item object will be looked up via DB.
+        `item_uid` OR `item.name`: [`amount`, `note`]
+        Item object will be looked up via DB, if not found it is a new/unsorted item and created
         """
+        print(path)
         db = MDApp.get_running_app().db
         pool = set()
-        for uid, info in yaml.load(path, Loader=yaml.Loader):
-            item = db.items[uid]
-            amount, note = info
-            pool.add((item, amount, note))
+        now = time.time()
+        with open(path) as doc:
+            print(f'opened {path}')
+            for base_dict in yaml.load_all(doc, Loader=yaml.Loader):
+                for uid, info in base_dict.items():
+                    try:
+                        item = db.items[uid]
+                    except KeyError:  # New item created during previous program run
+                        amount, note = info
+                        kwargs = {'name': uid, 'defaults': (amount, now), 'note': note}
+                        item = db.add_new_item(kwargs)
+                    else:
+                        amount, note = info
+                    pool.add((item, amount, note))
 
         return cls(pool)
 
     def dump_yaml(self, filename=None):
         """Save ItemPool to text format"""
+        db = MDApp.get_running_app().db
         dump_dict = {}
         for key, value in self._items.items():
-            _, amount, note = value
+            name, amount, note = value
+            if key not in db.items:
+                key = name
             dump_dict[key] = [amount, note]
 
         if not filename:
-            filename = os.path.join('data/pools', self.get_date() + '.itempool.yaml')
+            filename = os.path.join('data\\username\\pools', self.get_date() + 'itempool.yaml')
 
         with open(filename, 'w') as f:
             yaml.dump(dump_dict, f)
@@ -182,7 +208,7 @@ class ShoppingList:
                 header += f"List contains {h} Deli items-- deli closes at 8pm.\n"
                 subject += 'DELI'
 
-        # convert dict-- which maps :location uid: to :nested dictionary:-- into list of tuples and sort it
+        # convert the dict mapping `location_uid` to `nested: dictionary` into list of tuples, then sort it
         s = sorted([(k, v) for k, v in self.items.items()], key=itemgetter(0))
 
         body = ''

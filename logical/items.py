@@ -40,7 +40,6 @@ class DisplayGroup:
 
 
 class GroceryItem:
-
     _uids = set()
 
     def __init__(self,
@@ -59,8 +58,8 @@ class GroceryItem:
         else:
             self.uid = f'i{uid}'
 
-        self._group = None
-        self.group = group
+        self._group = None  # Set by @group.setter
+        self.group = group  # ibid
 
         self.defaults = [(time.time(), '')] if defaults in [None, []] else defaults
         self.note = '' if not note else note
@@ -71,11 +70,18 @@ class GroceryItem:
         return hash(self.__repr__())
 
     def __repr__(self):
-        return f'GroceryItem({self.name}, uid={self.uid}, {self.group.name}, ' \
-               f'defaults={self.defaults}, note={self.note})'
+        return (
+            f'{self.__class__}('
+            f'{self.name},'
+            f'uid={self.uid},'
+            f'group={self.group.name},'
+            f'defaults={self.defaults},'
+            f'note={self.note}'
+            f')'
+        )
 
     def __str__(self):
-        return self.uid
+        return f'{self.name} ({self.uid})'
 
     def _try_uid(self, n):
         _uid = 'i' + str(len(self._uids) + n).zfill(2)

@@ -86,21 +86,15 @@ class ItemCardContainer(BoxLayout):
         """Add a item to the preview via toggle button"""
         card = ItemCard(toggle=toggle, item=item)
         self.adjust_height(card.default_height)
-        self.stepped_height += card.default_height + self.spacing
+        self.stepped_height += (card.default_height + self.spacing)
         self.add_widget(card)
-        print(self.height, self.stepped_height, 'added')
+        # print(self.height, self.stepped_height, 'added')
         return card
 
-    def dialog_add_card(self, info):
+    def dialog_add_card(self, info: dict):
+        """Add a card for a new item via AddItemDialog"""
         db = MDApp.get_running_app().db
-        name = info['name']
-        group = info['group']
-        item = GroceryItem(name,
-                           group=group,
-                           defaults=None,
-                           note=None,
-                           uid=None)
-        db.new_items[item.uid] = item
+        item = db.add_new_item(info)
         self.add_card(item=item)
 
     # TODO: First/Last widget +8 dp for MD spec
@@ -112,6 +106,9 @@ class ItemCardContainer(BoxLayout):
     #         self.final_node.height = widget.height
     #     self.final_node = widget
     #     widget.height += 8
+
+    def populate_from_pool(self, pool: ItemPool):
+        """Create cards from pool of items"""
 
     def convert_to_pool(self):
         """Convert preview items into ItemPool"""
@@ -129,7 +126,7 @@ class ItemCardContainer(BoxLayout):
         self.adjust_height(-card.height)
         self.stepped_height -= (card.height + self.spacing)
         self.remove_widget(card)
-        print(self.height, self.stepped_height, 'removed')
+        # print(self.height, self.stepped_height, 'removed')
 
     def sort_display(self):
         """Called with name of card attributes"""
@@ -163,9 +160,8 @@ class ItemCard(MDCard):
     def __init__(self, toggle=None, item=None, **kwargs):
         # simple item properties
         self.toggle = toggle
-        self.item = toggle.item if toggle else item
+        self.item = toggle.item if toggle else item  # No toggle button for new items
         self._creation = time.time()
-        self.note = ''
 
         # work with item defaults list
         self.defaults_list = self.item.defaults.copy()
@@ -176,8 +172,9 @@ class ItemCard(MDCard):
         super().__init__(**kwargs)
         self._get_widget_refs()
 
-        # create dropdown
+        # create dropdown, set note text, item history  #TODO history
         self.defaults_dropdown = DropdownStack(self.defaults_list.copy(), self.amount)
+        self.note_input.text = self.item.note
 
     @property
     def expand_anim(self):
@@ -212,7 +209,6 @@ class ItemCard(MDCard):
                 if child.name in self._hidden_at_start:
                     child.saved_attrs = True
                     child.height, child.size_hint[1], child.opacity, child.disabled = 0, None, 0, True
-                    print(child.height, child.size_hint[1], child.opacity, child.disabled)
 
     def _make_hidden(self):
         for attr, values in self._hidden_at_start.items():
@@ -251,11 +247,12 @@ class ItemCard(MDCard):
         self.expanded = not self.expanded
 
     def kvlang_remove_card(self):
+        """Called from card's delete button"""
         with ItemCardContainer() as f:
             f.remove_card(self)
-            ...
 
     def note_text_validate(self, text):
+        """Pressing enter on note input updates the item's note and collapses the expansion"""
         self.note_display.size_hint = (1, .2)
         self.note_display.text = text
         self.chevron.trigger_action(duration=.1)
@@ -282,7 +279,7 @@ class ItemCard(MDCard):
             amount = int(self.amount.text)
         except ValueError:
             amount = None
-        return self.item, amount, self.note
+        return self.item, amount, self.note_display.text
 
 
 class DropdownStack(DropDown):
@@ -359,6 +356,14 @@ class NoteInput(MDTextField):
 
 class PreviewIconButton(MDIconButton, MDTooltip):
     """Larger icons and tooltip behavior"""
+
+    def animation_tooltip_show(self, interval):
+        if not self._tooltip:
+            return
+        (
+            Animation(_scale_x=1, _scale_y=1, d=0.4)
+            + Animation(opacity=1, d=0.4)
+        ).start(self._tooltip)
 
 # class ListFunctionsButton(ToggleButtonBehavior, Image):
 #

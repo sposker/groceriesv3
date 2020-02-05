@@ -27,11 +27,12 @@
 
     BoxLayout:
         size: self.parent.size
-
+        spacing: dp(8)
 
         BoxLayout:
             orientation: 'vertical'
             size_hint: .3, 1
+            spacing: dp(8)
 
             MDLabel:
                 size_hint: (1, .35)
@@ -57,9 +58,10 @@
         BoxLayout:
             orientation: 'vertical'
             size_hint: .7, 1
+            spacing: dp(8)
 
             AddItemSpinner:
-                size_hint: (1, .25)
+                size_hint: (1, .35)
 
                 background_color: app.bg_color
                 background_normal: ''
@@ -98,6 +100,7 @@
         color: app.text_color
         size: self.parent.size
         font_size: 24
+        spacing: dp(8)
 
         Label:
             text: 'Remove all items from list?'
@@ -107,6 +110,7 @@
 
         BoxLayout:
             font_size: 24
+            spacing: dp(8)
 
             DialogButton:
                 text: '    Cancel'
@@ -137,7 +141,7 @@
             size_hint: (1,.6)
 
         Button:
-            text: 'OK'
+            text: 'EXIT APP'
             color: self.parent.color
             font_size: self.parent.font_size
             size_hint: (1,.2)
@@ -146,8 +150,9 @@
 
 <DefaultsDialogButton>
 
+    user_font_size: '24sp'
+    size_hint: 1, 1
     theme_text_color: 'Custom'
-    font_size: 20
     text_color: app.text_color
 
 <DefaultsInput>
@@ -182,7 +187,6 @@
         GridLayout:
             cols: 3
             size_hint: 1, .6
-            pos_hint: {'center_x': .7, 'center_y': .325}
 
 <DialogButton@MDRectangleFlatIconButton>
 
@@ -231,6 +235,9 @@
         size: root.size
         pos: root.pos
         orientation: "vertical"
+        spacing: dp(8)
+
+
         FileChooserListView:
             id: filechooser
             path: root.filepicker_path
@@ -238,6 +245,7 @@
         BoxLayout:
             size_hint_y: None
             height: 30
+            spacing: dp(8)
             Button:
                 text: "Cancel"
                 color: app.text_color
@@ -250,8 +258,11 @@
 
 <SaveDialog>
 
+    size: (app.screenwidth/4, app.screenheight/5)
+
     BoxLayout:
         orientation: 'vertical'
+        spacing: dp(16)
 
         Label:
             text: 'Complete List?'
@@ -259,12 +270,17 @@
             font_size: 32
             size_hint: 1, .3
 
+#        Widget:
+#            size_hint: 1, .05
+
         GridLayout:
             cols: 2
             size_hint: 1, .7
             color: app.text_color
             font_size: 24
             spacing: dp(8)
+
+            Widget:
 
             DialogButton:
                 text: '  Print List'
@@ -285,6 +301,15 @@
                     root.email_list()
 
             DialogButton:
+                text: '  Save Incomplete'
+                icon: 'content-save-outline'
+                size_hint: 1, 1
+                pos_hint: {'center_x': .5}
+                text_color: app.text_color
+                on_release:
+                    root.save_incomplete()
+
+            DialogButton:
                 text: '  Cancel'
                 icon: 'cancel'
                 size_hint: 1, 1
@@ -294,13 +319,13 @@
                     root.dismiss()
 
             DialogButton:
-                text: '  Save'
-                icon: 'content-save-outline'
+                text: '  Save Formatted List'
+                icon: 'typewriter'
                 size_hint: 1, 1
                 pos_hint: {'center_x': .5}
                 text_color: app.text_color
                 on_release:
-                    root.save_list()
+                    root.save_formatted_list()
 
 
 <SettingsDialog>

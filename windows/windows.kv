@@ -26,20 +26,26 @@
     height: dp(2)
     pos_hint: {'center_x': .5, 'center_y': .5}
 
-<MainScreen@Screen>
+<MainScreen>
     name: "main"
+
+    canvas.before:
+        Color:
+            rgba: app.bg_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
 
 #    NavBar:
 #        size_hint: 1, .08
 
 
     WinNavBar:
-        pos_hint: {'center_x': .5, 'top': 1}
         id: toolbar
-        title: 'main'
-        md_bg_color: app.theme_cls.primary_color
-        background_palette: "Primary"
-        elevation: 10
+        size_hint: 1, None
+        height: 54
+        pos_hint: {'center_x': .5, 'top': 1}
+
 
     BoxLayout:
         size_hint: 1, None
@@ -98,7 +104,7 @@
         pos_hint: {"center_x": 0.5, "center_y":0.5}
 
     Image:
-        source: 'src\\desktop96.png'
+        source: 'data\\src\\desktop96.png'
         pos_hint: {"center_x": 0.5, "center_y":0.5}
         size_hint:0.25, 0.25
     MDLabel:
@@ -111,10 +117,7 @@
 
 <GroManager>
     id: manager
-    current: "main"
+    current: "loading"
 
     LoadScreen:
         name: "loading"
-
-    MainScreen:
-        name: 'main'
