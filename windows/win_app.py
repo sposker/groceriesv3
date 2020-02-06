@@ -37,7 +37,7 @@ Window.icon = 'data\\src\\main.ico'
 widgets_list = ['widget_sections/' + s + '.kv' for s in GENERAL] + ['windows/' + s + '.kv' for s in SPECIFIC_WIN]
 
 
-
+# noinspection PyAttributeOutsideInit
 class WinApp(MDApp):
 
     dh_color = DARK_HIGHLIGHT
@@ -53,8 +53,8 @@ class WinApp(MDApp):
     elem_color_list = as_list(elem_color)
 
     lh_color = LIGHT_HIGHLIGHT
-    lh_color_string = as_string(lh_color)
-    lh_color_list = as_list(lh_color)
+    # lh_color_string = as_string(lh_color)
+    # lh_color_list = as_list(lh_color)
 
     text_color = TEXT_COLOR
     text_color_string = as_string(text_color)
@@ -168,12 +168,12 @@ class LoadScreen(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
         self.app = MDApp.get_running_app()
-        self._trigger = Clock.create_trigger(self.real_load)
+        self._trigger = Clock.create_trigger(self.real_load, 2)
 
     def real_load(self, _):
         """Displays load screen while app builds itself"""
         self.app.load_data()
-        return Clock.schedule_once(self.swap_screen, 3)
+        return Clock.schedule_once(self.swap_screen)
 
     def swap_screen(self, _):
         """Once loading is complete, swap the screen"""

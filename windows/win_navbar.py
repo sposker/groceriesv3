@@ -26,12 +26,7 @@ class NavBarSpinner(Spinner):
         super().__init__(**kwargs)
         app = MDApp.get_running_app()
         NavBarSpinner.values = [k.name for k in app.db.groups.values()]
-        Clock.schedule_once(self.do_app_iter, 1)
 
-    def do_app_iter(self, _):
-        app = MDApp.get_running_app()
-        for k, v in app.sm.current_screen.ids.items():
-            print(k, v)
 
     @staticmethod
     def jump(text, padding=120):
@@ -44,17 +39,6 @@ class NavBarSpinner(Spinner):
             NavBarSpinner.jump_anim(widgets_list[1])
         except AttributeError:
             pass
-
-    # @property
-    # def width(self):
-    #     return super().width
-    #
-    # @property
-    # def _width(self):
-    #     if x := DisplaySubsection.last_child:
-    #         return x.width
-    #     else:
-    #         return 246
 
 
 class WinNavBar(BoxLayout):

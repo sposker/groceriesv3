@@ -1,5 +1,7 @@
 #:import MDRectangleFlatIconButton kivymd.uix.button
 #:import MDLabel kivymd.uix.label
+#:import SpinnerButton windows.win_navbar
+#:import SpinnerDropdown windows.win_navbar
 
 <GroceriesAppBaseDialog>
     canvas.before:
@@ -64,12 +66,15 @@
                 size_hint: (1, .35)
 
                 background_color: app.bg_color
-                background_normal: ''
-                color: app.lh_color
-                font_size: self.height/2
+                background_normal: app.elem_color_string
+                color: app.text_color
+                font_size: 24
                 foreground_color: app.text_color
+#                size_hint: 1, 1
                 text_autoupdate: True
                 text_color: app.text_color
+                option_cls: 'SpinnerButton'
+                dropdown_cls: 'SpinnerDropdown'
 
             MDTextField:
                 size_hint: (1, .35)
@@ -229,32 +234,26 @@
             on_release:
                 root.do_exit()
 
+<FilePickerButton>
+
+    theme_text_color: 'Custom'
+    text_color: app.text_color
+    font_size: 20
+    text: self.display_name
+
+
 <FilePickerDialog>
 
-    BoxLayout:
+    options: 20
+
+    GridLayout:
+        id: grid_container
+        cols: 4
         size: root.size
         pos: root.pos
-        orientation: "vertical"
         spacing: dp(8)
+        padding: dp(8)
 
-
-        FileChooserListView:
-            id: filechooser
-            path: root.filepicker_path
-
-        BoxLayout:
-            size_hint_y: None
-            height: 30
-            spacing: dp(8)
-            Button:
-                text: "Cancel"
-                color: app.text_color
-                on_release: root.dismiss()
-
-            Button:
-                text: "Load"
-                color: app.text_color
-                on_release: root.load(filechooser.path, filechooser.selection)
 
 <SaveDialog>
 

@@ -1,6 +1,7 @@
 from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.factory import Factory
+from kivy.properties import StringProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.app import MDApp
 from kivymd.uix.button import MDIconButton
@@ -14,6 +15,13 @@ from widget_sections.preview import ItemCardContainer
 class MyMDIconButton(MDIconButton, MDTooltip):
     """Larger icons and tooltip behavior"""
 
+    group = StringProperty()
+    members = set()
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.__class__.members.add(self)
+
     def animation_tooltip_show(self, interval):
         if not self._tooltip:
             return
@@ -22,13 +30,21 @@ class MyMDIconButton(MDIconButton, MDTooltip):
             + Animation(opacity=1, d=0.4)
         ).start(self._tooltip)
 
+    def on_release(self):
+        """Change color for active sort type"""
+        if self.group:
+            app = MDApp.get_running_app()
+            self.text_color = app.theme_cls.accent_color
+            for btn in self.members:
+                if btn.group == self.group and btn != self:
+                    btn.text_color = app.theme_cls.primary_color
+
 
 class ListFunctionsBar(BoxLayout):
     """Layout holding useful functions for list and search"""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        print(self.children)
         Clock.schedule_once(self._assign_callbacks)
 
     def _assign_callbacks(self, _):
@@ -61,7 +77,7 @@ class ListFunctionsBar(BoxLayout):
     def toggle_asc_desc(btn):
         """Change sort order to ascending or descending"""
         btn.icon = ({'sort-ascending', 'sort-descending'} - {btn.icon}).pop()
-        btn.tooltip_text = ({"SwitchTo: Ascending", "SwitchTo: Descending"} - {btn.tooltip_text}).pop()
+        btn.tooltip_text = ({"Current: Ascending", "Current: Descending"} - {btn.tooltip_text}).pop()
         with ItemCardContainer() as f:
             f.sort_desc = not f.sort_desc
             f.sort_display()
@@ -80,7 +96,7 @@ class ListFunctionsBar(BoxLayout):
         """Launch the save dialog"""
         with ItemCardContainer() as f:
             gro_list = f.convert_to_pool()
-        Factory.SaveDialog(gro_list, MDApp.get_running_app().db).open()
+        Factory.SaveDialog(gro_list).open()
 
 
 class SearchBar(MDTextFieldRound):

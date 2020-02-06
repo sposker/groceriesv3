@@ -15,23 +15,26 @@
 
     MyMDIconButton:
         name: 'toggle_asc_desc'
-        icon: "sort-ascending"
-        tooltip_text: "SwitchTo: Ascending"
+        icon: "sort-descending"
+        tooltip_text: "Current: Descending"
 
     MyMDIconButton:
         name: 'alphabetical'
         icon: "sort-alphabetical"
         tooltip_text: 'SortBy: A-Z'
+        group: 'members'
 
     MyMDIconButton:
         name: 'group'
         icon: "cards-outline"
         tooltip_text: 'SortBy: Group'
+        group: 'members'
 
     MyMDIconButton:
         name: 'time'
         icon: "clock-fast"
         tooltip_text: "SortBy: Time Added"
+        group: 'members'
 
     MyMDIconButton:
         name: 'open'
@@ -59,12 +62,10 @@
     color: app.elem_color
     cursor_color: app.text_color
     disabled_color: 0,0,0,.1
-    disabled: True
-    opacity: 0
+#    disabled: True
     focus: False
     font_size: 24
-    hint_text: 'Coming Soon'
     hint_text_color: (1,1,1,0)
     multiline: False
-    text: 'Disabled'
+    text: 'Actually is coming soon this time.'
     write_tab: False

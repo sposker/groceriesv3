@@ -5,9 +5,10 @@ from datetime import datetime
 from operator import itemgetter
 
 from kivy.clock import Clock
-from kivy.properties import StringProperty, ObjectProperty
+from kivy.properties import StringProperty, ObjectProperty, BooleanProperty, NumericProperty
 from kivy.metrics import dp
 from kivy.factory import Factory
+from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.popup import Popup
 from kivy.uix.spinner import Spinner
@@ -15,10 +16,10 @@ from kivy.uix.spinner import Spinner
 from kivymd.app import MDApp
 from kivymd.uix.filemanager import MDFileManager
 from kivymd.uix.label import MDLabel
-from kivymd.uix.button import MDRaisedButton, MDIconButton
+from kivymd.uix.button import MDRaisedButton, MDIconButton, MDFlatButton
 from kivymd.uix.textfield import MDTextField
 
-from logical.pools_and_lists import ShoppingList
+from logical.pools_and_lists import ShoppingList, ItemPool
 
 
 class GroceriesAppBaseDialog(Popup):
@@ -138,7 +139,7 @@ class ExitDialog(GroceriesAppBaseDialog):
         from widget_sections.preview import ItemCardContainer
         with ItemCardContainer() as f:
             gro_list = f.convert_to_pool()
-        Factory.SaveDialog(gro_list, MDApp.get_running_app().db).open()
+        Factory.SaveDialog(gro_list).open()
         self.dismiss()
 
     @staticmethod
@@ -146,43 +147,80 @@ class ExitDialog(GroceriesAppBaseDialog):
         MDApp.get_running_app().exit_routine()
 
 
+class FilePickerButton(MDFlatButton, ToggleButtonBehavior):
+    """Button for picking files"""
+
+    instances = 0
+
+    def __init__(self, popup, root, filename, **kwargs):
+        self.filename = filename
+        y, m, d, _, _ = filename.split('.')
+        self.display_name = f'{m}-{d}'
+        self.path = os.path.join(root, filename)
+        self.popup = popup
+        super().__init__(**kwargs)
+        self.__class__.instances += 1
+
+    def on_release(self):
+        from widget_sections.selection import GroupDisplay
+        self.popup.clear_list()
+        pool = ItemPool.from_file(self.path)
+        GroupDisplay.instance.interpret_pool(pool)
+        self.popup.dismiss()
+
+
 class FilePickerDialog(GroceriesAppBaseDialog):
-    """Load Files"""
+    """The builtin file picker is too obfuscated/ poorly documented to customize, so we'll just not use it"""
+
+    options = NumericProperty()  # Number of visible widgets
 
     def __init__(self, **kwargs):
-        cwd = os.getcwd()
-        print(cwd)
-        self.filepicker_path = os.path.join(cwd, 'data\\lists')
+        self.app = MDApp.get_running_app()
+        self.filepicker_path = x if (x := self.app.pools_path) else \
+            os.path.join(os.getcwd(), r'data\username\lists')
         super().__init__(**kwargs)
+        self.display_options()
 
-    def load(self, path, filename):
-        try:
-            with open(os.path.join(path, filename[0])) as stream:
-                app = MDApp.get_running_app()
-                app.load_list(''.join([line for line in stream]))
-                self.dismiss()
-        except IndexError:
-            pass
+    def display_options(self):
+        """Load the list of choices"""
+        walk = os.walk(self.filepicker_path)
+        root, _, filenames = next(walk)
+
+        sorted_names = sorted(filenames)
+        sorted_names.reverse()
+
+        for filename in sorted_names:
+            if FilePickerButton.instances >= self.options:
+                break
+            btn = FilePickerButton(self, root, filename)
+            self.ids['grid_container'].add_widget(btn)
+
+    @staticmethod
+    def clear_list():
+        return ClearListDialog.clear_list()
 
 
 class SaveDialog(GroceriesAppBaseDialog):
     """Show options for saving ItemPool to disk, with or without formatting"""
 
-    def __init__(self, item_pool, db, **kwargs):
+    def __init__(self, item_pool, **kwargs):
         super().__init__(**kwargs)
         self.item_pool = item_pool
-        self.db = db
+        self.app = MDApp.get_running_app()
+        self.db = self.app.db
         self.gro_list = None
 
     def make_list(self, store_name='default'):
         store = self.db.stores[store_name]
-        self.gro_list = ShoppingList(self.item_pool, store)
+        path = x if (x := self.app.lists_path) else 'data\\username\\lists'
+        self.gro_list = ShoppingList(self.item_pool, store, path)
 
     @staticmethod
     def send_email(content):
         """Read login info from credentials and access server to send email"""
         with open('data\\credentials.txt') as f:
-            sender_email, receiver_email, password = [line.split(':')[1] for line in f]
+            sender_email, receiver_email, password = [line.split(':')[1][:-1] for line in f]
+            print(sender_email, receiver_email, password)
 
         port = 465  # For SSL
         context = ssl.create_default_context()  # Create a secure SSL context
@@ -193,10 +231,9 @@ class SaveDialog(GroceriesAppBaseDialog):
     def print_list(self):
         self.make_list()
         self.gro_list.format_plaintext()
-        self.gro_list.write()
-        self.print_physical()
+        self.gro_list.write(doprint=True)
 
-        self.complete('List saved; Printing in progress')
+        self.complete('List saved;\nPrinting in progress')
 
     def email_list(self):
         self.make_list()
@@ -207,9 +244,15 @@ class SaveDialog(GroceriesAppBaseDialog):
         self.complete('List sent via Email')
 
     def save_formatted_list(self):
+        self.item_pool.dump_yaml()
+        print('dumped')
+        # print(self.gro_list)
         self.make_list()
+        # print(self.gro_list)
         self.gro_list.format_plaintext()
+        # print(self.gro_list)
         self.gro_list.write()
+        # print(self.gro_list)
 
         self.complete('List saved')
 
@@ -220,7 +263,7 @@ class SaveDialog(GroceriesAppBaseDialog):
 
     def complete(self, text):
         self.dismiss()
-        Factory.CompleteDialog(text, self.gro_list).open()
+        Factory.CompleteDialog(text, self.item_pool).open()
 
 
 class SettingsDialog(GroceriesAppBaseDialog):

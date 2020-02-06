@@ -6,8 +6,8 @@ import socket
 import yaml
 
 from logical.items import DisplayGroup, GroceryItem
-from logical.stores import Store
-from logical.pools_and_lists import ShoppingList
+from logical.stores import Store, Location
+from logical.pools_and_lists import ShoppingList, ItemPool
 
 
 class Database:
@@ -29,10 +29,19 @@ class Database:
 
         if not syntax:
             self._setup()
-            self._load_yaml(from_file=from_file)
+            self._load_items_yaml(from_file=from_file)
         elif syntax == 'net':
             self._load_network_file()
         # TODO: elif 'other_syntaxes?':
+
+    def __getitem__(self, item):
+        for d in (self.new_items, self.groups, self.items, self.stores):
+            try:
+                return d[item]
+            except KeyError:
+                pass
+        else:
+            raise KeyError(f'No database key present for {item}')
 
     # noinspection PyTypeChecker
     def _setup(self, mobile=False):
@@ -46,26 +55,28 @@ class Database:
 
         for root, dirs, filenames in os.walk(os.path.join(content_root, 'stores')):
             for filename in filenames:
-                truncated = filename[:-4]
-                pool = set()
+                name, ext = filename.split('.')
                 with open(os.path.join(root, filename)) as file:
-                    for line in file:
-                        uid, item_name, location, location_name, special = line.split(':')
-                        pool.add((uid, item_name, location, location_name, special[:-1]))
-                store = Store(truncated, pool)
-                self.stores[truncated] = store
-            # noinspection PyUnboundLocalVariable
-            self.stores['default'] = store
+                    loc_pool = set()
+                    for loc_name, values in yaml.load(file, Loader=yaml.Loader).items():
+                        uid = values['_uid']
+                        special = values['_special']
+                        item_pool = set(values['items'])
+                        loc = Location(loc_name, items=item_pool, uid=uid, special=special)
+                        loc_pool.add(loc)
+                    store = Store(name, loc_pool)
+                    self.stores[name] = store
 
-    def _load_yaml(self, from_file=None):
+            # noinspection PyUnboundLocalVariable
+            self.stores['default'] = self.stores['shoppers']
+
+    def _load_items_yaml(self, from_file=None):
         def _do_load(file_object):
             for entries_list in yaml.load_all(file_object, Loader=yaml.Loader):
                 for entry in entries_list:
-                    name = list(entry)[0]
-                    kwargs = entry[name]
-
-                    _item = GroceryItem(name, **kwargs)
-                    self.items[_item.uid] = _item
+                    for name, kwargs in entry.items():
+                        _item = GroceryItem(name, **kwargs)
+                        self.items[_item.uid] = _item
 
         if not from_file:
             self.file_object = open(self.filepath)
@@ -77,7 +88,7 @@ class Database:
     def _load_network_file(self):
         self.file_object = self.filepath
         self._setup(mobile=True)
-        self._load_yaml(from_file=True)
+        self._load_items_yaml(from_file=True)
 
     def add_new_item(self, info: dict):
         """Method for creating a new item from dialogs or loading unknown item from pool"""
@@ -94,31 +105,28 @@ class Database:
         hour, minute, _ = dtime.split(':')
         return f'{y}.{m}.{d}.{hour}.{minute}.'
 
-    def set_new_defaults(self, shopping: ShoppingList):
-        now = time.time()
-        for item in shopping.items.values():
-            for key, pair in item.items():
-                _num, note = pair
-                if _num:
-                    num = int(_num)
-                else:
-                    num = _num
-                try:
-                    _ = self.items[key.uid]
-                except KeyError:
-                    continue
-                else:
-                    default_nums = [n for _, n in key.defaults]
-                    if num in default_nums:
-                        del key.defaults[default_nums.index(num)]
-                        key.defaults.append((now, num))
-                    else:
-                        if len(key.defaults) >= 2:
-                            del key.defaults[0]
-                        key.defaults.append((now, num))
+    def set_new_defaults(self, pool: ItemPool):
+        """Update default options and note text based on a newly created list"""
+        now = round(time.time())
+        for key, triple in pool.items():
+            _, new_num, new_note = triple
+            item = self[key]
+            defaults = [num for _time, num in item.defaults]
 
-                    if note:
-                        key.note = note
+            try:
+                new_num = int(new_num)
+            except ValueError:
+                new_num = ''
+
+            if new_num in defaults:
+                item.defaults.pop(defaults.index(new_num))
+            elif len(defaults) >= 3:
+                item.defaults = defaults[1:]
+
+            item.defaults.append((now, new_num))
+
+            if new_note:
+                item.note = new_note
 
     def _dump_yaml(self, f):
         all_items = list(self.items.values()) + list(self.new_items.values())

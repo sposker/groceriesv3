@@ -234,7 +234,7 @@ class GroupDisplay(BoxLayout):
         GroupDisplay.instance = self
 
         self.app = MDApp.get_running_app()
-        groups = [obj for obj in app.db.groups.values()]  # Values used for construction of display
+        groups = [obj for obj in self.app.db.groups.values()]  # Values used for construction of display
         groups.reverse()
         self.heightplaceholder = 0
 
@@ -252,8 +252,6 @@ class GroupDisplay(BoxLayout):
             self._heights_list.append(
                 (gridlayout.group.name, gridlayout, self.heightplaceholder-gridlayout.height, self.heightplaceholder))
 
-            # self.add_widget(gridlayout)
-
         self.height = self.heightplaceholder
 
         def unpack(args):
@@ -263,13 +261,32 @@ class GroupDisplay(BoxLayout):
         self.heights = {k: v for k, v in (unpack(quad) for quad in self._heights_list)}
 
     def interpret_pool(self, pool: ItemPool):
+        """For loading an incomplete list back into the app"""
         for uid, info in pool.items():
             try:
                 item = self.app.db.items[uid]
             except KeyError:
-                info = [info[0], (time(), info[1]), info[2]]
-                kwargs = {k: v for k, v in zip(['name', 'defaults', 'note'], info)}
-                item = self.app.db.add_new_item(kwargs)
+                item = self.app.db.new_items[uid]
+                with ItemCardContainer() as f:
+                    card = f.add_card(item=item)
+            else:
+                card = self._set_toggle(item)
 
+            if a := info[1]:
+                card.amount.text = str(a)
+            if n := info[2]:
+                card.note_text_validate(n)
+
+    def _set_toggle(self, item):
+        """Add a card by toggling the appropriate button"""
+        for widget in self.walk(restrict=True):
+            try:
+                _item = widget.item
+            except AttributeError:
+                continue
+            else:
+                if item == _item:
+                    widget.toggle()
+                    return widget.card
 
 

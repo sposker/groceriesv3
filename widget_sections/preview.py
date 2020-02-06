@@ -150,6 +150,14 @@ class ItemCard(MDCard):
                'chevron',
                'item_title',
                }
+
+    """
+    For whatever reason, the widgets in `_hidden_at_start` don't play well with the function `hide_widget`. This has
+    resulted in a non-deterministic bug that doesn't make much sense to begin with. Therefore the attributes are
+    hard-coded into the class and accessed when resizing the cards. To change the attributes of widgets shown when
+    expanding the card, simply edit these values. If you add a new widget to the expansion, include it here.
+    """
+
     _hidden_at_start = {
         'expansion': (48.0, None, 1.0, False),
         'history': (60, None, 1.0, False),
@@ -252,10 +260,9 @@ class ItemCard(MDCard):
             f.remove_card(self)
 
     def note_text_validate(self, text):
-        """Pressing enter on note input updates the item's note and collapses the expansion"""
+        """Set the note label visibility and text"""
         self.note_display.size_hint = (1, .2)
         self.note_display.text = text
-        self.chevron.trigger_action(duration=.1)
 
     @property
     def creation(self):
@@ -350,8 +357,10 @@ class NoteInput(MDTextField):
     #         return self.on_text_validate()
 
     def on_text_validate(self):
+        """Show note label and collapse the card"""
         if self.text:
             self.root.note_text_validate(self.text)
+            self.root.chevron.trigger_action(duration=.1)
 
 
 class PreviewIconButton(MDIconButton, MDTooltip):
@@ -364,21 +373,3 @@ class PreviewIconButton(MDIconButton, MDTooltip):
             Animation(_scale_x=1, _scale_y=1, d=0.4)
             + Animation(opacity=1, d=0.4)
         ).start(self._tooltip)
-
-# class ListFunctionsButton(ToggleButtonBehavior, Image):
-#
-#     def toggle(self, btn_id):
-#         if self.state == 'down':
-#             redraw_canvas(self, ELEMENT_COLOR)
-#             ListPreview.instance.do_sort(btn_id)
-#         else:
-#             redraw_canvas(self, BACKGROUND_COLOR)
-#
-
-# class SearchBar(TextInput):
-#     def on_parent(self, *_):
-#         self.focus = True
-#
-#
-# class SearchWidget(BoxLayout):
-#     pass
