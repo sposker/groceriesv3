@@ -61,7 +61,9 @@ class ItemCardContainer(BoxLayout):
     stepped_height = 0
 
     def __init__(self, **kwargs):
+        self._state_ref = None
         super().__init__(**kwargs)
+        Clock.schedule_once(self.state_ref)
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
@@ -73,6 +75,13 @@ class ItemCardContainer(BoxLayout):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
+
+    def state_ref(self, *_):
+        from logical.state import ListState
+        self._state_ref = ListState()
+        self._state_ref.container = self
+        self._state_ref.view_cls = ItemCard
+        self.bind(height=lambda _: self._state_ref.container_height)
 
     def adjust_height(self, h, offset=None):
         offset = self.spacing if offset is None else offset

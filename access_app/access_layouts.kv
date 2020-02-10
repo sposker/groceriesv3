@@ -1,6 +1,5 @@
 # Various layouts for recycleviews and root widget for app
 
-#:import MDApp kivymd.app
 
 <AccessBaseLayout>
     default_size: None, dp(72)
@@ -37,13 +36,14 @@
 <ItemDetailsLayout>
 
     MDLabel:
+        halign: 'center'
         widget_name: 'item_uid'
-        size_hint: .4, 1
+        size_hint: None, 1
         text: root.item_uid
         font_size: 20
         theme_text_color: 'Custom'
         text_color: app.text_color
-        size_hint_max_x: dp(48)
+        width: dp(88)
 
     TextInput:
         widget_name: 'item_name'
@@ -54,13 +54,14 @@
         text_color: app.text_color
 
     MDLabel:
+        halign: 'center'
         widget_name: 'group_uid'
-        size_hint: .4, 1
+        size_hint: None, 1
         text: root.item_group_uid
         font_size: 20
         theme_text_color: 'Custom'
         text_color: app.text_color
-        size_hint_max_x: dp(42)
+        width: dp(88)
 
     AccessSpinner:
         widget_name: 'group_name'
@@ -151,6 +152,7 @@
     font_size: 20
     theme_text_color: 'Custom'
     text_color: app.text_color
+    size_hint_min_x: None
     on_release:
         self.sort()
 
@@ -181,8 +183,8 @@
                 default_size: None, dp(72)
                 default_size_hint: 1, None
                 font_size: 20
-                spacing: dp(8)
-                padding: dp(8)
+#                spacing: dp(8)
+#                padding: dp(8)
                 orientation: 'horizontal'
                 size_hint: 1, None
                 height: self.minimum_height
@@ -328,3 +330,32 @@
 
     AccessTabbedPanel:
         id: access_tabbed_panel
+
+
+<AccessMainScreen>
+    name: "Amain"
+
+    AccessRoot:
+
+
+<AccessLoadScreen>
+    name: "Aloading"
+
+    Image:
+        source: 'data\\src\\dbaccess96.png'
+        pos_hint: {"center_x": 0.5, "center_y":0.5}
+        size_hint: 0.25, 0.25
+    MDLabel:
+        color: app.text_color
+        halign: 'center'
+        pos_hint:{"center_x": 0.5, "top":0.425}
+        size_hint:1, .1
+        text: "Loading..."
+        font_size: app.text_base_size * 4/5
+
+<AccessManager>
+    id: manager
+    current: "Aloading"
+
+    AccessLoadScreen:
+        name: "Aloading"

@@ -1,7 +1,7 @@
 """Contruct dicts for use in various AccessApp tabbed panel recycle views"""
 from operator import itemgetter
 
-from logical.database import Database
+
 from logical.items import GroceryItem, DisplayGroup
 from logical.stores import Store
 
@@ -16,6 +16,16 @@ class GroupDetail:
             'group_name': self.group.name,
             'group_uid': self.group.uid,
         }
+
+    @classmethod
+    def refreshed_group_details(cls, data):
+        return [GroupDetail(group).kv_pairs for group in data.groups.values()]
+
+    @classmethod
+    def new_group_and_details(cls, data):
+        new_grp = DisplayGroup('Name')
+        data.groups[new_grp.uid] = new_grp
+        return cls.refreshed_group_details(data)
 
 
 class ItemDetail:
@@ -41,6 +51,16 @@ class ItemDetail:
             'item_default_2': defaults_list[2] if defaults_list[2] else 'N',
             'item_note': self.item.note,
         }
+
+    @classmethod
+    def refreshed_item_details(cls, data):
+        return [ItemDetail(item).kv_pairs for item in data.items.values()]
+
+    @classmethod
+    def new_item_and_details(cls, data):
+        new_item = GroceryItem('Name', group='g00')
+        data.items[new_item.uid] = new_item
+        return cls.refreshed_item_details(data)
 
 
 class LocationMap:
@@ -81,12 +101,12 @@ class LocationDetail:
 
 
 
-db = Database(item_db='data/username/username.yaml')
 
-group_details = [GroupDetail(group).kv_pairs for group in db.groups.values()]
-item_details = [ItemDetail(item).kv_pairs for item in db.items.values()]
-loc_maps = [([LocationMap(item, store).kv_pairs], store) for item in db.items.values() for store in db.stores.values()]
-loc_details = [([LocationDetail(store).kv_pairs], store) for store in db.stores.values()]
+
+# group_details = [GroupDetail(group).kv_pairs for group in db.groups.values()]
+# item_details = [ItemDetail(item).kv_pairs for item in db.items.values()]
+# loc_maps = [([LocationMap(item, store).kv_pairs], store) for item in db.items.values() for store in db.stores.values()]
+# loc_details = [([LocationDetail(store).kv_pairs], store) for store in db.stores.values()]
 
 
 

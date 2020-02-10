@@ -9,18 +9,20 @@ from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from kivy.uix.recycleview import RecycleView
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from kivy.clock import Clock
+from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.spinner import Spinner
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 
 from kivymd.app import MDApp
 from kivymd.theming import ThemeManager
-from kivymd.uix.button import MDFlatButton, MDRectangleFlatIconButton
+from kivymd.uix.button import MDFlatButton, MDRectangleFlatIconButton, MDRectangleFlatButton
 
-from access_app import access_dicts
-from access_app.access_dicts import ItemDetail
+from logical.database import Database
+from access_app.access_dicts import GroupDetail, ItemDetail, LocationMap, LocationDetail
 from logical.items import DisplayGroup
 from windows import screenwidth, screenheight
 from logical import as_list, as_string
+
 
 GENERAL = ['preview', 'search', 'selection']
 SPECIFIC_WIN = ['win_navbar', 'dialogs']
@@ -43,6 +45,7 @@ Window.top = screenheight/2 - Window.size[1]/2
 Window.icon = 'data\\src\\main.ico'
 widgets_list = ['widget_sections/win' + s + '.kv' for s in GENERAL] + ['windows/' + s + '.kv' for s in SPECIFIC_WIN]
 
+db = Database(item_db='data/username/username.yaml')
 
 
 class MySpinnerButton(MDFlatButton):
@@ -73,7 +76,7 @@ class ModGroupLayout(BoxLayout):
         self.group_uid = attrs['group_uid']
 
 
-class ViewSortButton(MDFlatButton):
+class ViewSortButton(MDRectangleFlatButton):
     """Buttons for sorting"""
 
     def sort(self):
@@ -89,11 +92,7 @@ class ViewSortButton(MDFlatButton):
         rv.refresh_from_data()
 
 
-class GroupItemLayout(AccessBaseLayout):
-    """Entry for mapping display groups to items"""
-
-
-class ItemDetailsLayout(RecycleDataViewBehavior, AccessBaseLayout):
+class ItemDetailsLayout(AccessBaseLayout):
     """For editing item details, no mappings."""
 
     rv = None  # RecycleView instance
@@ -114,25 +113,30 @@ class ItemDetailsLayout(RecycleDataViewBehavior, AccessBaseLayout):
         self._old_data = None
         self._widget_refs = None
 
-    def update_value(self):
-        """Save the current row of values"""
-
-        copy = self.data_copy  # Run this for the first time
-
+    def _gather_info(self):
+        """Update item properties based on entered values"""
         self.item.name = self.widget_refs['item_name'].text
         self.item.group = self._convert_group()
         self.item.defaults = self._convert_defaults()
         self.item.note = self.widget_refs['item_note'].text
 
-        index = self.rv.data.index(copy)
+    def update_value(self, gather=True):
+        """Save the current row of values"""
+
+        if gather:
+            self._gather_info()
+
+        for index, nested in enumerate(self.rv.data):
+            if nested['item_uid'] == self.item_uid:
+                break
+
         new_value = ItemDetail(self.item).kv_pairs
         self.rv.data[index] = new_value
-        del self.data_copy
         self.rv.refresh_from_data()
 
     def reset_values(self):
         """Simply refresh the data without updating it, restoring previous values."""
-        self.rv.refresh_from_data()
+        return self.update_value(gather=False)
 
     def _convert_defaults(self) -> list:
         """Build a new list of defaults based on input"""
@@ -191,6 +195,11 @@ class ItemDetailsLayout(RecycleDataViewBehavior, AccessBaseLayout):
                     self._widget_refs[n] = w
         return self._widget_refs
 
+    @classmethod
+    def update_all(cls):
+        new_data = []
+
+
 
 class ItemLocationLayout(AccessBaseLayout):
     """Entry for mapping location to item"""
@@ -241,8 +250,15 @@ class AccessTabbedPanel(TabbedPanel):
 class AccessMidButton(MDRectangleFlatIconButton):
     """Button that is visible on all tabbed panel screens"""
 
+    formulae = {
+        'Group Names & Order': None,
+        'Item Details': None,
+        'Item: Location Mapping': None,
+        'Location Names & Order': None
+    }
+
     def add_new_entry(self, tab):
-        ...
+        return self.formulae[tab.text]
 
     def update_from_view(self, tab):
         ...
@@ -268,10 +284,39 @@ class AccessRecycleView(RecycleView):
         self.viewclass = viewclass
 
 
+class AccessManager(ScreenManager):
+    """Manager for access app"""
+
+
+class AccessMainScreen(Screen):
+    """Main Screen for access app"""
+
+
+class AccessLoadScreen(Screen):
+    """Access loading screen"""
+
+    def __init__(self, **kw):
+        super().__init__(**kw)
+        self.app = MDApp.get_running_app()
+        self._trigger = Clock.create_trigger(self.real_load)
+
+    def real_load(self, _):
+        """Displays load screen while app builds itself"""
+        self.app.load_data()
+        return Clock.schedule_once(self.swap_screen)
+
+    def swap_screen(self, _):
+        """Once loading is complete, swap the screen"""
+        return setattr(self.app.sm, 'current', "Amain")
+
+    def on_enter(self, *args):
+        self._trigger()
+
+
 class AccessApp(MDApp):
     mapping = {
-        'mod_groups': (ModGroupLayout, access_dicts.group_details),
-        'item_details': (ItemDetailsLayout, access_dicts.item_details),
+        'mod_groups': (ModGroupLayout, GroupDetail.refreshed_group_details(db)),
+        'item_details': (ItemDetailsLayout, ItemDetail.refreshed_item_details(db)),
         # 'locs_map': (Button, access_dicts.loc_maps),
         # 'mod_locs': (ModLocationsLayout, access_dicts.loc_details),
     }
@@ -291,16 +336,16 @@ class AccessApp(MDApp):
     trans_list = [1, 1, 1, 0]
 
     hint_text_color = (0.6705882352941176, 0.6705882352941176, 0.6705882352941176, .1)
-    # text_base_size = TEXT_BASE_SIZE
+    text_base_size = TEXT_BASE_SIZE
     # item_row_height = ITEM_ROW_HEIGHT
     screenheight = screenheight
     screenwidth = screenwidth
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        print('app_init')
         self.set_theme()
-        self.db = access_dicts.db
+        self.db = db
+        self.sm = None
 
     def set_theme(self):
         """Must be done as part of `__init__` method"""
@@ -315,10 +360,12 @@ class AccessApp(MDApp):
         Builder.load_file(APP_KV_PATH)
         Builder.load_file('access_app/access_elements.kv')
         Builder.load_file('access_app/access_layouts.kv')
-        return AccessRoot()
+        self.sm = AccessManager()
+        return self.sm
 
-    def sort(self, btn):
-        print(btn)
+    def load_data(self):
+        s = AccessMainScreen(name='Amain')
+        self.sm.add_widget(s)
 
 
 
