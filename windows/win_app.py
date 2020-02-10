@@ -34,7 +34,7 @@ Window.position = 'custom'
 Window.left = screenwidth/2 - Window.size[0]/2
 Window.top = screenheight/2 - Window.size[1]/2
 Window.icon = 'data\\src\\main.ico'
-widgets_list = ['widget_sections/' + s + '.kv' for s in GENERAL] + ['windows/' + s + '.kv' for s in SPECIFIC_WIN]
+widgets_list = ['widget_sections/win' + s + '.kv' for s in GENERAL] + ['windows/' + s + '.kv' for s in SPECIFIC_WIN]
 
 
 # noinspection PyAttributeOutsideInit
@@ -89,7 +89,7 @@ class WinApp(MDApp):
         return self.sm
 
     def set_theme(self):
-        """Must be done as part of `__init__` method"""
+        """Colors for app; must be done as part of `__init__` method"""
         self.theme_cls = ThemeManager()
         self.theme_cls.primary_palette = 'BlueGray'
         self.theme_cls.primary_hue = '500'
@@ -101,11 +101,9 @@ class WinApp(MDApp):
         """Reads the user settings file for things like save path, etc."""
         # 'TODO: specify what this loads'
         try:
-            print('TODO: specify what this loads')
+            self._real_user_load()
         except FileNotFoundError:
             self._load_defaults()
-
-        self.pools_path = r'data\username\pools'
 
     def load_data(self):
         self.load_user_settings()
@@ -145,8 +143,23 @@ class WinApp(MDApp):
             self.db.dump_local()
         MDApp.get_running_app().stop()
 
+    def _real_user_load(self):
+        """Load user data"""  # TODO
+        raise FileNotFoundError
+
     def _load_defaults(self):
-        pass
+
+        cwd = os.getcwd()
+        attrs = {
+            'username': 'username',
+            'credentials_path': os.path.join(cwd, 'data/credentials.txt'),
+            'pools_path': os.path.join(cwd, 'data/username/pools'),
+            'old_db_path': os.path.join(cwd, 'data/username/old_database'),
+            'lists_path': os.path.join(cwd, 'data/username/lists'),
+        }
+
+        for k, v in attrs.items():
+            setattr(self, k, v)
 
 
 class GroManager(ScreenManager):

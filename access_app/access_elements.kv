@@ -1,0 +1,88 @@
+# Various building blocks for recycleview layouts
+
+
+<AccessSpinnerDropdown@DropDown>
+    canvas.before:
+        Color:
+            rgba: app.dh_color
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [0, 0, 16, 16]
+
+    background_color: app.trans_list
+    background_normal: ''
+    color: app.text_color
+    padding: dp(4)
+
+
+<AccessSpinner>
+    size_hint: 1, 1
+    pos_hint: {'center_x': .5, 'center_y': .5}
+    background_color: app.bg_color
+    background_normal: app.elem_color_string
+    color: app.text_color
+    font_size: 28
+    foreground_color: app.text_color
+    text_autoupdate: True
+    text_color: app.text_color
+    option_cls: 'AccessSpinnerButton'
+    dropdown_cls: 'AccessSpinnerDropdown'
+
+
+
+<AccessInputShort@TextInput>
+    background_color: 1, 1, 1, .5
+    background_normal: '.8, .8, .8, 1'
+    cursor_color: app.text_color
+    halign: 'center'
+    size_hint_max_x: dp(48)
+    font_size: 18
+    text_color: app.text_color
+    multiline: False
+
+
+<AccessMidButton>
+    font_size: 20
+    text_color: app.text_color
+    size_hint: 1, 1
+
+
+<AccessSpinnerButton@MDFlatButton>
+    font_size: 24
+    theme_text_color: 'Custom'
+    text_color: app.text_color
+    halign: 'left'
+    size: self.width, self.height
+
+
+<DefaultsViewer@BoxLayout>
+    orientation: 'horizontal'
+
+    MDLabel:
+        text: self.parent.label_text
+    MDTextField:
+        text: self.parent.amount
+
+
+
+
+
+
+<AccessRecycleView>
+
+    size_hint: 1, .9
+
+    bar_width: dp(12)
+    color: app.elem_color
+    do_scroll_x: True
+    do_scroll_y: True
+    scroll_type: ['bars']
+#    smooth_scroll_end: 10
+
+    RecycleViewContainer:
+        size_hint: 1, None
+        default_size: None, dp(56)
+        default_size_hint: 1, None
+        height: self.minimum_height
+        orientation: 'vertical'

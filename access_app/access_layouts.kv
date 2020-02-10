@@ -1,0 +1,311 @@
+# Various layouts for recycleviews and root widget for app
+
+<AccessBaseLayout>
+    default_size: None, dp(72)
+    default_size_hint: 1, None
+    font_size: 20
+    spacing: dp(8)
+    padding: dp(8)
+    orientation: 'horizontal'
+    size_hint: 1, None
+    height: self.minimum_height
+
+
+<ModGroupLayout>
+#    default_size: None, dp(128)
+    size_hint: .4, 1
+    pos_hint: {'center_x': .5, 'center_y': .5}
+
+    MDLabel:
+        size_hint: .12, 1
+        text: root.group_uid
+        font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+
+
+    TextInput:
+        background_color: 1, 1, 1, .5
+        background_normal: '.8, .8, .8, .5'
+        text: root.group_name
+        font_size: 22
+        text_color: app.text_color
+
+
+<ItemDetailsLayout>
+
+    MDLabel:
+        widget_name: 'item_uid'
+        size_hint: .4, 1
+        text: root.item_uid
+        font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        size_hint_max_x: dp(48)
+
+    TextInput:
+        widget_name: 'item_name'
+        background_color: 1, 1, 1, .5
+        background_normal: '.8, .8, .8, .5'
+        text: root.item_name
+        font_size: 22
+        text_color: app.text_color
+
+    MDLabel:
+        widget_name: 'group_uid'
+        size_hint: .4, 1
+        text: root.item_group_uid
+        font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        size_hint_max_x: dp(42)
+
+    AccessSpinner:
+        widget_name: 'group_name'
+        text: root.item_group_name
+
+    AccessInputShort:
+        widget_name: 'defaults0'
+        text: root.item_default_0
+
+    AccessInputShort:
+        widget_name: 'defaults1'
+        text: root.item_default_1
+
+    AccessInputShort:
+        widget_name: 'defaults2'
+        text: root.item_default_2
+
+    TextInput:
+        widget_name: 'item_note'
+        background_color: 1, 1, 1, .5
+        background_normal: '.8, .8, .8, .5'
+        font_size: 22
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        text: root.item_note
+
+    MDIconButton:
+        size_hint_max_x: dp(48)
+        icon: 'content-save-outline'
+        user_font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        on_release:
+            root.update_value()
+
+    MDIconButton:
+        size_hint_max_x: dp(48)
+        icon: 'restart'
+        user_font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        on_release:
+            root.reset_values()
+
+
+
+
+
+
+<ItemLocationLayout>
+
+    size_hint: 1, None
+    height: dp(64)
+
+    MDLabel:
+        halign: 'center'
+        theme_text_color: 'Custom'
+        font_size: 16
+        color: app.text_color
+
+    MDLabel:
+        halign: 'center'
+        theme_text_color: 'Custom'
+        font_size: 16
+        color: app.text_color
+
+    MDTextField:
+        halign: 'center'
+        theme_text_color: 'Custom'
+        font_size: 16
+        color: app.text_color
+        write_tab: False
+
+
+<AccessTabbedPanel>
+    pos_hint: {'center_x': .5, 'center_y': .5}
+    size_hint: 1, 1
+    default_tab: item_details
+    default_tab_cls: 'AccessSpinnerButton'
+    tab_width: Window.width/4
+
+    TabbedPanelItem:
+        id: mod_groups
+        text: 'Group Names & Order'
+        BoxLayout:
+            orientation: 'vertical'
+
+
+    TabbedPanelItem:
+        id: item_details
+        text: 'Item Details'
+
+        BoxLayout:
+            orientation: 'vertical'
+            spacing: dp(8)
+            padding: dp(8)
+
+            BoxLayout:
+                default_size: None, dp(72)
+                default_size_hint: 1, None
+                font_size: 20
+                spacing: dp(8)
+                padding: dp(8)
+                orientation: 'horizontal'
+                size_hint: 1, None
+                height: self.minimum_height
+
+                MDLabel:
+                    halign: 'center'
+                    size_hint: .4, 1
+                    text: 'I-ID'
+                    font_size: 20
+                    theme_text_color: 'Custom'
+                    text_color: app.text_color
+                    size_hint_max_x: dp(48)
+
+                MDLabel:
+                    halign: 'center'
+                    background_color: 1, 1, 1, .5
+                    background_normal: '.8, .8, .8, .5'
+                    theme_text_color: 'Custom'
+                    text: "ITEM NAME"
+                    font_size: 22
+                    text_color: app.text_color
+
+                MDLabel:
+                    halign: 'center'
+                    text: "G-ID"
+                    font_size: 20
+                    theme_text_color: 'Custom'
+                    text_color: app.text_color
+                    size_hint_max_x: dp(42)
+
+                MDLabel:
+                    halign: 'center'
+                    text: "GROUP NAME"
+                    font_size: 20
+                    theme_text_color: 'Custom'
+                    text_color: app.text_color
+
+                MDLabel:
+                    halign: 'center'
+                    text: "1ST"
+                    font_size: 20
+                    theme_text_color: 'Custom'
+                    text_color: app.text_color
+                    size_hint_max_x: dp(42)
+
+                MDLabel:
+                    halign: 'center'
+                    text: "2ND"
+                    font_size: 20
+                    theme_text_color: 'Custom'
+                    text_color: app.text_color
+                    size_hint_max_x: dp(42)
+
+                MDLabel:
+                    halign: 'center'
+                    text: "3RD"
+                    font_size: 20
+                    theme_text_color: 'Custom'
+                    text_color: app.text_color
+                    size_hint_max_x: dp(42)
+
+                MDLabel:
+                    halign: 'center'
+                    text: "ITEM NOTE"
+                    font_size: 20
+                    theme_text_color: 'Custom'
+                    text_color: app.text_color
+
+                MDLabel:
+                    halign: 'center'
+                    size_hint_max_x: dp(48)
+                    text: 'SAVE'
+                    user_font_size: 20
+                    theme_text_color: 'Custom'
+                    text_color: app.text_color
+
+                MDLabel:
+                    halign: 'center'
+                    size_hint_max_x: dp(48)
+                    text: 'RESET'
+                    user_font_size: 20
+                    theme_text_color: 'Custom'
+                    text_color: app.text_color
+
+
+    TabbedPanelItem:
+        id: locs_map
+        text: 'Item: Location Mapping'
+        BoxLayout:
+            orientation: 'vertical'
+
+#            AccessRecycleView:
+#                id: locs_map_scroll
+
+
+    TabbedPanelItem:
+        id: mod_locs
+        text: 'Location Names & Order'
+        BoxLayout:
+            orientation: 'vertical'
+
+#            AccessRecycleView:
+#                id: mod_locs_scroll
+
+
+<AccessRoot>
+
+    orientation: 'vertical'
+#    padding: dp(12)
+    spacing: dp(12)
+
+    BoxLayout:
+        canvas.before:
+            Color:
+                rgba: app.theme_cls.primary_color
+            Rectangle:
+                size: self.size
+                pos: self.pos
+
+        icon_color: app.text_color
+        spacing: dp(40)
+        padding: dp(4)
+        size_hint: 1, .05
+        spacing: dp(8)
+
+        AccessMidButton:
+            text: 'New Entry'
+            on_release:
+                self.add_new_entry(access_tabbed_panel.current_tab)
+
+        AccessMidButton:
+            text: 'Update All'
+            on_release:
+                self.update_from_view()
+
+        AccessMidButton:
+            text: 'Save to Disk'
+            on_release:
+                self.dump_data()
+
+        AccessMidButton:
+            text: 'Exit without saving'
+            on_release:
+                self.stop_app()
+
+    AccessTabbedPanel:
+        id: access_tabbed_panel

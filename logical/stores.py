@@ -1,4 +1,5 @@
 class Basket:
+    # TODO
     baskets = set()
 
     def __init__(self, source):
@@ -44,22 +45,23 @@ class Store:
             if loc.is_special:
                 self.specials.add(loc)
 
-        self.create_unsorted()
+        if 'l00' not in self.locations:
+            self.create_unsorted()
 
     def __getitem__(self, item):
         for location in self.locations.values():
             if item in location.items:
                 return location.uid
         else:
-            raise KeyError(f'Key {item} not present in items.')
+            raise KeyError(f'Key {item} not present in {self.name} items.')
 
     @property
-    def basket(self, source=None):
+    def basket(self):
         """Consumer Price Index for this store; measure of store's prices"""
         if not self._basket:
-            if source is None:
-                source = 'data/default_basket.csv'
-            self._basket = Basket(source)
+            if ... is None:
+                _ = 'data/default_basket.csv'
+            ...  # TODO
         return self._basket.index
 
     def create_unsorted(self):

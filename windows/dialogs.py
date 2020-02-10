@@ -53,7 +53,6 @@ class AddItemDialog(GroceriesAppBaseDialog):
 
         Clock.schedule_once(lambda _: setattr(self.field, 'focus', True))
 
-    # noinspection PyUnboundLocalVariable
     def do_add(self, *_):
         """Called when adding a new item"""
         from widget_sections.preview import ItemCardContainer
@@ -220,7 +219,7 @@ class SaveDialog(GroceriesAppBaseDialog):
         """Read login info from credentials and access server to send email"""
         with open('data\\credentials.txt') as f:
             sender_email, receiver_email, password = [line.split(':')[1][:-1] for line in f]
-            print(sender_email, receiver_email, password)
+            print(f'{sender_email}::{receiver_email}::{password}')
 
         port = 465  # For SSL
         context = ssl.create_default_context()  # Create a secure SSL context

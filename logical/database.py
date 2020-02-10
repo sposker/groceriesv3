@@ -7,7 +7,7 @@ import yaml
 
 from logical.items import DisplayGroup, GroceryItem
 from logical.stores import Store, Location
-from logical.pools_and_lists import ShoppingList, ItemPool
+from logical.pools_and_lists import ItemPool
 
 
 class Database:
@@ -35,6 +35,7 @@ class Database:
         # TODO: elif 'other_syntaxes?':
 
     def __getitem__(self, item):
+        """Get a reference to any stored object by its UID"""
         for d in (self.new_items, self.groups, self.items, self.stores):
             try:
                 return d[item]

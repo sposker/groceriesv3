@@ -288,5 +288,3 @@ class GroupDisplay(BoxLayout):
                 if item == _item:
                     widget.toggle()
                     return widget.card
-
-

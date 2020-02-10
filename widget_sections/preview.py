@@ -85,8 +85,8 @@ class ItemCardContainer(BoxLayout):
     def add_card(self, toggle=None, item=None):
         """Add a item to the preview via toggle button"""
         card = ItemCard(toggle=toggle, item=item)
-        self.adjust_height(card.default_height)
-        self.stepped_height += (card.default_height + self.spacing)
+        self.adjust_height(card.normal_height)
+        self.stepped_height += (card.normal_height + self.spacing)
         self.add_widget(card)
         # print(self.height, self.stepped_height, 'added')
         return card
@@ -143,8 +143,8 @@ class ItemCardContainer(BoxLayout):
 class ItemCard(MDCard):
     """Item Preview Widget"""
 
-    default_height = 72
-    _expansion_height = 60
+    normal_height = 72
+    expansion_height = 60
     expanded = False
     visible = {'amount',
                'chevron',
@@ -186,21 +186,19 @@ class ItemCard(MDCard):
 
     @property
     def expand_anim(self):
-        eh = self._expansion_height
-
-        expand_anim = Animation(size=(self.width, self.default_height + eh), duration=.12)
-        expand_anim.bind(on_progress=lambda _, __, progress: self._anim_progress(eh, progress))
-        expand_anim.bind(on_complete=lambda _, __: self._anim_complete(eh))
+        expand_anim = Animation(size=(self.width, self.normal_height + self.expansion_height), duration=.12)
+        expand_anim.bind(on_progress=lambda _, __, progress: self._anim_progress(self.expansion_height,
+                                                                                 progress))
+        expand_anim.bind(on_complete=lambda _, __: self._anim_complete(self.expansion_height))
 
         return expand_anim
 
     @property
     def contract_anim(self):
-        eh = self._expansion_height
-
-        contract_anim = Animation(size=(self.width, self.default_height), duration=.12)
-        contract_anim.bind(on_progress=lambda _, __, progress: self._anim_progress(-eh, progress))
-        contract_anim.bind(on_complete=lambda _, __: self._anim_complete(-eh))
+        contract_anim = Animation(size=(self.width, self.normal_height), duration=.12)
+        contract_anim.bind(on_progress=lambda _, __, progress: self._anim_progress(-self.expansion_height,
+                                                                                   progress))
+        contract_anim.bind(on_complete=lambda _, __: self._anim_complete(-self.expansion_height))
 
         return contract_anim
 
@@ -234,7 +232,7 @@ class ItemCard(MDCard):
 
         with ItemCardContainer() as f:
             f.height = f.stepped_height + round(delta * progress)
-        self.expansion.height = self.default_height + round(delta * progress)
+        self.expansion.height = self.normal_height + round(delta * progress)
 
     def _anim_complete(self, increment):
         """Update the stepped height of the container so the next animation uses new base value;
