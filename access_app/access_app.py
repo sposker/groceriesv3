@@ -73,6 +73,22 @@ class ModGroupLayout(BoxLayout):
         self.group_uid = attrs['group_uid']
 
 
+class ViewSortButton(MDFlatButton):
+    """Buttons for sorting"""
+
+    def sort(self):
+        # print(self.rv_base.content.children[0])
+        rv = self.rv_base.content.children[0]
+        data = sorted(rv.data, key=lambda x: x[self.sort_key])
+        if self.sort_dir == 'ascending':
+            self.sort_dir = 'descending'
+        else:
+            self.sort_dir = 'ascending'
+            data.reverse()
+        rv.data = data
+        rv.refresh_from_data()
+
+
 class GroupItemLayout(AccessBaseLayout):
     """Entry for mapping display groups to items"""
 
@@ -215,6 +231,7 @@ class AccessTabbedPanel(TabbedPanel):
             for nested in list_dict:
                 widget = child_cls(nested)
                 rv.add_widget(widget)
+        section.content.rv_ref = rv
         section.content.add_widget(rv)
 
         # Clock.schedule_once(lambda _: rv.refresh_from_data())
@@ -300,7 +317,8 @@ class AccessApp(MDApp):
         Builder.load_file('access_app/access_layouts.kv')
         return AccessRoot()
 
-
+    def sort(self, btn):
+        print(btn)
 
 
 

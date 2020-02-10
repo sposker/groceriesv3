@@ -1,5 +1,7 @@
 # Various layouts for recycleviews and root widget for app
 
+#:import MDApp kivymd.app
+
 <AccessBaseLayout>
     default_size: None, dp(72)
     default_size_hint: 1, None
@@ -103,6 +105,15 @@
         on_release:
             root.reset_values()
 
+    MDIconButton:
+        size_hint_max_x: dp(48)
+        icon: 'delete-alert'
+        user_font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        on_release:
+            root.reset_values()
+
 
 
 
@@ -132,6 +143,16 @@
         color: app.text_color
         write_tab: False
 
+
+<ViewSortButton>
+    sort_dir: 'ascending'
+    halign: 'center'
+#    size_hint: 1, 1
+    font_size: 20
+    theme_text_color: 'Custom'
+    text_color: app.text_color
+    on_release:
+        self.sort()
 
 <AccessTabbedPanel>
     pos_hint: {'center_x': .5, 'center_y': .5}
@@ -166,38 +187,29 @@
                 size_hint: 1, None
                 height: self.minimum_height
 
-                MDLabel:
-                    halign: 'center'
-                    size_hint: .4, 1
+                ViewSortButton:
+                    sort_key: 'item_uid'
+                    rv_base: item_details
                     text: 'I-ID'
-                    font_size: 20
-                    theme_text_color: 'Custom'
-                    text_color: app.text_color
                     size_hint_max_x: dp(48)
 
-                MDLabel:
-                    halign: 'center'
-                    background_color: 1, 1, 1, .5
-                    background_normal: '.8, .8, .8, .5'
-                    theme_text_color: 'Custom'
+                ViewSortButton:
+                    sort_key: 'item_name'
+                    rv_base: item_details
+                    size_hint: 1, 1
                     text: "ITEM NAME"
-                    font_size: 22
-                    text_color: app.text_color
 
-                MDLabel:
-                    halign: 'center'
+                ViewSortButton:
+                    sort_key: 'item_group_uid'
+                    rv_base: item_details
                     text: "G-ID"
-                    font_size: 20
-                    theme_text_color: 'Custom'
-                    text_color: app.text_color
                     size_hint_max_x: dp(42)
 
-                MDLabel:
-                    halign: 'center'
+                ViewSortButton:
+                    sort_key: 'item_group_name'
+                    rv_base: item_details
+                    size_hint: 1, 1
                     text: "GROUP NAME"
-                    font_size: 20
-                    theme_text_color: 'Custom'
-                    text_color: app.text_color
 
                 MDLabel:
                     halign: 'center'
@@ -223,12 +235,11 @@
                     text_color: app.text_color
                     size_hint_max_x: dp(42)
 
-                MDLabel:
-                    halign: 'center'
+                ViewSortButton:
+                    sort_key: 'item_note'
+                    rv_base: item_details
+                    size_hint: 1, 1
                     text: "ITEM NOTE"
-                    font_size: 20
-                    theme_text_color: 'Custom'
-                    text_color: app.text_color
 
                 MDLabel:
                     halign: 'center'
@@ -242,6 +253,14 @@
                     halign: 'center'
                     size_hint_max_x: dp(48)
                     text: 'RESET'
+                    user_font_size: 20
+                    theme_text_color: 'Custom'
+                    text_color: app.text_color
+
+                MDLabel:
+                    halign: 'center'
+                    size_hint_max_x: dp(48)
+                    text: 'DEL'
                     user_font_size: 20
                     theme_text_color: 'Custom'
                     text_color: app.text_color
@@ -295,12 +314,12 @@
         AccessMidButton:
             text: 'Update All'
             on_release:
-                self.update_from_view()
+                self.update_from_view(access_tabbed_panel.current_tab)
 
         AccessMidButton:
             text: 'Save to Disk'
             on_release:
-                self.dump_data()
+                self.dump_data(access_tabbed_panel.current_tab)
 
         AccessMidButton:
             text: 'Exit without saving'
