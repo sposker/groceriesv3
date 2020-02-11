@@ -80,17 +80,17 @@ class ItemPool:
         `item_uid` OR `item.name`: [`amount`, `note`]
         Item object will be looked up via DB, if not found it is a new/unsorted item and created
         """
-        print(path)
+
         db = MDApp.get_running_app().db
         pool = set()
         now = time.time()
         with open(path) as doc:
-            print(f'opened {path}')
             for base_dict in yaml.load_all(doc, Loader=yaml.Loader):
                 for uid, info in base_dict.items():
                     try:
                         item = db.items[uid]
                     except KeyError:  # New item created during previous program run
+                        print(uid)
                         amount, note = info
                         name, group = uid.split(';')
                         kwargs = {'name': name, 'group': group, 'defaults': [(now, amount)], 'note': note}

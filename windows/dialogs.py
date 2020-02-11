@@ -60,17 +60,15 @@ class AddItemDialog(GroceriesAppBaseDialog):
         info = {k: v for k, v in [('name', self.field.text), ('group', self.spinner.text)]}
         item = MDApp.get_running_app().db.add_new_item(info)
         self.dismiss()
-        with ListState() as f:
-            f.add_card(item=item)
+        ListState.instance.add_card(item=item)
 
 
 class ClearListDialog(GroceriesAppBaseDialog):
 
     @staticmethod
     def clear_list():
-        with ListState() as f:
-            f.linked_list.clear()
-            f.container.clear_widgets()
+        ListState.instance.clear()
+        ListState.instance.container.clear_widgets()
 
 
 class CompleteDialog(GroceriesAppBaseDialog):
@@ -134,8 +132,7 @@ class ExitDialog(GroceriesAppBaseDialog):
 
     def do_save(self):
         from widget_sections.preview import ItemCardContainer
-        with ItemCardContainer() as f:
-            gro_list = f.convert_to_pool()
+        gro_list = ItemCardContainer.instance.convert_to_pool()
         Factory.SaveDialog(gro_list).open()
         self.dismiss()
 
@@ -159,10 +156,9 @@ class FilePickerButton(MDFlatButton, ToggleButtonBehavior):
         self.__class__.instances += 1
 
     def on_release(self):
-        from widget_sections.selection import GroupDisplay
         self.popup.clear_list()
         pool = ItemPool.from_file(self.path)
-        GroupDisplay.instance.interpret_pool(pool)
+        ListState.instance.populate_from_pool(pool)
         self.popup.dismiss()
 
 
@@ -217,7 +213,7 @@ class SaveDialog(GroceriesAppBaseDialog):
         """Read login info from credentials and access server to send email"""
         with open('data\\credentials.txt') as f:
             sender_email, receiver_email, password = [line.split(':')[1][:-1] for line in f]
-            print(f'{sender_email}::{receiver_email}::{password}')
+            # print(f'{sender_email}::{receiver_email}::{password}')
 
         port = 465  # For SSL
         context = ssl.create_default_context()  # Create a secure SSL context
@@ -242,7 +238,7 @@ class SaveDialog(GroceriesAppBaseDialog):
 
     def save_formatted_list(self):
         self.item_pool.dump_yaml()
-        print('dumped')
+        # print('dumped')
         # print(self.gro_list)
         self.make_list()
         # print(self.gro_list)

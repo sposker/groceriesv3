@@ -10,6 +10,8 @@ from kivymd.app import MDApp
 from kivymd.theming import ThemeManager
 
 from logical.pools_and_lists import ItemPool
+from logical.state import ListState
+from widget_sections.preview import ItemCard, ItemCardContainer
 from windows import screenwidth, screenheight
 from logical import as_list, as_string
 from logical.database import Database
@@ -107,6 +109,9 @@ class WinApp(MDApp):
 
     def load_data(self):
         self.load_user_settings()
+        ListState.container = ItemCardContainer()
+        ListState.view_cls = ItemCard
+        self.list_state = ListState()
 
         s = MainScreen(name='main')
         self.sm.add_widget(s)
@@ -117,9 +122,8 @@ class WinApp(MDApp):
         for _, _, pools in os.walk(self.pools_path):
             for pool in pools:
                 if now in pool:  # today's date matches the date of an item list
-                    from widget_sections.selection import GroupDisplay
                     itempool = ItemPool.from_file(os.path.join(self.pools_path, pool))
-                    GroupDisplay.instance.interpret_pool(itempool)
+                    ListState.instance.populate_from_pool(itempool)
 
     def _set_nonetypes(self):
         """Create app attributes to be overwritten by user settings or defaults"""

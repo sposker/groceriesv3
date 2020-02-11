@@ -65,40 +65,34 @@ class ToggleLayout(MDCard):
     """ToggleButtons for items in db organized by group"""
 
     app = MDApp.get_running_app()
-    list_state = ListState()
 
     group = None
     item = ObjectProperty()
-    state = OptionProperty('normal', options=['normal', 'down'])
+    # state = OptionProperty('normal', options=['normal', 'down'])
 
     def __init__(self, item, **kwargs):
         self.item = item
         super().__init__(**kwargs)
         self.color = self.app.text_color
         self.node = None
-        self.state = 'normal'
-        self.list_state.toggles_dict[self.item.uid] = self
+        ListState.instance.toggles_dict[self.item.uid] = self
 
-    def toggle(self):
-        """Defines toggle behavior for layout"""
+    def do_toggle(self):
+        """When children are clicked"""
 
-        if self.state == 'normal':
-            self.node = self.list_state.add_card(item=self.item)
-            self.state = 'down'
-
+        if not self.node:
+            self.node = ListState.instance.add_card(item=self.item, toggle=self)
         else:
-            self.state = 'normal'
-            self.list_state.remove_card(self.node)
-            self.node = None
+            self.node = ListState.instance.remove_card(self.node)
+        # print(f'Toggled: {self}')
 
-        self.graphics_toggle()
 
-    def menu_delete(self):
-        """Called when item deleted from ListPreview"""
-        return self.toggle()
+    # def menu_delete(self):
+    #     """Called when item deleted from ListPreview"""
+    #     return self.toggle()
 
-    def graphics_toggle(self):
-        if self.state == 'normal':
+    def graphics_toggle(self, state):
+        if state == 'normal':
             graphics = ['checkbox-blank-outline', self.app.text_color]
         else:
             graphics = ['checkbox-marked-outline', logical.as_list(self.app.theme_cls.accent_color)]

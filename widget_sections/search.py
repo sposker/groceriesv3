@@ -54,33 +54,29 @@ class ListFunctionsBar(BoxLayout):
     @staticmethod
     def alphabetical(_):
         """Set sort order to A-Z"""
-        with ListState() as f:
-            f.sort_type = 'name'
-            f.sort_cards()
-        print('outside state context')
+        ListState.instance.sort_type = 'name'
+        ListState.instance.sort_cards()
+        # print('outside state context')
 
     @staticmethod
     def group(_):
         """Set sort order to item group"""
-        with ListState() as f:
-            f.sort_type = 'group'
-            f.sort_cards()
+        ListState.instance.sort_type = 'group'
+        ListState.instance.sort_cards()
 
     @staticmethod
     def time(_):
         """Set sort order to time added"""
-        with ListState() as f:
-            f.sort_type = 'time'
-            f.sort_cards()
+        ListState.instance.sort_type = 'time'
+        ListState.instance.sort_cards()
 
     @staticmethod
     def toggle_asc_desc(btn):
         """Change sort order to ascending or descending"""
         btn.icon = ({'sort-ascending', 'sort-descending'} - {btn.icon}).pop()
         btn.tooltip_text = ({"Current: Ascending", "Current: Descending"} - {btn.tooltip_text}).pop()
-        with ListState() as f:
-            f.sort_desc = not f.sort_desc
-            f.sort_cards()
+        ListState.sort_desc = not ListState.sort_desc
+        ListState.instance.sort_cards()
 
     @staticmethod
     def open(_):
@@ -94,8 +90,7 @@ class ListFunctionsBar(BoxLayout):
     @staticmethod
     def save(_):
         """Launch the save dialog"""
-        with ListState() as f:
-            gro_list = f.convert_to_pool()
+        gro_list = ListState.instance.convert_to_pool()
         Factory.SaveDialog(gro_list).open()
 
 

@@ -55,21 +55,26 @@ class ListScrollBar(ScrollView):
 class ItemCardContainer(BoxLayout):
     """List preview displaying item cards"""
 
-    _instance = None
+    instance = None
     sort_type = 'creation'
     # sort_desc = True
+    # container_height = NumericProperty(allow_none=True)
 
-    # stepped_height = 0
+    stepped_height = 0
+
+    def on_kv_post(self, base_widget):
+        super().on_kv_post(base_widget)
+        ItemCardContainer.instance = self
 
     def __init__(self, **kwargs):
-        self._state_ref = None
+        # self._state_ref = None
         super().__init__(**kwargs)
-        Clock.schedule_once(self.state_ref)
+        # Clock.schedule_once(self.state_ref)
 
     def __new__(cls, *args, **kwargs):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls, *args, **kwargs)
-        return cls._instance
+        if cls.instance is None:
+            cls.instance = super().__new__(cls, *args, **kwargs)
+        return cls.instance
 
     # def __enter__(self):
     #     return self._instance
@@ -77,17 +82,16 @@ class ItemCardContainer(BoxLayout):
     # def __exit__(self, exc_type, exc_val, exc_tb):
     #     pass
 
-    def state_ref(self, *_):
-        ListState.container = self
-        ListState.view_cls = ItemCard
-        self._state_ref = ListState()
-        self.bind(height=lambda _, __: self._state_ref.container_height)
+    # def state_ref(self, *_):
+    #
+    #     # self._state_ref = ListState()
+    #     # self.bind(height=lambda _, __: ListState.instance.container_height)
 
     def trigger_refresh(self):
         """Called when ListState is updated to signal a changed state"""
-        self.height = self._state_ref.container_height
-        # print(f'{self.height=}')
-        print(sum(c.height for c in self.children))
+        self.height = ListState.instance.container_height
+        # print(f'Container: {self.height=}')
+        # print(f'{len(self.children)}, {sum(c.height for c in self.children)=}')
 
     # def add_card(self, toggle=None, item=None):
     #     """Add a item to the preview via toggle button"""
@@ -235,25 +239,23 @@ class ItemCard(MDCard):
     def _anim_progress(self, delta, progress):
         """Increment the size of card and container"""
 
-        with ListState() as f:
-            f.anim_progress_delta = delta * progress
-            self.node.height = self.normal_height + delta * progress
+        ListState.instance.anim_progress_delta = delta * progress
+        self.node.height = self.normal_height + delta * progress
+        ItemCardContainer.instance.trigger_refresh()
 
     def _anim_complete(self):
         """Update the stepped height of the container so the next animation uses new base value;
         Adjust widget visibility as animation is now complete
         """
 
-        with ListState() as f:
-            f.anim_progress_delta = 0
-            value = -1 if self.expanded else 1
-            self.expanded = not self.expanded
-            f.anim_complete(self.node, value)
+        ListState.instance.anim_progress_delta = 0
+        value = -1 if self.expanded else 1
+        self.expanded = not self.expanded
+        ListState.instance.anim_complete(value)
         return self._make_hidden()
 
     def _resize(self):
-        with ListState() as f:
-            f.resize_card(self.node)
+        ListState.instance.resize_card(self.node)
 
     def resize(self):
         if not self.expanded:
@@ -265,8 +267,7 @@ class ItemCard(MDCard):
 
     def kvlang_remove_card(self):
         """Called from card's delete button"""
-        with ListState() as f:
-            f.remove_card(self.node)
+        ListState.instance.remove_card(self.node)
 
     def note_text_validate(self, text):
         """Set the note label visibility and text"""

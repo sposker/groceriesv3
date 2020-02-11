@@ -87,7 +87,7 @@
         text_color: app.text_color
         font_size: 20
         on_release:
-            self.parent.toggle()
+            self.parent.do_toggle()
 
     SectionDivider:
 
@@ -98,7 +98,7 @@
         size_hint: None, 1
         width: self.width
         on_release:
-            self.parent.toggle()
+            self.parent.do_toggle()
 
 
 <GroupScrollHelper>

@@ -42,7 +42,7 @@
     id: card
     orientation: "vertical"
     size_hint: 1, None
-#    height: self.minimum_height
+    height: self.minimum_height
     pos_hint: {"center_x": .5, "center_y": .5}
 #    elevation: 12
 
@@ -101,7 +101,7 @@
             size_hint: None, 1
             height: self.size[1]
             on_release:
-                root._resize()
+                root.resize()
 
         Widget:
             size_hint: .05, 1
@@ -143,6 +143,7 @@
 
     ListScrollBar:
 
+        bar_width: self.parent.height * 0.024
         size_hint: 1, 1
         color: app.elem_color
         do_scroll_x: False
@@ -155,7 +156,7 @@
 
             spacing: dp(4)
             orientation: 'vertical'
-            size_hint: None, None
+            size_hint: .95, None
             height: 0
             width: self.parent.width
             minimum_height: self.parent.height
