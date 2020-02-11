@@ -9,7 +9,7 @@ from kivymd.uix.button import MDIconButton
 from kivymd.uix.textfield import MDTextFieldRound
 from kivymd.uix.tooltip import MDTooltip
 
-from widget_sections.preview import ItemCardContainer
+from logical.state import ListState
 
 
 class MyMDIconButton(MDIconButton, MDTooltip):
@@ -51,36 +51,36 @@ class ListFunctionsBar(BoxLayout):
         for c in self.children:
             c.bind(on_release=lambda x: getattr(self, x.name)(x))
 
-
     @staticmethod
     def alphabetical(_):
         """Set sort order to A-Z"""
-        with ItemCardContainer() as f:
-            f.sort_type = 'item_name'
-            f.sort_display()
+        with ListState() as f:
+            f.sort_type = 'name'
+            f.sort_cards()
+        print('outside state context')
 
     @staticmethod
     def group(_):
         """Set sort order to item group"""
-        with ItemCardContainer() as f:
-            f.sort_type = 'item_group'
-            f.sort_display()
+        with ListState() as f:
+            f.sort_type = 'group'
+            f.sort_cards()
 
     @staticmethod
     def time(_):
         """Set sort order to time added"""
-        with ItemCardContainer() as f:
-            f.sort_type = 'creation'
-            f.sort_display()
+        with ListState() as f:
+            f.sort_type = 'time'
+            f.sort_cards()
 
     @staticmethod
     def toggle_asc_desc(btn):
         """Change sort order to ascending or descending"""
         btn.icon = ({'sort-ascending', 'sort-descending'} - {btn.icon}).pop()
         btn.tooltip_text = ({"Current: Ascending", "Current: Descending"} - {btn.tooltip_text}).pop()
-        with ItemCardContainer() as f:
+        with ListState() as f:
             f.sort_desc = not f.sort_desc
-            f.sort_display()
+            f.sort_cards()
 
     @staticmethod
     def open(_):
@@ -94,7 +94,7 @@ class ListFunctionsBar(BoxLayout):
     @staticmethod
     def save(_):
         """Launch the save dialog"""
-        with ItemCardContainer() as f:
+        with ListState() as f:
             gro_list = f.convert_to_pool()
         Factory.SaveDialog(gro_list).open()
 

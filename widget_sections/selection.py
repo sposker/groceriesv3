@@ -1,6 +1,3 @@
-from operator import itemgetter
-from time import time
-
 from kivy.clock import Clock
 from kivy.graphics.context_instructions import Color
 from kivy.properties import StringProperty, ObjectProperty, OptionProperty
@@ -22,6 +19,7 @@ from kivymd.icon_definitions import md_icons
 
 import logical
 from logical.pools_and_lists import ItemPool
+from logical.state import ListState
 from widget_sections.preview import ItemCardContainer
 from windows.dialogs import AddItemDialog
 
@@ -67,42 +65,44 @@ class ToggleLayout(MDCard):
     """ToggleButtons for items in db organized by group"""
 
     app = MDApp.get_running_app()
+    list_state = ListState()
 
     group = None
     item = ObjectProperty()
     state = OptionProperty('normal', options=['normal', 'down'])
-    icon = OptionProperty('checkbox-blank-outline', options=['checkbox-marked-outline', 'checkbox-blank-outline'])
-    children_color = [logical.as_list(app.theme_cls.accent_color), app.text_color]
 
     def __init__(self, item, **kwargs):
         self.item = item
         super().__init__(**kwargs)
         self.color = self.app.text_color
-        self.card = None
+        self.node = None
         self.state = 'normal'
+        self.list_state.toggles_dict[self.item.uid] = self
 
     def toggle(self):
         """Defines toggle behavior for layout"""
 
         if self.state == 'normal':
-            with ItemCardContainer() as f:
-                self.card = f.add_card(toggle=self)
+            self.node = self.list_state.add_card(item=self.item)
             self.state = 'down'
-            graphics = [pair[0] for pair in [self.__class__.icon.options, self.children_color]]
+
         else:
             self.state = 'normal'
-            with ItemCardContainer() as f:
-                f.remove_card(self.card)
-                self.card = None
-            graphics = [pair[1] for pair in [self.__class__.icon.options, self.children_color]]
+            self.list_state.remove_card(self.node)
+            self.node = None
 
-        self._graphics_toggle(graphics)
+        self.graphics_toggle()
 
     def menu_delete(self):
         """Called when item deleted from ListPreview"""
         return self.toggle()
 
-    def _graphics_toggle(self, graphics):
+    def graphics_toggle(self):
+        if self.state == 'normal':
+            graphics = ['checkbox-blank-outline', self.app.text_color]
+        else:
+            graphics = ['checkbox-marked-outline', logical.as_list(self.app.theme_cls.accent_color)]
+
         for widget in self.children:
             try:
                 _ = widget.icon
@@ -137,15 +137,12 @@ class ToggleLayout(MDCard):
         """Split long names into readable, multiline text"""
         name = self.item.name
         if len(name) > 20:  # Split into two lines
-            _name = self._do_split(name)
-        else:
-            _name = name
-        return _name
+            name = self._do_split(name)
+        return name
 
 
 class GroupScrollHelper(RelativeLayout):
     """Element background and scrollbar alignment"""
-    pass
 
 
 class GroupScrollBar(ScrollView):
@@ -260,31 +257,3 @@ class GroupDisplay(BoxLayout):
 
         self.heights = {k: v for k, v in (unpack(quad) for quad in self._heights_list)}
 
-    def interpret_pool(self, pool: ItemPool):
-        """For loading an incomplete list back into the app"""
-        for uid, info in pool.items():
-            try:
-                item = self.app.db.items[uid]
-            except KeyError:
-                item = self.app.db.new_items[uid]
-                with ItemCardContainer() as f:
-                    card = f.add_card(item=item)
-            else:
-                card = self._set_toggle(item)
-
-            if a := info[1]:
-                card.amount.text = str(a)
-            if n := info[2]:
-                card.note_text_validate(n)
-
-    def _set_toggle(self, item):
-        """Add a card by toggling the appropriate button"""
-        for widget in self.walk(restrict=True):
-            try:
-                _item = widget.item
-            except AttributeError:
-                continue
-            else:
-                if item == _item:
-                    widget.toggle()
-                    return widget.card

@@ -20,6 +20,7 @@ from kivymd.uix.button import MDRaisedButton, MDIconButton, MDFlatButton
 from kivymd.uix.textfield import MDTextField
 
 from logical.pools_and_lists import ShoppingList, ItemPool
+from logical.state import ListState
 
 
 class GroceriesAppBaseDialog(Popup):
@@ -55,24 +56,21 @@ class AddItemDialog(GroceriesAppBaseDialog):
 
     def do_add(self, *_):
         """Called when adding a new item"""
-        from widget_sections.preview import ItemCardContainer
 
         info = {k: v for k, v in [('name', self.field.text), ('group', self.spinner.text)]}
-
+        item = MDApp.get_running_app().db.add_new_item(info)
         self.dismiss()
-        with ItemCardContainer() as f:
-            f.dialog_add_card(info)
+        with ListState() as f:
+            f.add_card(item=item)
 
 
 class ClearListDialog(GroceriesAppBaseDialog):
 
     @staticmethod
     def clear_list():
-        from widget_sections.preview import ItemCardContainer
-        with ItemCardContainer() as f:
-            children = f.children.copy()
-            for card in children:
-                f.remove_card(card)
+        with ListState() as f:
+            f.linked_list.clear()
+            f.container.clear_widgets()
 
 
 class CompleteDialog(GroceriesAppBaseDialog):
