@@ -1,28 +1,18 @@
-from operator import itemgetter
-from time import time
-
-from kivy.clock import Clock
-from kivy.graphics.context_instructions import Color
-from kivy.properties import StringProperty, ObjectProperty, OptionProperty
-from kivy.uix.behaviors import ButtonBehavior, ToggleButtonBehavior
+from kivy.properties import StringProperty, ObjectProperty, NumericProperty
+from kivy.properties import StringProperty, ObjectProperty, NumericProperty
+from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.image import Image
-from kivy.uix.label import Label
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.widget import Widget
-
 from kivymd.app import MDApp
-from kivymd.uix.button import MDIconButton, MDFlatButton, BasePressedButton
+from kivymd.uix.button import MDIconButton, MDRaisedButton
 from kivymd.uix.card import MDCard
 from kivymd.uix.label import MDLabel
-from kivymd.icon_definitions import md_icons
 
 import logical
-from logical.pools_and_lists import ItemPool
-from widget_sections.preview import ItemCardContainer
+from logical.state import ListState
 from windows.dialogs import AddItemDialog
 
 
@@ -58,60 +48,42 @@ class ItemCheckbox(MDIconButton):
 
     icon = StringProperty()
 
-    # @property
-    # def text_color(self):
-    #     if self.icon =
 
-
-class ToggleLayout(MDCard):
+class ToggleLayout(MDRaisedButton):
     """ToggleButtons for items in db organized by group"""
 
-    app = MDApp.get_running_app()
+    """Redeclaration of `width` property prevents excessive iteration, which seems to originate from implementation of
+     `BaseRectangularButton` in kivymd.buttons but may in fact also be present somewhere else in the library.
+     """
 
+    width = NumericProperty()
     group = None
     item = ObjectProperty()
-    state = OptionProperty('normal', options=['normal', 'down'])
-    icon = OptionProperty('checkbox-blank-outline', options=['checkbox-marked-outline', 'checkbox-blank-outline'])
-    children_color = [logical.as_list(app.theme_cls.accent_color), app.text_color]
+    icon = StringProperty()
+    app = MDApp.get_running_app()
 
     def __init__(self, item, **kwargs):
         self.item = item
         super().__init__(**kwargs)
-        self.color = self.app.text_color
-        self.card = None
-        self.state = 'normal'
+        # self.color = self.app.text_color
+        self.node = None
+        ListState.instance.toggles_dict[self.item.uid] = self
 
-    def toggle(self):
-        """Defines toggle behavior for layout"""
+    def do_toggle(self):
+        """When children are clicked"""
 
-        if self.state == 'normal':
-            with ItemCardContainer() as f:
-                self.card = f.add_card(toggle=self)
-            self.state = 'down'
-            graphics = [pair[0] for pair in [self.__class__.icon.options, self.children_color]]
+        if not self.node:
+            self.node = ListState.instance.add_card(item=self.item, toggle=self)
         else:
-            self.state = 'normal'
-            with ItemCardContainer() as f:
-                f.remove_card(self.card)
-                self.card = None
-            graphics = [pair[1] for pair in [self.__class__.icon.options, self.children_color]]
+            self.node = ListState.instance.remove_card(self.node)
 
-        self._graphics_toggle(graphics)
-
-    def menu_delete(self):
-        """Called when item deleted from ListPreview"""
-        return self.toggle()
-
-    def _graphics_toggle(self, graphics):
-        for widget in self.children:
-            try:
-                _ = widget.icon
-            except AttributeError:
-                pass
-            else:
-                widget.icon = graphics[0]
-            finally:
-                widget.text_color = graphics[1]
+    def graphics_toggle(self, state):
+        if state == 'normal':
+            self.icon = 'checkbox-blank-outline'
+            self.text_color = self.app.text_color
+        else:
+            self.icon = 'checkbox-marked-outline'
+            self.text_color = logical.as_list(self.app.theme_cls.accent_color)
 
     @staticmethod
     def _do_split(string):
@@ -137,15 +109,12 @@ class ToggleLayout(MDCard):
         """Split long names into readable, multiline text"""
         name = self.item.name
         if len(name) > 20:  # Split into two lines
-            _name = self._do_split(name)
-        else:
-            _name = name
-        return _name
+            name = self._do_split(name)
+        return name
 
 
 class GroupScrollHelper(RelativeLayout):
     """Element background and scrollbar alignment"""
-    pass
 
 
 class GroupScrollBar(ScrollView):
@@ -183,15 +152,14 @@ class DisplaySubsection(GridLayout):
         }
 
         items = {item.name: item for item in self.app.db.items.values() if item.group == self.group}
-        keys = sorted(list(items))
-        keys.reverse()
+        keys = sorted(list(items), reverse=True)
 
         title = SectionTitle(self.group, **size_kwargs)
         add_button = SectionAddItem(self.group, **size_kwargs)
 
         if self.cols == 3:
-            lab = Label(**size_kwargs)
-            self.widget_list.append(lab)
+            extra_spacer = Widget(**size_kwargs)
+            self.widget_list.append(extra_spacer)
         self.widget_list.append(title)
         self.widget_list.append(add_button)
 
@@ -260,31 +228,3 @@ class GroupDisplay(BoxLayout):
 
         self.heights = {k: v for k, v in (unpack(quad) for quad in self._heights_list)}
 
-    def interpret_pool(self, pool: ItemPool):
-        """For loading an incomplete list back into the app"""
-        for uid, info in pool.items():
-            try:
-                item = self.app.db.items[uid]
-            except KeyError:
-                item = self.app.db.new_items[uid]
-                with ItemCardContainer() as f:
-                    card = f.add_card(item=item)
-            else:
-                card = self._set_toggle(item)
-
-            if a := info[1]:
-                card.amount.text = str(a)
-            if n := info[2]:
-                card.note_text_validate(n)
-
-    def _set_toggle(self, item):
-        """Add a card by toggling the appropriate button"""
-        for widget in self.walk(restrict=True):
-            try:
-                _item = widget.item
-            except AttributeError:
-                continue
-            else:
-                if item == _item:
-                    widget.toggle()
-                    return widget.card

@@ -1,11 +1,10 @@
 import datetime
-import time
 import os
+import time
 from operator import itemgetter
 
-from kivymd.app import MDApp
-
 import yaml
+from kivymd.app import MDApp
 
 from logical.stores import Store
 
@@ -80,12 +79,11 @@ class ItemPool:
         `item_uid` OR `item.name`: [`amount`, `note`]
         Item object will be looked up via DB, if not found it is a new/unsorted item and created
         """
-        print(path)
+
         db = MDApp.get_running_app().db
         pool = set()
         now = time.time()
         with open(path) as doc:
-            print(f'opened {path}')
             for base_dict in yaml.load_all(doc, Loader=yaml.Loader):
                 for uid, info in base_dict.items():
                     try:
@@ -130,12 +128,11 @@ class ShoppingList:
 
         self.items = {}
         for uid, triple in pool.items():  # item, num, note = triple
-            print(triple)
+
             try:
                 location_key = self.store[uid]
             except KeyError as e:
                 location_key = 'l00'  # unsorted item
-                print(e)
             try:
                 loc_pool = self.items[location_key]
             except KeyError:
@@ -158,7 +155,6 @@ class ShoppingList:
         do_build = False
         for loc in self.store.specials:
             try:
-                print(f'{loc=}')
                 nested = self.items[loc]
             except KeyError:
                 needed.append(0)
@@ -183,8 +179,6 @@ class ShoppingList:
                     _head, _subj = strings
                     self.header += _head(val)
                     self.subject += _subj(val)
-
-        print(self.header, self.subject)
 
     @staticmethod
     def get_date():
@@ -212,7 +206,6 @@ class ShoppingList:
         """Convert an grouped-- but not yet sorted-- set of items into a list for humans to read"""
 
         s = sorted([loc for loc in self.items])
-        print(s)
 
         self.body = ''
         for location_uid in s:

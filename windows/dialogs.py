@@ -1,25 +1,20 @@
 import os
 import smtplib
 import ssl
-from datetime import datetime
-from operator import itemgetter
 
 from kivy.clock import Clock
-from kivy.properties import StringProperty, ObjectProperty, BooleanProperty, NumericProperty
-from kivy.metrics import dp
 from kivy.factory import Factory
+from kivy.properties import NumericProperty
 from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.popup import Popup
 from kivy.uix.spinner import Spinner
-
 from kivymd.app import MDApp
-from kivymd.uix.filemanager import MDFileManager
-from kivymd.uix.label import MDLabel
-from kivymd.uix.button import MDRaisedButton, MDIconButton, MDFlatButton
+from kivymd.uix.button import MDIconButton, MDFlatButton
 from kivymd.uix.textfield import MDTextField
 
 from logical.pools_and_lists import ShoppingList, ItemPool
+from logical.state import ListState
 
 
 class GroceriesAppBaseDialog(Popup):
@@ -55,24 +50,19 @@ class AddItemDialog(GroceriesAppBaseDialog):
 
     def do_add(self, *_):
         """Called when adding a new item"""
-        from widget_sections.preview import ItemCardContainer
 
         info = {k: v for k, v in [('name', self.field.text), ('group', self.spinner.text)]}
-
+        item = MDApp.get_running_app().db.add_new_item(info)
         self.dismiss()
-        with ItemCardContainer() as f:
-            f.dialog_add_card(info)
+        ListState.instance.add_card(item=item)
 
 
 class ClearListDialog(GroceriesAppBaseDialog):
 
     @staticmethod
     def clear_list():
-        from widget_sections.preview import ItemCardContainer
-        with ItemCardContainer() as f:
-            children = f.children.copy()
-            for card in children:
-                f.remove_card(card)
+        ListState.instance.clear()
+        ListState.instance.container.clear_widgets()
 
 
 class CompleteDialog(GroceriesAppBaseDialog):
@@ -136,8 +126,7 @@ class ExitDialog(GroceriesAppBaseDialog):
 
     def do_save(self):
         from widget_sections.preview import ItemCardContainer
-        with ItemCardContainer() as f:
-            gro_list = f.convert_to_pool()
+        gro_list = ItemCardContainer.instance.convert_to_pool()
         Factory.SaveDialog(gro_list).open()
         self.dismiss()
 
@@ -161,10 +150,9 @@ class FilePickerButton(MDFlatButton, ToggleButtonBehavior):
         self.__class__.instances += 1
 
     def on_release(self):
-        from widget_sections.selection import GroupDisplay
         self.popup.clear_list()
         pool = ItemPool.from_file(self.path)
-        GroupDisplay.instance.interpret_pool(pool)
+        ListState.instance.populate_from_pool(pool)
         self.popup.dismiss()
 
 
@@ -219,7 +207,7 @@ class SaveDialog(GroceriesAppBaseDialog):
         """Read login info from credentials and access server to send email"""
         with open('data\\credentials.txt') as f:
             sender_email, receiver_email, password = [line.split(':')[1][:-1] for line in f]
-            print(f'{sender_email}::{receiver_email}::{password}')
+            # print(f'{sender_email}::{receiver_email}::{password}')
 
         port = 465  # For SSL
         context = ssl.create_default_context()  # Create a secure SSL context
@@ -244,7 +232,7 @@ class SaveDialog(GroceriesAppBaseDialog):
 
     def save_formatted_list(self):
         self.item_pool.dump_yaml()
-        print('dumped')
+        # print('dumped')
         # print(self.gro_list)
         self.make_list()
         # print(self.gro_list)
@@ -262,7 +250,7 @@ class SaveDialog(GroceriesAppBaseDialog):
 
     def complete(self, text):
         self.dismiss()
-        Factory.CompleteDialog(text, self.item_pool).open()
+        Factory.CompleteDialog(text, self.gro_list).open()
 
 
 class SettingsDialog(GroceriesAppBaseDialog):

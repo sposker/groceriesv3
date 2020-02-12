@@ -17,7 +17,7 @@
 <Divider@Widget>
     canvas.after:
         Color:
-            rgba: app.dh_color
+            rgba: app.bg_color
         Rectangle:
             size: self.size
             pos: self.pos
@@ -51,7 +51,7 @@
         size_hint: 1, None
         height: root.height*.99 - toolbar.height
         padding: dp(8)
-        spacing: dp(8)
+#        spacing: dp(8)
 
         GroupScrollHelper:
             id: selection
@@ -64,7 +64,7 @@
                 RoundedRectangle:
                     size: self.size
                     pos: self.pos
-                    radius: [24, 24, 24, 24]
+                    radius: [24, 24, 0, 0]
             orientation: 'vertical'
             size_hint: (1 - 1/1.618), 1
             padding: dp(8)

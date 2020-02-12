@@ -1,35 +1,21 @@
-import time
 from operator import itemgetter
 
 from kivy.animation import Animation
 from kivy.clock import Clock
-from kivy.factory import Factory
 from kivy.metrics import dp
-from kivy.properties import OptionProperty, NumericProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.dropdown import DropDown
-from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.scrollview import ScrollView
-
-from kivymd.app import MDApp
-from kivymd.uix.button import MDFloatingActionButton, MDIconButton, MDFlatButton
+from kivymd.uix.button import MDIconButton, MDFlatButton
 from kivymd.uix.card import MDCard
-from kivymd.uix.dialog import MDInputDialog
-from kivymd.uix.list import TwoLineRightIconListItem
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.tooltip import MDTooltip
 
 from logical import hide_widget
-from logical.items import GroceryItem
-from logical.pools_and_lists import ItemPool, ShoppingList
-
+from logical.state import ListState
 from windows.dialogs import DefaultsDialog
-
-
-class DefaultsDropdown(MDDropdownMenu):
-    ...
 
 
 class ListScrollHelper(RelativeLayout):
@@ -55,47 +41,58 @@ class ListScrollBar(ScrollView):
 class ItemCardContainer(BoxLayout):
     """List preview displaying item cards"""
 
-    _instance = None
+    instance = None
     sort_type = 'creation'
-    sort_desc = True
+    # sort_desc = True
+    # container_height = NumericProperty(allow_none=True)
+
     stepped_height = 0
 
+    def on_kv_post(self, base_widget):
+        super().on_kv_post(base_widget)
+        ItemCardContainer.instance = self
+
     def __init__(self, **kwargs):
+        # self._state_ref = None
         super().__init__(**kwargs)
+        # Clock.schedule_once(self.state_ref)
 
     def __new__(cls, *args, **kwargs):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls, *args, **kwargs)
-        return cls._instance
+        if cls.instance is None:
+            cls.instance = super().__new__(cls, *args, **kwargs)
+        return cls.instance
 
-    def __enter__(self):
-        return self._instance
+    # def __enter__(self):
+    #     return self._instance
+    #
+    # def __exit__(self, exc_type, exc_val, exc_tb):
+    #     pass
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
+    # def state_ref(self, *_):
+    #
+    #     # self._state_ref = ListState()
+    #     # self.bind(height=lambda _, __: ListState.instance.container_height)
 
-    def adjust_height(self, h, offset=None):
-        offset = self.spacing if offset is None else offset
-        if h > 0:
-            h += offset
-        else:
-            h -= offset
-        self.height = self.height + h
+    def trigger_refresh(self):
+        """Called when ListState is updated to signal a changed state"""
+        self.height = ListState.instance.container_height
+        # print(f'Container: {self.height=}')
+        # print(f'{len(self.children)}, {sum(c.height for c in self.children)=}')
 
-    def add_card(self, toggle=None, item=None):
-        """Add a item to the preview via toggle button"""
-        card = ItemCard(toggle=toggle, item=item)
-        self.adjust_height(card.normal_height)
-        self.stepped_height += (card.normal_height + self.spacing)
-        self.add_widget(card)
-        # print(self.height, self.stepped_height, 'added')
-        return card
-
-    def dialog_add_card(self, info: dict):
-        """Add a card for a new item via AddItemDialog"""
-        db = MDApp.get_running_app().db
-        item = db.add_new_item(info)
-        self.add_card(item=item)
+    # def add_card(self, toggle=None, item=None):
+    #     """Add a item to the preview via toggle button"""
+    #     card = ItemCard(toggle=toggle, item=item)
+    #     # self.adjust_height(card.normal_height)
+    #     self.stepped_height += (card.normal_height + self.spacing)
+    #     self.add_widget(card)
+    #     # print(self.height, self.stepped_height, 'added')
+    #     return card
+    #
+    # def dialog_add_card(self, info: dict):
+    #     """Add a card for a new item via AddItemDialog"""
+    #     db = MDApp.get_running_app().db
+    #     item = db.add_new_item(info)
+    #     self.add_card(item=item)
 
     # TODO: First/Last widget +8 dp for MD spec
     # def add_widget(self, widget, index=0, canvas=None):
@@ -107,37 +104,29 @@ class ItemCardContainer(BoxLayout):
     #     self.final_node = widget
     #     widget.height += 8
 
-    def populate_from_pool(self, pool: ItemPool):
-        """Create cards from pool of items"""
-
-    def convert_to_pool(self):
-        """Convert preview items into ItemPool"""
-        items = {w.list_fields for w in self.children}
-        return ItemPool(items)
-
-    def remove_card(self, card):
-        """Remove an item from the preview"""
-        try:
-            if card.toggle.state == 'down':
-                return card.toggle.menu_delete()
-        except AttributeError:  # Card with no associated toggle button
-            pass
-
-        self.adjust_height(-card.height)
-        self.stepped_height -= (card.height + self.spacing)
-        self.remove_widget(card)
-        # print(self.height, self.stepped_height, 'removed')
-
-    def sort_display(self):
-        """Called with name of card attributes"""
-        prop = self.sort_type
-        pairs = [(getattr(widget, prop), widget) for widget in self.children]
-        ordered = sorted(pairs, key=itemgetter(0))
-        if self.sort_desc:
-            ordered.reverse()
-        self.clear_widgets()
-        for pair in ordered:
-            self.add_widget(pair[1])
+    # def remove_card(self, card):
+    #     """Remove an item from the preview"""
+    #     try:
+    #         if card.toggle.state == 'down':
+    #             return card.toggle.menu_delete()
+    #     except AttributeError:  # Card with no associated toggle button
+    #         pass
+    #
+    #     self.adjust_height(-card.height)
+    #     self.stepped_height -= (card.height + self.spacing)
+    #     self.remove_widget(card)
+    #     # print(self.height, self.stepped_height, 'removed')
+    #
+    # def sort_display(self):
+    #     """Called with name of card attributes"""
+    #     prop = self.sort_type
+    #     pairs = [(getattr(widget, prop), widget) for widget in self.children]
+    #     ordered = sorted(pairs, key=itemgetter(0))
+    #     if self.sort_desc:
+    #         ordered.reverse()
+    #     self.clear_widgets()
+    #     for pair in ordered:
+    #         self.add_widget(pair[1])
 
 
 class ItemCard(MDCard):
@@ -165,11 +154,9 @@ class ItemCard(MDCard):
         'note_input': (48.0, None, 1.0, False),
     }
 
-    def __init__(self, toggle=None, item=None, **kwargs):
+    def __init__(self, node, **kwargs):
         # simple item properties
-        self.toggle = toggle
-        self.item = toggle.item if toggle else item  # No toggle button for new items
-        self._creation = time.time()
+        self.node = node
 
         # work with item defaults list
         self.defaults_list = self.item.defaults.copy()
@@ -180,25 +167,33 @@ class ItemCard(MDCard):
         super().__init__(**kwargs)
         self._get_widget_refs()
 
-        # create dropdown, set note text, item history  #TODO history
+        # create dropdown, set note text, item history
         self.defaults_dropdown = DropdownStack(self.defaults_list.copy(), self.amount)
         self.note_input.text = self.item.note
 
     @property
+    def toggle(self):
+        return self.node.toggle
+
+    @property
+    def item(self):
+        return self.node.item
+
+    @property
     def expand_anim(self):
         expand_anim = Animation(size=(self.width, self.normal_height + self.expansion_height), duration=.12)
-        expand_anim.bind(on_progress=lambda _, __, progress: self._anim_progress(self.expansion_height,
-                                                                                 progress))
-        expand_anim.bind(on_complete=lambda _, __: self._anim_complete(self.expansion_height))
+        expand_anim.bind(on_progress=lambda _, __, progress:
+                         self._anim_progress(self.expansion_height, progress))
+        expand_anim.bind(on_complete=lambda _, __: self._anim_complete())
 
         return expand_anim
 
     @property
     def contract_anim(self):
         contract_anim = Animation(size=(self.width, self.normal_height), duration=.12)
-        contract_anim.bind(on_progress=lambda _, __, progress: self._anim_progress(-self.expansion_height,
-                                                                                   progress))
-        contract_anim.bind(on_complete=lambda _, __: self._anim_complete(-self.expansion_height))
+        contract_anim.bind(on_progress=lambda _, __, progress:
+                           self._anim_progress(-self.expansion_height, progress))
+        contract_anim.bind(on_complete=lambda _, __: self._anim_complete())
 
         return contract_anim
 
@@ -230,32 +225,38 @@ class ItemCard(MDCard):
     def _anim_progress(self, delta, progress):
         """Increment the size of card and container"""
 
-        with ItemCardContainer() as f:
-            f.height = f.stepped_height + round(delta * progress)
-        self.expansion.height = self.normal_height + round(delta * progress)
+        ListState.instance.anim_progress_delta = delta * progress
+        self.node.height = self.normal_height + delta * progress
+        ItemCardContainer.instance.trigger_refresh()
 
-    def _anim_complete(self, increment):
+    def _anim_complete(self):
         """Update the stepped height of the container so the next animation uses new base value;
         Adjust widget visibility as animation is now complete
         """
 
-        with ItemCardContainer() as f:
-            f.stepped_height += increment
+        ListState.instance.anim_progress_delta = 0
+        value = -1 if self.expanded else 1
+        self.expanded = not self.expanded
+        ListState.instance.anim_complete(value)
         return self._make_hidden()
 
-    def move(self):
+    def _resize(self):
+        ListState.instance.resize_card(self.node)
+
+    def resize(self):
         if not self.expanded:
             self.chevron.icon = 'chevron-up'
             self.expand_anim.start(self)
         else:
             self.chevron.icon = 'chevron-down'
             self.contract_anim.start(self)
-        self.expanded = not self.expanded
 
     def kvlang_remove_card(self):
         """Called from card's delete button"""
-        with ItemCardContainer() as f:
-            f.remove_card(self)
+        t = self.node.toggle
+        ListState.instance.remove_card(self.node)
+        if t:
+            t.node = None
 
     def note_text_validate(self, text):
         """Set the note label visibility and text"""
@@ -265,7 +266,7 @@ class ItemCard(MDCard):
     @property
     def creation(self):
         """Used for sorting by creation time"""
-        return self._creation
+        return self.node.creation_time
 
     @property
     def item_name(self):
@@ -368,6 +369,6 @@ class PreviewIconButton(MDIconButton, MDTooltip):
         if not self._tooltip:
             return
         (
-            Animation(_scale_x=1, _scale_y=1, d=0.4)
-            + Animation(opacity=1, d=0.4)
+                Animation(_scale_x=1, _scale_y=1, d=0.4)
+                + Animation(opacity=1, d=0.4)
         ).start(self._tooltip)

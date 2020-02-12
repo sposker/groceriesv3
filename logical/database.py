@@ -1,13 +1,13 @@
 import datetime
 import os
-import time
 import socket
+import time
 
 import yaml
 
 from logical.items import DisplayGroup, GroceryItem
-from logical.stores import Store, Location
 from logical.pools_and_lists import ItemPool
+from logical.stores import Store, Location
 
 
 class Database:

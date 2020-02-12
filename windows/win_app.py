@@ -1,29 +1,30 @@
 import datetime
 import os
 
+from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen, ScreenManager
-from kivy.clock import Clock
-
 from kivymd.app import MDApp
 from kivymd.theming import ThemeManager
 
-from logical.pools_and_lists import ItemPool
-from windows import screenwidth, screenheight
 from logical import as_list, as_string
 from logical.database import Database
-
+from logical.pools_and_lists import ItemPool
+from logical.state import ListState
+from widget_sections.preview import ItemCard, ItemCardContainer
+from windows import screenwidth, screenheight
 
 GENERAL = ['preview', 'search', 'selection']
 SPECIFIC_WIN = ['win_navbar', 'dialogs']
 APP_KV_PATH = r'windows\windows.kv'
 
-DARK_HIGHLIGHT = BACKGROUND_COLOR = (0.07058823529411765, 0.07058823529411765, 0.07058823529411765, 1)  # Dark gray
-ELEMENT_COLOR = (0.12549019607843137, 0.12549019607843137, 0.12549019607843137, 1)  # Medium Gray
-LIGHT_HIGHLIGHT = (0.39215686274509803, 0.396078431372549, 0.41568627450980394, 1)  # Lighter Gray
+BACKGROUND_COLOR = (0.07058823529411765, 0.07058823529411765, 0.07058823529411765, 1)  # Darkest gray
+ELEMENT_COLOR = (0.12549019607843137, 0.12549019607843137, 0.12549019607843137, 1)  # Darker Gray
+CARD_COLOR = (0.25882352941176473, 0.25882352941176473, 0.25882352941176473, 1)  # Dark Gray
+LIGHT_HIGHLIGHT = (0.39215686274509803, 0.396078431372549, 0.41568627450980394, 1)  # Light Gray
 TEXT_COLOR = (0.8862745098039215, 0.8862745098039215, 0.8862745098039215, 1)  # Lightest Gray
-APP_COLORS = [DARK_HIGHLIGHT, BACKGROUND_COLOR, ELEMENT_COLOR, LIGHT_HIGHLIGHT, TEXT_COLOR]
+APP_COLORS = [CARD_COLOR, BACKGROUND_COLOR, ELEMENT_COLOR, LIGHT_HIGHLIGHT, TEXT_COLOR]
 
 ITEM_ROW_HEIGHT = 72
 TEXT_BASE_SIZE = 40
@@ -40,9 +41,9 @@ widgets_list = ['widget_sections/win' + s + '.kv' for s in GENERAL] + ['windows/
 # noinspection PyAttributeOutsideInit
 class WinApp(MDApp):
 
-    dh_color = DARK_HIGHLIGHT
-    dh_color_string = as_string(dh_color)
-    dh_color_list = as_list(dh_color)
+    card_color = CARD_COLOR
+    card_color_string = as_string(card_color)
+    card_color_list = as_list(card_color)
 
     bg_color = BACKGROUND_COLOR
     bg_color_string = as_string(bg_color)
@@ -107,6 +108,9 @@ class WinApp(MDApp):
 
     def load_data(self):
         self.load_user_settings()
+        ListState.container = ItemCardContainer()
+        ListState.view_cls = ItemCard
+        self.list_state = ListState()
 
         s = MainScreen(name='main')
         self.sm.add_widget(s)
@@ -117,9 +121,8 @@ class WinApp(MDApp):
         for _, _, pools in os.walk(self.pools_path):
             for pool in pools:
                 if now in pool:  # today's date matches the date of an item list
-                    from widget_sections.selection import GroupDisplay
                     itempool = ItemPool.from_file(os.path.join(self.pools_path, pool))
-                    GroupDisplay.instance.interpret_pool(itempool)
+                    ListState.instance.populate_from_pool(itempool)
 
     def _set_nonetypes(self):
         """Create app attributes to be overwritten by user settings or defaults"""

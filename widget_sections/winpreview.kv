@@ -9,13 +9,13 @@
     size_hint: None, None
     theme_text_color: 'Custom'
     text_color: 1, 1, 1, 1
-    tooltip_bg_color: app.dh_color
+    tooltip_bg_color: app.bg_color
     tooltip_text_color: app.text_color
 
 <DropdownStack>
     canvas.before:
         Color:
-            rgba: app.dh_color
+            rgba: app.bg_color
         RoundedRectangle:
             size: self.size
             pos: self.pos
@@ -101,7 +101,7 @@
             size_hint: None, 1
             height: self.size[1]
             on_release:
-                root.move()
+                root.resize()
 
         Widget:
             size_hint: .05, 1
@@ -111,7 +111,7 @@
     BoxLayout:
         name: 'expansion'
         size_hint: 1, None
-        height: root._expansion_height
+        height: root.expansion_height
 
         NoteInput:
             root: card
@@ -131,7 +131,6 @@
             icon: "delete"
             pos_hint: {'center_x': .5, 'center_y': .5}
             tooltip_text: 'Remove Item'
-
             on_release:
                 root.kvlang_remove_card()
 
@@ -143,6 +142,7 @@
 
     ListScrollBar:
 
+        bar_width: self.parent.height * 0.024
         size_hint: 1, 1
         color: app.elem_color
         do_scroll_x: False
@@ -155,7 +155,7 @@
 
             spacing: dp(4)
             orientation: 'vertical'
-            size_hint: None, None
+            size_hint: .95, None
             height: 0
             width: self.parent.width
             minimum_height: self.parent.height
