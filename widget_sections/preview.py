@@ -9,7 +9,6 @@ from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.scrollview import ScrollView
 from kivymd.uix.button import MDIconButton, MDFlatButton
 from kivymd.uix.card import MDCard
-from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.tooltip import MDTooltip
 
@@ -43,90 +42,19 @@ class ItemCardContainer(BoxLayout):
 
     instance = None
     sort_type = 'creation'
-    # sort_desc = True
-    # container_height = NumericProperty(allow_none=True)
-
-    stepped_height = 0
 
     def on_kv_post(self, base_widget):
         super().on_kv_post(base_widget)
         ItemCardContainer.instance = self
-
-    def __init__(self, **kwargs):
-        # self._state_ref = None
-        super().__init__(**kwargs)
-        # Clock.schedule_once(self.state_ref)
 
     def __new__(cls, *args, **kwargs):
         if cls.instance is None:
             cls.instance = super().__new__(cls, *args, **kwargs)
         return cls.instance
 
-    # def __enter__(self):
-    #     return self._instance
-    #
-    # def __exit__(self, exc_type, exc_val, exc_tb):
-    #     pass
-
-    # def state_ref(self, *_):
-    #
-    #     # self._state_ref = ListState()
-    #     # self.bind(height=lambda _, __: ListState.instance.container_height)
-
     def trigger_refresh(self):
         """Called when ListState is updated to signal a changed state"""
         self.height = ListState.instance.container_height
-        # print(f'Container: {self.height=}')
-        # print(f'{len(self.children)}, {sum(c.height for c in self.children)=}')
-
-    # def add_card(self, toggle=None, item=None):
-    #     """Add a item to the preview via toggle button"""
-    #     card = ItemCard(toggle=toggle, item=item)
-    #     # self.adjust_height(card.normal_height)
-    #     self.stepped_height += (card.normal_height + self.spacing)
-    #     self.add_widget(card)
-    #     # print(self.height, self.stepped_height, 'added')
-    #     return card
-    #
-    # def dialog_add_card(self, info: dict):
-    #     """Add a card for a new item via AddItemDialog"""
-    #     db = MDApp.get_running_app().db
-    #     item = db.add_new_item(info)
-    #     self.add_card(item=item)
-
-    # TODO: First/Last widget +8 dp for MD spec
-    # def add_widget(self, widget, index=0, canvas=None):
-    #     if not self.children:
-    #         self.init_node = widget
-    #     super().add_widget(widget, index=0, canvas=None)
-    #     if self.final_node:
-    #         self.final_node.height = widget.height
-    #     self.final_node = widget
-    #     widget.height += 8
-
-    # def remove_card(self, card):
-    #     """Remove an item from the preview"""
-    #     try:
-    #         if card.toggle.state == 'down':
-    #             return card.toggle.menu_delete()
-    #     except AttributeError:  # Card with no associated toggle button
-    #         pass
-    #
-    #     self.adjust_height(-card.height)
-    #     self.stepped_height -= (card.height + self.spacing)
-    #     self.remove_widget(card)
-    #     # print(self.height, self.stepped_height, 'removed')
-    #
-    # def sort_display(self):
-    #     """Called with name of card attributes"""
-    #     prop = self.sort_type
-    #     pairs = [(getattr(widget, prop), widget) for widget in self.children]
-    #     ordered = sorted(pairs, key=itemgetter(0))
-    #     if self.sort_desc:
-    #         ordered.reverse()
-    #     self.clear_widgets()
-    #     for pair in ordered:
-    #         self.add_widget(pair[1])
 
 
 class ItemCard(MDCard):
@@ -149,7 +77,7 @@ class ItemCard(MDCard):
 
     _hidden_at_start = {
         'expansion': (48.0, None, 1.0, False),
-        'history': (60, None, 1.0, False),
+        'history': (60, None, 1.0, True),
         'delete_card': (34.0, 1, 1.0, False),
         'note_input': (48.0, None, 1.0, False),
     }
@@ -350,10 +278,6 @@ class DefaultsButton(MDFlatButton):
 
 class NoteInput(MDTextField):
     """Input for item note"""
-
-    # def on_focus(self, _, value):
-    #     if not value and self.text:
-    #         return self.on_text_validate()
 
     def on_text_validate(self):
         """Show note label and collapse the card"""

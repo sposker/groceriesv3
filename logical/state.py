@@ -148,7 +148,7 @@ class ContextList(deque):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Adjust heights of first and last values based on MDSpec"""
-        # if exc_type:
+        # if exc_type: TODO
         #     return None
         #
         # if self.prev_first == self.first:
@@ -223,7 +223,7 @@ class ListState:
             self.normal_cards * self.height_normal,  # Normal cards
             self.expanded_cards * self.height_expanded,  # Expanded cards
             self.spacers * self.spacing,  # spacers
-            # min(16, len(self.linked_list) * 8),  # +8 on first and last for md spec
+            # min(16, len(self.linked_list) * 8),  # +8 on first and last for md spec TODO
             self.anim_progress_delta  # Animation in progress
         ])
 
