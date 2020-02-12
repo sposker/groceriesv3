@@ -1,26 +1,18 @@
-from kivy.clock import Clock
-from kivy.graphics.context_instructions import Color
-from kivy.properties import StringProperty, ObjectProperty, OptionProperty
-from kivy.uix.behaviors import ButtonBehavior, ToggleButtonBehavior
+from kivy.properties import StringProperty, ObjectProperty, NumericProperty
+from kivy.properties import StringProperty, ObjectProperty, NumericProperty
+from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.image import Image
-from kivy.uix.label import Label
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.widget import Widget
-
 from kivymd.app import MDApp
-from kivymd.uix.button import MDIconButton, MDFlatButton, BasePressedButton
+from kivymd.uix.button import MDIconButton, MDRaisedButton
 from kivymd.uix.card import MDCard
 from kivymd.uix.label import MDLabel
-from kivymd.icon_definitions import md_icons
 
 import logical
-from logical.pools_and_lists import ItemPool
 from logical.state import ListState
-from widget_sections.preview import ItemCardContainer
 from windows.dialogs import AddItemDialog
 
 
@@ -56,24 +48,24 @@ class ItemCheckbox(MDIconButton):
 
     icon = StringProperty()
 
-    # @property
-    # def text_color(self):
-    #     if self.icon =
 
-
-class ToggleLayout(MDCard):
+class ToggleLayout(MDRaisedButton):
     """ToggleButtons for items in db organized by group"""
 
-    app = MDApp.get_running_app()
+    """Redeclaration of `width` property prevents excessive iteration, which seems to originate from implementation of
+     `BaseRectangularButton` in kivymd.buttons but may in fact also be present somewhere else in the library.
+     """
 
+    width = NumericProperty()
     group = None
     item = ObjectProperty()
-    # state = OptionProperty('normal', options=['normal', 'down'])
+    icon = StringProperty()
+    app = MDApp.get_running_app()
 
     def __init__(self, item, **kwargs):
         self.item = item
         super().__init__(**kwargs)
-        self.color = self.app.text_color
+        # self.color = self.app.text_color
         self.node = None
         ListState.instance.toggles_dict[self.item.uid] = self
 
@@ -84,28 +76,14 @@ class ToggleLayout(MDCard):
             self.node = ListState.instance.add_card(item=self.item, toggle=self)
         else:
             self.node = ListState.instance.remove_card(self.node)
-        # print(f'Toggled: {self}')
-
-
-    # def menu_delete(self):
-    #     """Called when item deleted from ListPreview"""
-    #     return self.toggle()
 
     def graphics_toggle(self, state):
         if state == 'normal':
-            graphics = ['checkbox-blank-outline', self.app.text_color]
+            self.icon = 'checkbox-blank-outline'
+            self.text_color = self.app.text_color
         else:
-            graphics = ['checkbox-marked-outline', logical.as_list(self.app.theme_cls.accent_color)]
-
-        for widget in self.children:
-            try:
-                _ = widget.icon
-            except AttributeError:
-                pass
-            else:
-                widget.icon = graphics[0]
-            finally:
-                widget.text_color = graphics[1]
+            self.icon = 'checkbox-marked-outline'
+            self.text_color = logical.as_list(self.app.theme_cls.accent_color)
 
     @staticmethod
     def _do_split(string):
@@ -174,15 +152,14 @@ class DisplaySubsection(GridLayout):
         }
 
         items = {item.name: item for item in self.app.db.items.values() if item.group == self.group}
-        keys = sorted(list(items))
-        keys.reverse()
+        keys = sorted(list(items), reverse=True)
 
         title = SectionTitle(self.group, **size_kwargs)
         add_button = SectionAddItem(self.group, **size_kwargs)
 
         if self.cols == 3:
-            lab = Label(**size_kwargs)
-            self.widget_list.append(lab)
+            extra_spacer = Widget(**size_kwargs)
+            self.widget_list.append(extra_spacer)
         self.widget_list.append(title)
         self.widget_list.append(add_button)
 

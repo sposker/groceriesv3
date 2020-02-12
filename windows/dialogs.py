@@ -1,22 +1,16 @@
 import os
 import smtplib
 import ssl
-from datetime import datetime
-from operator import itemgetter
 
 from kivy.clock import Clock
-from kivy.properties import StringProperty, ObjectProperty, BooleanProperty, NumericProperty
-from kivy.metrics import dp
 from kivy.factory import Factory
+from kivy.properties import NumericProperty
 from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.popup import Popup
 from kivy.uix.spinner import Spinner
-
 from kivymd.app import MDApp
-from kivymd.uix.filemanager import MDFileManager
-from kivymd.uix.label import MDLabel
-from kivymd.uix.button import MDRaisedButton, MDIconButton, MDFlatButton
+from kivymd.uix.button import MDIconButton, MDFlatButton
 from kivymd.uix.textfield import MDTextField
 
 from logical.pools_and_lists import ShoppingList, ItemPool
@@ -256,7 +250,7 @@ class SaveDialog(GroceriesAppBaseDialog):
 
     def complete(self, text):
         self.dismiss()
-        Factory.CompleteDialog(text, self.item_pool).open()
+        Factory.CompleteDialog(text, self.gro_list).open()
 
 
 class SettingsDialog(GroceriesAppBaseDialog):

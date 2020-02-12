@@ -1,7 +1,6 @@
 """Contruct dicts for use in various AccessApp tabbed panel recycle views"""
 from operator import itemgetter
 
-
 from logical.items import GroceryItem, DisplayGroup
 from logical.stores import Store
 

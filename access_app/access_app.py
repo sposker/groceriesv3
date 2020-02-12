@@ -1,28 +1,25 @@
 """Iterate through all items and adjust their group"""
 
+from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.label import Label
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from kivy.uix.recycleview import RecycleView
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
-from kivy.clock import Clock
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.spinner import Spinner
-from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
-
+from kivy.uix.tabbedpanel import TabbedPanel
 from kivymd.app import MDApp
 from kivymd.theming import ThemeManager
 from kivymd.uix.button import MDFlatButton, MDRectangleFlatIconButton, MDRectangleFlatButton
 
+from access_app.access_dicts import GroupDetail, ItemDetail
+from logical import as_list, as_string
 from logical.database import Database
-from access_app.access_dicts import GroupDetail, ItemDetail, LocationMap, LocationDetail
 from logical.items import DisplayGroup
 from windows import screenwidth, screenheight
-from logical import as_list, as_string
-
 
 GENERAL = ['preview', 'search', 'selection']
 SPECIFIC_WIN = ['win_navbar', 'dialogs']

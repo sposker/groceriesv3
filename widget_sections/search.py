@@ -5,7 +5,6 @@ from kivy.properties import StringProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.app import MDApp
 from kivymd.uix.button import MDIconButton
-
 from kivymd.uix.textfield import MDTextFieldRound
 from kivymd.uix.tooltip import MDTooltip
 

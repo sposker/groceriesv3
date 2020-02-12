@@ -149,7 +149,6 @@ class ContextList(deque):
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Adjust heights of first and last values based on MDSpec"""
         # if exc_type:
-        #     print(exc_type, exc_tb, exc_val)
         #     return None
         #
         # if self.prev_first == self.first:
@@ -246,7 +245,7 @@ class ListState:
             try:
                 node.toggle.do_toggle()
             except AttributeError:
-                print('passed')
+                pass
 
         self.nodes_list.clear()
         self.container.clear_widgets()
@@ -316,6 +315,7 @@ class ListState:
                 self.container.add_widget(next_node.card)
             nl.extend(nodes_list)
 
+    # noinspection PyUnboundLocalVariable
     def populate_from_pool(self, pool: ItemPool):
         """For loading an incomplete list back into the app"""
         for uid, info in pool.items():
@@ -329,9 +329,9 @@ class ListState:
                 toggle = self.toggles_dict[item.uid]
                 toggle.graphics_toggle('down')
             finally:
-                # noinspection PyUnboundLocalVariable
                 node = self.add_card(sort=False, item=item, toggle=toggle, amount=amount, note=note)
-                toggle.node = node
+                if toggle:
+                    toggle.node = node
 
         self.sort_cards()
         self.container.trigger_refresh()
@@ -339,5 +339,5 @@ class ListState:
     def convert_to_pool(self):
         """Convert preview items into ItemPool"""
         items = {node.list_fields for node in self.nodes_list}
-        # print('iter')
+
         return ItemPool(items)

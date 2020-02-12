@@ -9,13 +9,13 @@
     size_hint: None, None
     theme_text_color: 'Custom'
     text_color: 1, 1, 1, 1
-    tooltip_bg_color: app.dh_color
+    tooltip_bg_color: app.bg_color
     tooltip_text_color: app.text_color
 
 <DropdownStack>
     canvas.before:
         Color:
-            rgba: app.dh_color
+            rgba: app.bg_color
         RoundedRectangle:
             size: self.size
             pos: self.pos
@@ -131,7 +131,6 @@
             icon: "delete"
             pos_hint: {'center_x': .5, 'center_y': .5}
             tooltip_text: 'Remove Item'
-
             on_release:
                 root.kvlang_remove_card()
 

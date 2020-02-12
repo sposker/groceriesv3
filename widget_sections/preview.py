@@ -1,35 +1,21 @@
-import time
 from operator import itemgetter
 
 from kivy.animation import Animation
 from kivy.clock import Clock
-from kivy.factory import Factory
 from kivy.metrics import dp
-from kivy.properties import OptionProperty, NumericProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.dropdown import DropDown
-from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.scrollview import ScrollView
-
-from kivymd.app import MDApp
 from kivymd.uix.button import MDIconButton, MDFlatButton
 from kivymd.uix.card import MDCard
-from kivymd.uix.dialog import MDInputDialog
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.tooltip import MDTooltip
 
 from logical import hide_widget
-from logical.items import GroceryItem
-from logical.pools_and_lists import ItemPool, ShoppingList
 from logical.state import ListState
-
 from windows.dialogs import DefaultsDialog
-
-
-class DefaultsDropdown(MDDropdownMenu):
-    ...
 
 
 class ListScrollHelper(RelativeLayout):
@@ -267,7 +253,10 @@ class ItemCard(MDCard):
 
     def kvlang_remove_card(self):
         """Called from card's delete button"""
+        t = self.node.toggle
         ListState.instance.remove_card(self.node)
+        if t:
+            t.node = None
 
     def note_text_validate(self, text):
         """Set the note label visibility and text"""

@@ -1,15 +1,10 @@
-from kivy.clock import Clock
 from kivy.core.window import Window
-from kivy.factory import Factory
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.spinner import Spinner
 from kivymd.app import MDApp
 from kivymd.uix.button import MDFlatButton
-from kivymd.uix.label import MDLabel
-from kivymd.uix.card import MDCard
-from kivymd.uix.toolbar import MDToolbar
 
-from widget_sections.selection import GroupScrollBar, DisplaySubsection
+from widget_sections.selection import GroupScrollBar
 
 
 class SpinnerButton(MDFlatButton):
