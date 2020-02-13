@@ -3,6 +3,34 @@
 #:import SpinnerButton windows.win_navbar
 #:import SpinnerDropdown windows.win_navbar
 
+
+<SpinnerButton>
+
+    font_size: 24
+    pos_hint: {'x': 0}
+    theme_text_color: 'Custom'
+    text_color: app.text_color
+    halign: 'left'
+    size: self.width, self.height
+    on_release:
+        self.jump()
+
+<SpinnerDropdown@DropDown>
+    canvas.before:
+        Color:
+            rgba: app.bg_color
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [0, 0, 16, 16]
+
+    background_color: app.trans_list
+    background_normal: ''
+    color: app.text_color
+    padding: dp(4)
+
+
+
 <GroceriesAppBaseDialog>
     canvas.before:
         Color:
@@ -18,8 +46,8 @@
     auto_dismiss: False
     font_size: 20
     separator_color: app.trans
-    size: (app.screenwidth/6, app.screenheight/5)
-    size_hint: (None, None)
+    size_hint: .9, .9
+    pos_hint: {'center_x': .5, 'center_y': .5}
     title: ''
     title_size: 0
 
@@ -155,7 +183,7 @@
 
 <DefaultsDialogButton>
 
-    user_font_size: '24sp'
+    user_font_size: '96sp'
     size_hint: 1, 1
     theme_text_color: 'Custom'
     text_color: app.text_color
@@ -168,7 +196,6 @@
 
 
 <DefaultsDialog>
-    size: (app.screenwidth/10, app.screenheight/5)
     auto_dismiss: True
 
     BoxLayout:
@@ -184,10 +211,8 @@
             pos_hint: {'center_x': .5, 'center_y': .95}
             theme_text_color: 'Custom'
             text_color: app.text_color
-            font_size: 20
+            font_size: 64
             text: "Input Value:"
-
-        DefaultsInput:
 
         GridLayout:
             cols: 3
@@ -197,7 +222,6 @@
 
     font_size: self.parent.font_size
     size_hint: (None, .7/3)
-    width: app.screenwidth/6 - 20
     pos_hint: {'center_x': .5}
     text_color: app.text_color
 
@@ -256,8 +280,6 @@
 
 
 <SaveDialog>
-
-    size: (app.screenwidth/4, app.screenheight/5)
 
     BoxLayout:
         orientation: 'vertical'

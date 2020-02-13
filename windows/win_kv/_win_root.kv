@@ -12,7 +12,7 @@
 #: import ListPreview widget_sections.preview
 #: import SearchBar widget_sections.search
 #: import GroupSelection widget_sections.selection
-#: import WinNavBar windows.win_navbar
+
 
 <Divider@Widget>
     canvas.after:
@@ -36,9 +36,6 @@
             size: self.size
             pos: self.pos
 
-#    NavBar:
-#        size_hint: 1, .08
-
 
     WinNavBar:
         id: toolbar
@@ -51,7 +48,6 @@
         size_hint: 1, None
         height: root.height*.99 - toolbar.height
         padding: dp(8)
-#        spacing: dp(8)
 
         GroupScrollHelper:
             id: selection
@@ -86,8 +82,6 @@
                 pos_hint: {'center_x': .5, 'center_y': .5}
 
 
-
-
 <LoadScreen>
     name: "loading"
 
@@ -102,6 +96,7 @@
         size_hint:1, .1
         text: "Loading..."
         font_size: app.text_base_size * 4/5
+
 
 <GroManager>
     id: manager

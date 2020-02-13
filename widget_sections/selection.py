@@ -1,4 +1,4 @@
-from kivy.properties import StringProperty, ObjectProperty, NumericProperty
+from kivy.utils import platform
 from kivy.properties import StringProperty, ObjectProperty, NumericProperty
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
@@ -11,9 +11,9 @@ from kivymd.uix.button import MDIconButton, MDRaisedButton
 from kivymd.uix.card import MDCard
 from kivymd.uix.label import MDLabel
 
-import logical
+from __init__ import as_list
 from logical.state import ListState
-from windows.dialogs import AddItemDialog
+from widget_sections.dialogs import AddItemDialog
 
 
 class SectionTitle(MDCard):
@@ -21,9 +21,9 @@ class SectionTitle(MDCard):
 
     group = StringProperty()
 
-    def __init__(self, grp, **kwargs):
+    def __init__(self, group, **kwargs):
         super().__init__(**kwargs)
-        self.group = grp.name
+        self.group = group.name
 
 
 class SectionAddItem(MDCard, ButtonBehavior):
@@ -31,9 +31,9 @@ class SectionAddItem(MDCard, ButtonBehavior):
 
     group = StringProperty()
 
-    def __init__(self, grp, **kwargs):
+    def __init__(self, group, **kwargs):
         super().__init__(**kwargs)
-        self.group = grp.name
+        self.group = group.name
 
     def on_release(self):
         AddItemDialog(self.group).open()
@@ -52,11 +52,12 @@ class ItemCheckbox(MDIconButton):
 class ToggleLayout(MDRaisedButton):
     """ToggleButtons for items in db organized by group"""
 
-    """Redeclaration of `width` property prevents excessive iteration, which seems to originate from implementation of
-     `BaseRectangularButton` in kivymd.buttons but may in fact also be present somewhere else in the library.
-     """
-
     width = NumericProperty()
+    """
+    Redeclaration of `width` property prevents excessive iteration, which seems to originate from implementation of
+    `BaseRectangularButton` in kivymd.buttons but may in fact also be present somewhere else in the library.
+    """
+
     group = None
     item = ObjectProperty()
     icon = StringProperty()
@@ -65,7 +66,6 @@ class ToggleLayout(MDRaisedButton):
     def __init__(self, item, **kwargs):
         self.item = item
         super().__init__(**kwargs)
-        # self.color = self.app.text_color
         self.node = None
         ListState.instance.toggles_dict[self.item.uid] = self
 
@@ -83,12 +83,20 @@ class ToggleLayout(MDRaisedButton):
             self.text_color = self.app.text_color
         else:
             self.icon = 'checkbox-marked-outline'
-            self.text_color = logical.as_list(self.app.theme_cls.accent_color)
+            self.text_color = as_list(self.app.theme_cls.accent_color)
+
+    @property
+    def display_name(self):
+        """Split long names into readable, multiline text"""
+        name = self.item.name
+        if len(name) > 20:  # Split into two lines
+            name = self._do_split(name)
+        return name
 
     @staticmethod
     def _do_split(string):
         """`display_name` helper method"""
-        _half, _ = half, x = divmod(len(string), 2)
+        half_, _ = half, x = divmod(len(string), 2)
         if string[half] == ' ':
             return string[:half] + '\n' + string[half+1:]
         while True:
@@ -98,19 +106,11 @@ class ToggleLayout(MDRaisedButton):
                     string = string[:half] + '\n' + string[half + 1:]
                     return string
             else:
-                _half -= 1
-                if string[_half] == ' ':
-                    string = string[:_half] + '\n' + string[_half + 1:]
+                half_ -= 1
+                if string[half_] == ' ':
+                    string = string[:half_] + '\n' + string[half_ + 1:]
                     return string
             x = not x
-
-    @property
-    def display_name(self):
-        """Split long names into readable, multiline text"""
-        name = self.item.name
-        if len(name) > 20:  # Split into two lines
-            name = self._do_split(name)
-        return name
 
 
 class GroupScrollHelper(RelativeLayout):
@@ -134,8 +134,6 @@ class GroupScrollBar(ScrollView):
 class DisplaySubsection(GridLayout):
     """Subsection of scrollview holding Groups"""
 
-    cols = 3
-
     def __init__(self, grp, **kwargs):
         super().__init__(**kwargs)
         self._scrollview_pos = None
@@ -146,10 +144,7 @@ class DisplaySubsection(GridLayout):
     def generate(self):
         """Pull information from database to use when constructing subsection"""
 
-        size_kwargs = {
-            'size_hint': (1, None),
-            'size': (self.width, self.app.item_row_height*9/8)
-        }
+        size_kwargs = {'size_hint': (1, None), 'size': (self.width, self.app.item_row_height * 9 / 8)}
 
         items = {item.name: item for item in self.app.db.items.values() if item.group == self.group}
         keys = sorted(list(items), reverse=True)

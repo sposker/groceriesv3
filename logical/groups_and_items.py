@@ -61,7 +61,14 @@ class GroceryItem:
         self._group = None  # Set by @group.setter
         self.group = group  # ibid
 
-        self.defaults = [(time.time(), '')] if defaults in [None, []] else defaults
+        self.defaults = [(time.time(), '\u00B7')] if defaults in [None, []] else defaults
+        for i, pair in enumerate(self.defaults):
+            t, v = pair
+            try:
+                _ = int(v)
+            except ValueError:
+                self.defaults[i] = (t, '\u00B7')
+
         self.note = '' if not note else note
 
         GroceryItem._uids.add(self.uid)  # Needed for uid calc
@@ -84,9 +91,9 @@ class GroceryItem:
         return f'{self.name} ({self.uid})'
 
     def _try_uid(self, n):
-        _uid = 'i' + str(len(self._uids) + n).zfill(2)
-        if _uid not in self._uids:
-            return _uid
+        uid_ = 'i' + str(len(self._uids) + n).zfill(3)
+        if uid_ not in self._uids:
+            return uid_
         else:
             return self._try_uid(n + 1)
 
@@ -99,9 +106,9 @@ class GroceryItem:
         if isinstance(value, DisplayGroup):
             self._group = value
         else:
-            for _dict in [DisplayGroup._uids, DisplayGroup._names]:
+            for dict_ in [DisplayGroup._uids, DisplayGroup._names]:
                 try:
-                    self._group = _dict[value]
+                    self._group = dict_[value]
                 except KeyError:
                     pass
                 else:

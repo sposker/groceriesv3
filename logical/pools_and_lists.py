@@ -19,7 +19,7 @@ class ItemPool:
             try:
                 amount = int(amount)
             except (ValueError, TypeError):
-                amount = ''
+                amount = '\u00B7'
             self._items[item.uid] = item.name, amount, note
 
     def __getitem__(self, item):

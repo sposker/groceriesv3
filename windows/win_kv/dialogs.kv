@@ -1,0 +1,358 @@
+#:import MDRectangleFlatIconButton kivymd.uix.button
+#:import MDLabel kivymd.uix.label
+#:import SpinnerButton windows.win_navbar
+#:import SpinnerDropdown windows.win_navbar
+
+<GroceriesAppBaseDialog>
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, .25
+        Rectangle:
+            size: self._window.size if self._window else (0, 0)
+        Color:
+            rgba: 0,0,0,.1
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    auto_dismiss: False
+    font_size: 20
+    separator_color: app.trans
+    size: (app.screenwidth/6, app.screenheight/5)
+    size_hint: (None, None)
+    title: ''
+    title_size: 0
+
+
+<AddItemDialog>
+    font_size: 20
+
+    BoxLayout:
+        size: self.parent.size
+        spacing: dp(8)
+
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: .3, 1
+            spacing: dp(8)
+
+            MDLabel:
+                size_hint: (1, .35)
+                text: 'Group/ Location:'
+                theme_text_color: 'Custom'
+                font_size: self.height/4
+                color: app.text_color
+
+            MDLabel:
+                text: 'Item Name:'
+                size_hint: (1, .35)
+                theme_text_color: 'Custom'
+                font_size: self.height/4
+                color: app.text_color
+
+            MDRectangleFlatButton:
+                font_size: root.font_size
+                size_hint: (1, .25)
+                text_color: app.text_color
+                text: "Cancel"
+                on_release:
+                    root.dismiss()
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: .7, 1
+            spacing: dp(8)
+
+            AddItemSpinner:
+                size_hint: (1, .35)
+
+                background_color: app.bg_color
+                background_normal: app.elem_color_string
+                color: app.text_color
+                font_size: 24
+                foreground_color: app.text_color
+#                size_hint: 1, 1
+                text_autoupdate: True
+                text_color: app.text_color
+                option_cls: 'SpinnerButton'
+                dropdown_cls: 'SpinnerDropdown'
+
+            MDTextField:
+                size_hint: (1, .35)
+                cursor_color: app.text_color
+                font_size: root.font_size
+                foreground_color: app.text_color
+                multiline: False
+                selection_color: (1,1,1,.4)
+                hint_text: 'Item Name'
+                text: ''
+                write_tab: False
+
+                on_text_validate:
+                    root.do_add()
+
+            MDRectangleFlatButton:
+                size_hint: (1, .25)
+                font_size: root.font_size
+                text_color: app.text_color
+                text: "Add Item"
+                on_release:
+                    root.do_add()
+
+<ClearListDialog>
+
+    BoxLayout:
+        orientation: 'vertical'
+        color: app.text_color
+        size: self.parent.size
+        font_size: 24
+        spacing: dp(8)
+
+        Label:
+            text: 'Remove all items from list?'
+            color: self.parent.color
+            font_size: self.parent.font_size
+            size_hint: 1, 2/3
+
+        BoxLayout:
+            font_size: 24
+            spacing: dp(8)
+
+            DialogButton:
+                text: '    Cancel'
+                icon: 'cancel'
+                size_hint: .4, .5
+                on_release:
+                    root.dismiss()
+
+            DialogButton:
+                text: '    Clear list'
+                icon: 'delete-forever'
+                size_hint: .4, .5
+                on_release:
+                    root.clear_list()
+                    root.dismiss()
+
+<CompleteDialog>
+
+    BoxLayout:
+        color: app.text_color
+        font_size: 24
+        orientation: 'vertical'
+
+        Label:
+            text: root.message
+            color: self.parent.color
+            font_size: self.parent.font_size
+            size_hint: (1,.6)
+
+        Button:
+            text: 'EXIT APP'
+            color: self.parent.color
+            font_size: self.parent.font_size
+            size_hint: (1,.2)
+            on_release:
+                root.do_exit()
+
+<DefaultsDialogButton>
+
+    user_font_size: '48sp'
+    size_hint: 1, 1
+    theme_text_color: 'Custom'
+    text_color: app.text_color
+
+<DefaultsInput>
+    halign: 'center'
+    color: self.parent.color
+    size_hint: (.3, .2)
+    pos_hint: {'center_x': .5, 'center_y': .725}
+    user_font_size: '32sp'
+    theme_text_color: 'Custom'
+    text_color: app.text_color
+
+
+<DefaultsDialog>
+    size: (app.screenwidth/10, app.screenheight/5)
+    auto_dismiss: True
+
+    BoxLayout:
+        orientation: 'vertical'
+        color: app.text_color
+        font_size: 24
+        spacing: dp(8)
+
+        MDLabel:
+            halign: 'center'
+            color: self.parent.color
+            size_hint: (1, .1)
+            pos_hint: {'center_x': .5, 'center_y': .95}
+            theme_text_color: 'Custom'
+            text_color: app.text_color
+            font_size: 20
+            text: "Input Value:"
+
+        DefaultsInput:
+
+        GridLayout:
+            cols: 3
+            size_hint: 1, .6
+
+<DialogButton@MDRectangleFlatIconButton>
+
+    font_size: self.parent.font_size
+    size_hint: (None, .7/3)
+    width: app.screenwidth/6 - 20
+    pos_hint: {'center_x': .5}
+    text_color: app.text_color
+
+
+<ExitDialog>
+
+    BoxLayout:
+        orientation: 'vertical'
+        color: app.text_color
+        font_size: 24
+        spacing: dp(8)
+
+        MDLabel:
+            text: 'Really quit?'
+            font_size: self.parent.font_size + 8
+            halign: 'center'
+            color: self.parent.color
+            size_hint: (1, .3)
+            pos_hint: {'center_x': .5, 'center_y': .7}
+
+        DialogButton:
+            text: '  Cancel'
+            icon: 'cancel'
+            on_release:
+                root.dismiss()
+        DialogButton:
+            text: '  Save and exit'
+            icon: 'content-save-outline'
+            on_release:
+                root.do_save()
+        DialogButton:
+            text: '  Exit without saving'
+            icon: 'exit-run'
+            on_release:
+                root.do_exit()
+
+<FilePickerButton>
+
+    theme_text_color: 'Custom'
+    text_color: app.text_color
+    font_size: 20
+    text: self.display_name
+
+
+<FilePickerDialog>
+
+    options: 20
+
+    GridLayout:
+        id: grid_container
+        cols: 4
+        size: root.size
+        pos: root.pos
+        spacing: dp(8)
+        padding: dp(8)
+
+
+<SaveDialog>
+
+    size: (app.screenwidth/4, app.screenheight/5)
+
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: dp(16)
+
+        Label:
+            text: 'Complete List?'
+            color: app.text_color
+            font_size: 32
+            size_hint: 1, .3
+
+
+        GridLayout:
+            cols: 2
+            size_hint: 1, .7
+            color: app.text_color
+            font_size: 24
+            spacing: dp(8)
+
+            Widget:
+
+            DialogButton:
+                text: '  Print List'
+                icon: 'printer'
+                size_hint: 1, 1
+                pos_hint: {'center_x': .5}
+                text_color: app.text_color
+                on_release:
+                    root.print_list()
+
+            DialogButton:
+                text: '  Email List'
+                icon: 'email-send-outline'
+                size_hint: 1, 1
+                pos_hint: {'center_x': .5}
+                text_color: app.text_color
+                on_release:
+                    root.email_list()
+
+            DialogButton:
+                text: '  Save Incomplete'
+                icon: 'content-save-outline'
+                size_hint: 1, 1
+                pos_hint: {'center_x': .5}
+                text_color: app.text_color
+                on_release:
+                    root.save_incomplete()
+
+            DialogButton:
+                text: '  Cancel'
+                icon: 'cancel'
+                size_hint: 1, 1
+                pos_hint: {'center_x': .5}
+                text_color: app.text_color
+                on_release:
+                    root.dismiss()
+
+            DialogButton:
+                text: '  Save Formatted List'
+                icon: 'typewriter'
+                size_hint: 1, 1
+                pos_hint: {'center_x': .5}
+                text_color: app.text_color
+                on_release:
+                    root.save_formatted_list()
+
+
+<SettingsDialog>
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, .75
+        Rectangle:
+            size: self._window.size if self._window else (0, 0)
+        Color:
+            rgba: app.trans
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    background_color: 1, 1, 1, 0
+    separator_color: 1, 1, 1, 0
+#    title_size: app.text_scale * 1.25
+#    title_color: app.theme.header_text
+    size_hint: None, None
+    size: (600, 400)
+#    auto_dismiss: False
+    title: 'Placeholder'
+
+    Button:
+        size_hint:(.1, .4)
+        text: 'DISMISS'
+        on_release:
+            root.do_exit()
+
+# End popups

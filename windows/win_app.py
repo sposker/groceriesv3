@@ -8,26 +8,16 @@ from kivy.uix.screenmanager import Screen, ScreenManager
 from kivymd.app import MDApp
 from kivymd.theming import ThemeManager
 
-from logical import as_list, as_string
 from logical.database import Database
 from logical.pools_and_lists import ItemPool
 from logical.state import ListState
 from widget_sections.preview import ItemCard, ItemCardContainer
 from windows import screenwidth, screenheight
+from __init__ import *
 
-GENERAL = ['preview', 'search', 'selection']
-SPECIFIC_WIN = ['win_navbar', 'dialogs']
-APP_KV_PATH = r'windows\windows.kv'
 
-BACKGROUND_COLOR = (0.07058823529411765, 0.07058823529411765, 0.07058823529411765, 1)  # Darkest gray
-ELEMENT_COLOR = (0.12549019607843137, 0.12549019607843137, 0.12549019607843137, 1)  # Darker Gray
-CARD_COLOR = (0.25882352941176473, 0.25882352941176473, 0.25882352941176473, 1)  # Dark Gray
-LIGHT_HIGHLIGHT = (0.39215686274509803, 0.396078431372549, 0.41568627450980394, 1)  # Light Gray
-TEXT_COLOR = (0.8862745098039215, 0.8862745098039215, 0.8862745098039215, 1)  # Lightest Gray
-APP_COLORS = [CARD_COLOR, BACKGROUND_COLOR, ELEMENT_COLOR, LIGHT_HIGHLIGHT, TEXT_COLOR]
-
-ITEM_ROW_HEIGHT = 72
-TEXT_BASE_SIZE = 40
+APP_KV_PATH = r'windows/win_kv/_win_root.kv'
+KV_WIDGETS = ['preview', 'search', 'selection', 'navbar', 'dialogs']
 
 Window.size = (screenwidth / 2, screenheight / 2)
 Window.borderless = True
@@ -35,7 +25,7 @@ Window.position = 'custom'
 Window.left = screenwidth/2 - Window.size[0]/2
 Window.top = screenheight/2 - Window.size[1]/2
 Window.icon = 'data\\src\\main.ico'
-widgets_list = ['widget_sections/win' + s + '.kv' for s in GENERAL] + ['windows/' + s + '.kv' for s in SPECIFIC_WIN]
+widgets_list = ['windows/win_kv/' + s + '.kv' for s in KV_WIDGETS]
 
 
 # noinspection PyAttributeOutsideInit
@@ -53,10 +43,6 @@ class WinApp(MDApp):
     elem_color_string = as_string(elem_color)
     elem_color_list = as_list(elem_color)
 
-    lh_color = LIGHT_HIGHLIGHT
-    # lh_color_string = as_string(lh_color)
-    # lh_color_list = as_list(lh_color)
-
     text_color = TEXT_COLOR
     text_color_string = as_string(text_color)
     text_color_list = as_list(text_color)
@@ -68,7 +54,7 @@ class WinApp(MDApp):
     trans_string = '1, 1, 1, 0'
     trans_list = [1, 1, 1, 0]
 
-    hint_text_color = (0.6705882352941176, 0.6705882352941176, 0.6705882352941176, .1)
+    # hint_text_color = (0.6705882352941176, 0.6705882352941176, 0.6705882352941176, .1)
     text_base_size = TEXT_BASE_SIZE
     item_row_height = ITEM_ROW_HEIGHT
     screenheight = screenheight
@@ -140,9 +126,9 @@ class WinApp(MDApp):
         for attr in attrs:
             setattr(self, attr, None)
 
-    def exit_routine(self, gro_list=None):
+    def exit_routine(self, gro_list=None, pool=None):
         if gro_list:
-            self.db.set_new_defaults(gro_list)
+            self.db.set_new_defaults(pool)
             self.db.dump_local()
         MDApp.get_running_app().stop()
 

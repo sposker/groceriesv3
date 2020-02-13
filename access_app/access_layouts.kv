@@ -116,33 +116,48 @@
             root.reset_values()
 
 
-
-
-
-
-<ItemLocationLayout>
-
-    size_hint: 1, None
-    height: dp(64)
+<ModLocationsLayout>
 
     MDLabel:
-        halign: 'center'
+        size_hint: .12, 1
+        text: root.location_uid
+        font_size: 20
         theme_text_color: 'Custom'
-        font_size: 16
-        color: app.text_color
+        text_color: app.text_color
 
-    MDLabel:
-        halign: 'center'
-        theme_text_color: 'Custom'
-        font_size: 16
-        color: app.text_color
 
-    MDTextField:
-        halign: 'center'
-        theme_text_color: 'Custom'
-        font_size: 16
-        color: app.text_color
-        write_tab: False
+    TextInput:
+        background_color: 1, 1, 1, .5
+        background_normal: '.8, .8, .8, .5'
+        text: root.location_name
+        font_size: 22
+        text_color: app.text_color
+
+
+
+#<ItemLocationLayout>
+#
+#    size_hint: 1, None
+#    height: dp(64)
+#
+#    MDLabel:
+#        halign: 'center'
+#        theme_text_color: 'Custom'
+#        font_size: 16
+#        color: app.text_color
+#
+#    MDLabel:
+#        halign: 'center'
+#        theme_text_color: 'Custom'
+#        font_size: 16
+#        color: app.text_color
+#
+#    MDTextField:
+#        halign: 'center'
+#        theme_text_color: 'Custom'
+#        font_size: 16
+#        color: app.text_color
+#        write_tab: False
 
 
 <ViewSortButton>
@@ -177,17 +192,21 @@
         BoxLayout:
             orientation: 'vertical'
             spacing: dp(8)
-            padding: dp(8)
+#            padding: dp(8)
 
             BoxLayout:
                 default_size: None, dp(72)
                 default_size_hint: 1, None
                 font_size: 20
-#                spacing: dp(8)
-#                padding: dp(8)
+                spacing: dp(4)
+                padding: dp(8)
                 orientation: 'horizontal'
                 size_hint: 1, None
                 height: self.minimum_height
+
+#                Widget:
+#                    size_hint: None, 1
+#                    width: dp(8)
 
                 ViewSortButton:
                     sort_key: 'item_uid'
@@ -219,7 +238,7 @@
                     font_size: 20
                     theme_text_color: 'Custom'
                     text_color: app.text_color
-                    size_hint_max_x: dp(42)
+                    size_hint_max_x: dp(44)
 
                 MDLabel:
                     halign: 'center'
@@ -227,7 +246,7 @@
                     font_size: 20
                     theme_text_color: 'Custom'
                     text_color: app.text_color
-                    size_hint_max_x: dp(42)
+                    size_hint_max_x: dp(44)
 
                 MDLabel:
                     halign: 'center'
@@ -235,7 +254,7 @@
                     font_size: 20
                     theme_text_color: 'Custom'
                     text_color: app.text_color
-                    size_hint_max_x: dp(42)
+                    size_hint_max_x: dp(44)
 
                 ViewSortButton:
                     sort_key: 'item_note'
@@ -274,8 +293,6 @@
         BoxLayout:
             orientation: 'vertical'
 
-#            AccessRecycleView:
-#                id: locs_map_scroll
 
 
     TabbedPanelItem:
@@ -284,8 +301,6 @@
         BoxLayout:
             orientation: 'vertical'
 
-#            AccessRecycleView:
-#                id: mod_locs_scroll
 
 
 <AccessRoot>

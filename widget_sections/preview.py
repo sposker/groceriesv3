@@ -12,9 +12,9 @@ from kivymd.uix.card import MDCard
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.tooltip import MDTooltip
 
-from logical import hide_widget
+from __init__ import hide_widget
 from logical.state import ListState
-from windows.dialogs import DefaultsDialog
+from widget_sections.dialogs import DefaultsDialog
 
 
 class ListScrollHelper(RelativeLayout):
@@ -99,6 +99,16 @@ class ItemCard(MDCard):
         self.defaults_dropdown = DropdownStack(self.defaults_list.copy(), self.amount)
         self.note_input.text = self.item.note
 
+        self.expand_anim = Animation(size=(self.width, self.normal_height + self.expansion_height), duration=.12)
+        self.expand_anim.bind(on_progress=lambda _, __, progress:
+                         self._anim_progress(self.expansion_height, progress))
+        self.expand_anim.bind(on_complete=lambda _, __: self._anim_complete())
+
+        self.contract_anim = Animation(size=(self.width, self.normal_height), duration=.12)
+        self.contract_anim.bind(on_progress=lambda _, __, progress:
+                           self._anim_progress(-self.expansion_height, progress))
+        self.contract_anim.bind(on_complete=lambda _, __: self._anim_complete())
+
     @property
     def toggle(self):
         return self.node.toggle
@@ -107,37 +117,12 @@ class ItemCard(MDCard):
     def item(self):
         return self.node.item
 
-    @property
-    def expand_anim(self):
-        expand_anim = Animation(size=(self.width, self.normal_height + self.expansion_height), duration=.12)
-        expand_anim.bind(on_progress=lambda _, __, progress:
-                         self._anim_progress(self.expansion_height, progress))
-        expand_anim.bind(on_complete=lambda _, __: self._anim_complete())
-
-        return expand_anim
-
-    @property
-    def contract_anim(self):
-        contract_anim = Animation(size=(self.width, self.normal_height), duration=.12)
-        contract_anim.bind(on_progress=lambda _, __, progress:
-                           self._anim_progress(-self.expansion_height, progress))
-        contract_anim.bind(on_complete=lambda _, __: self._anim_complete())
-
-        return contract_anim
-
     def _get_widget_refs(self):
         """Get reference to buttons/menus via name attribute; skip widgets without names"""
-        for child in self.walk(restrict=True):
-            try:
-                name = getattr(child, 'name')
-            except AttributeError:
-                pass
-            else:
-                self.__dict__[name] = child
-
-                if child.name in self._hidden_at_start:
-                    child.saved_attrs = True
-                    child.height, child.size_hint[1], child.opacity, child.disabled = 0, None, 0, True
+        for name, child in self.ids.items():
+            if name in self._hidden_at_start:
+                child.saved_attrs = True
+                child.height, child.size_hint[1], child.opacity, child.disabled = 0, None, 0, True
 
     def _make_hidden(self):
         for attr, values in self._hidden_at_start.items():
@@ -192,28 +177,9 @@ class ItemCard(MDCard):
         self.note_display.text = text
 
     @property
-    def creation(self):
-        """Used for sorting by creation time"""
-        return self.node.creation_time
-
-    @property
     def item_name(self):
         """Used for sorting by name"""
         return self.item.name
-
-    @property
-    def item_group(self):
-        """Used for sorting by group"""
-        return self.item.group.name
-
-    @property
-    def list_fields(self):
-        """Used for construction of list: Name, Group, Number, Note"""
-        try:
-            amount = int(self.amount.text)
-        except ValueError:
-            amount = None
-        return self.item, amount, self.note_display.text
 
 
 class DropdownStack(DropDown):

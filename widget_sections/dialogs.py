@@ -68,14 +68,15 @@ class ClearListDialog(GroceriesAppBaseDialog):
 class CompleteDialog(GroceriesAppBaseDialog):
     """Shown when list is completed"""
 
-    def __init__(self, message, gro_list, **kwargs):
+    def __init__(self, message, gro_list, pool, **kwargs):
         self.message = message
         self.gro_list = gro_list
+        self.pool = pool
         super().__init__(**kwargs)
 
     def do_exit(self):
         app = MDApp.get_running_app()
-        app.exit_routine(gro_list=self.gro_list)
+        app.exit_routine(gro_list=self.gro_list, pool=self.pool)
 
 
 class DefaultsDialogButton(MDIconButton):
@@ -101,6 +102,8 @@ class DefaultsDialog(GroceriesAppBaseDialog):
         super().__init__(**kwargs)
         self.main_button = main_button
 
+        field = None
+
         for widget in self.walk(restrict=True):
             if isinstance(widget, GridLayout):
                 grid = widget  # there are actually two gridlayouts but we want the second one here
@@ -108,7 +111,8 @@ class DefaultsDialog(GroceriesAppBaseDialog):
                 field = widget
                 field.root = self
 
-        Clock.schedule_once(lambda _: setattr(field, 'focus', True))
+        if field:
+            Clock.schedule_once(lambda _: setattr(field, 'focus', True))
 
         for i in range(2, -1, -1):
             for j in range(1, 4):
@@ -125,8 +129,7 @@ class ExitDialog(GroceriesAppBaseDialog):
     """When corner X is clicked"""
 
     def do_save(self):
-        from widget_sections.preview import ItemCardContainer
-        gro_list = ItemCardContainer.instance.convert_to_pool()
+        gro_list = ListState.instance.convert_to_pool()
         Factory.SaveDialog(gro_list).open()
         self.dismiss()
 
@@ -250,7 +253,7 @@ class SaveDialog(GroceriesAppBaseDialog):
 
     def complete(self, text):
         self.dismiss()
-        Factory.CompleteDialog(text, self.gro_list).open()
+        Factory.CompleteDialog(text, self.gro_list, self.item_pool).open()
 
 
 class SettingsDialog(GroceriesAppBaseDialog):

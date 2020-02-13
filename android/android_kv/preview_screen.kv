@@ -1,7 +1,7 @@
 #:import GroupScrollBar widget_sections.selection
 #:import MDIconButton kivymd.uix.button
 #:import MDTextField kivymd.uix.button
-#:import DefaultsDialog windows.dialogs
+#:import DefaultsDialog widget_sections.dialogs
 
 
 <PreviewIconButton>
@@ -44,24 +44,33 @@
     size_hint: 1, None
     height: self.minimum_height
     pos_hint: {"center_x": .5, "center_y": .5}
-#    elevation: 12
+    primary: primary
+    item_title: item_title
+    note_display: note_display
+    note_input: note_input
+    amount: amount
+    chevron: chevron
+    expansion: expansion
+    history: history
+    delete_card: delete_card
 
     BoxLayout:
         name: 'primary'
-        id: box
-        size_hint: 1, None
+        id: primary
+        size_hint: .95, None
+        pos_hint: {'x': .05, 'center_y': .5}
         height: dp(72)
 
-        Widget:
-            size_hint: .05, 1
-            disabled: True
+#        Widget:
+#            size_hint: .05, 1
+#            disabled: True
 
         BoxLayout:
             pos_hint: {'x': .05, 'center_y': .5}
             size_hint: .7, 1
 
             MDLabel:
-                name: 'item_title'
+                id: item_title
                 text: root.item_name
                 theme_text_color: 'Custom'
                 text_color: app.text_color
@@ -69,7 +78,7 @@
                 font_size: 22
 
             MDLabel:
-                name: 'note_display'
+                id: note_display
                 size_hint: 0, 0
                 theme_text_color: 'Custom'
                 text_color: app.text_color
@@ -80,8 +89,8 @@
 
         DefaultsButton:
             root: card
-            name: 'amount'
-            pos: chev.pos[0] - self. width, box.pos[1]
+            id: amount
+            pos: chevron.pos[0] - self. width, primary.pos[1]
             size_hint: None, None
             theme_text_color: 'Custom'
             text_color: app.text_color
@@ -94,8 +103,8 @@
 
 
         PreviewIconButton:
-            id: chev
-            name: 'chevron'
+            id: chevron
+
             icon: "chevron-down"
             pos_hint: {'right': 1, 'center_y': .5}
             size_hint: None, 1
@@ -109,11 +118,12 @@
 
 
     BoxLayout:
-        name: 'expansion'
+        id: expansion
         size_hint: 1, None
         height: root.expansion_height
 
         NoteInput:
+            id: note_input
             root: card
             size_hint: 1, 1
             name: 'note_input'
@@ -121,13 +131,13 @@
 
 
         PreviewIconButton:
-            name: 'history'
+            id: history
             icon: "history"
             pos_hint: {'center_x': .5, 'center_y': .5}
             tooltip_text: 'Item History'
 
         PreviewIconButton:
-            name: 'delete_card'
+            id: delete_card
             icon: "delete"
             pos_hint: {'center_x': .5, 'center_y': .5}
             tooltip_text: 'Remove Item'
@@ -135,7 +145,7 @@
                 root.kvlang_remove_card()
 
 
-<ListScrollHelper>
+<PreviewScreen>
 
     ListScrollBar:
 

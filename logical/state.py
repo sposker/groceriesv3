@@ -13,7 +13,9 @@ from logical.pools_and_lists import ItemPool
 
 
 class ItemNode:
-    """ItemNode for linked list sorting"""
+    """Class `ItemNode` is responsible for managing the state of individual cards visible in the list container.
+    This class passes information and instructions to widgets which in turn display that information.
+    """
 
     all_nodes = set()
 
@@ -105,27 +107,11 @@ class ItemNode:
         return self.item, amount, self.note
 
 
-# class ListIterator:
-#
-#     def __init__(self, node):
-#         self.current = node
-#
-#     def __iter__(self):
-#         yield self.current
-#         self.current = self.current.next
-#
-#     def next(self):
-#         if self.current is None:
-#             raise StopIteration()
-#
-#         result = self.current.data
-#         self.current = self.current.next
-#
-#         return result
-
-
 class ContextList(deque):
-    """List of cards in the container with context"""
+    """`deque` subclass that manages order and provides references to cards in the container.
+    Class `ContextList` handles administrative tasks associated with adding and sorting cards while the class
+     `ListState` is responsible for the general state of the list and uses this class to manage it.
+     """
 
     instance = None
 
@@ -176,8 +162,8 @@ class ContextList(deque):
 
 
 class ListState:
-    """Reflects the state of the list in progress; accessed via MVC paradigm. `ItemNode` objects should be responsible
-     for details of item cards whereas this class is responsible for the state of the list as a whole.
+    """Reflects the state of the list in progress; accessed via MVC paradigm.
+     The `ListState` singleton object is responsible for managing the state of the list as a whole.
     """
 
     instance = None
@@ -339,5 +325,4 @@ class ListState:
     def convert_to_pool(self):
         """Convert preview items into ItemPool"""
         items = {node.list_fields for node in self.nodes_list}
-
         return ItemPool(items)

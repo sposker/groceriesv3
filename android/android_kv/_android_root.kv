@@ -1,0 +1,87 @@
+#:kivy 2.0
+#:import Factory kivy.factory.Factory
+#:import Clock kivy.clock
+
+#:import MDCard kivymd.uix.card
+#:import MDRectangleFlatIconButton kivymd.uix.button
+#:import MDLabel kivymd.uix.label
+#:import MDTextFieldRound kivymd.uix.textfield
+#:import MDProgressLoader kivymd.uix.progressloader
+#:import MDSpinner kivymd.uix.spinner
+
+#: import ListPreview widget_sections.preview
+#: import SearchBar widget_sections.search
+#: import GroupSelection widget_sections.selection
+
+
+<LoadScreen>
+    name: "load_android"
+    canvas:
+        Color:
+            rgba: app.bg_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    Image:
+        background_color: 1,1,1,1
+        source: 'data/src/android100.png'
+        pos_hint: {"center_x": 0.5, "top":0.65}
+        size_hint:0.8, 0.25
+    Label:
+        color: app.text_color
+        pos_hint: {"center_x": 0.5, "top":0.5}
+        size_hint: 0.8, 0.2
+        text: "Loading..."
+        font_size: app.text_base_size
+
+
+<MyCard>:
+    orientation: "vertical"
+    size_hint_y: None
+    height: dp(300)
+    pos_hint: {"top": 1}
+
+    Image:
+        source:
+            "{}/demos/kitchen_sink/assets/" \
+            "guitar-1139397_1280_swiper_crop.png".format(app.directory)
+        size_hint: None, None
+        size: root.width, dp(250)
+        pos_hint: {"top": 1}
+
+    MDLabel:
+        theme_text_color: "Custom"
+        bold: True
+        text_color: app.theme_cls.primary_color
+        text: root.text
+        size_hint_y: None
+        height: dp(60)
+        halign: "center"
+
+
+<Runner>
+    orientation: "vertical"
+
+    canvas:
+        Color:
+            rgba: 0, 0, 0, .2
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    MDToolbar:
+        id: toolbar
+        title: ''
+        md_bg_color: app.theme_cls.primary_color
+        background_palette: "Primary"
+        elevation: 10
+        left_action_items: [["menu", lambda x: x]]
+
+    BoxLayout:
+#        padding: dp(10)
+        orientation: "vertical"
+
+        MobileManager:
+            id: swiper_manager
+            LoadScreen:

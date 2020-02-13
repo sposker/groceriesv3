@@ -15,10 +15,12 @@ from kivymd.app import MDApp
 from kivymd.theming import ThemeManager
 from kivymd.uix.button import MDFlatButton, MDRectangleFlatIconButton, MDRectangleFlatButton
 
-from access_app.access_dicts import GroupDetail, ItemDetail
+from access_app.access_dicts import GroupDetail, ItemDetail, LocationMap, LocationDetail
+from access_app.tabbed_panel_builders import populate_mod_group, populate_item_details, populate_location_mapping, \
+    populate_location_details
 from logical import as_list, as_string
 from logical.database import Database
-from logical.items import DisplayGroup
+from logical.groups_and_items import DisplayGroup
 from windows import screenwidth, screenheight
 
 GENERAL = ['preview', 'search', 'selection']
@@ -42,7 +44,7 @@ Window.top = screenheight/2 - Window.size[1]/2
 Window.icon = 'data\\src\\main.ico'
 widgets_list = ['widget_sections/win' + s + '.kv' for s in GENERAL] + ['windows/' + s + '.kv' for s in SPECIFIC_WIN]
 
-db = Database(item_db='data/username/username.yaml')
+# db = Database(item_db='data/username/username.yaml')
 
 
 class MySpinnerButton(MDFlatButton):
@@ -202,43 +204,78 @@ class ItemLocationLayout(AccessBaseLayout):
     """Entry for mapping location to item"""
 
 
-class ModLocationsLayout(AccessBaseLayout, RecycleDataViewBehavior, ):
+
+class StoreSubTabbed(TabbedPanel):
+    """Entry for mapping location to item"""
+
+    def on_kv_post(self, base_widget):
+        super().on_kv_post(base_widget)
+
+
+
+
+
+class ModLocationsLayout(AccessBaseLayout,):
     """Allows adjusting Location names and order"""
+
+    location_name = StringProperty()
+    location_uid = StringProperty()
+
+    def __init__(self, attrs, **kwargs):
+        super().__init__(**kwargs)
+        self.group_name = attrs['location_name']
+        self.group_uid = attrs['location_uid']
 
 
 class RecycleViewContainer(RecycleBoxLayout):
     """Container holding sub-layouts."""
 
 
+class AccessRecycleView(RecycleView):
+    """Holds various layouts in different sections of app."""
+
+    def __init__(self, data_dict, viewclass=None, **kwargs):
+        super().__init__(**kwargs)
+        self.data = data_dict
+        self.viewclass = viewclass
+
+
 class AccessTabbedPanel(TabbedPanel):
     """Tabbed panels root"""
+
+    mapping = {
+        'mod_groups': (populate_mod_group, GroupDetail, ModGroupLayout,),
+        'item_details': (populate_item_details, ItemDetail, AccessRecycleView, ItemDetailsLayout, ),
+        'locs_map': (populate_location_mapping, LocationMap, TabbedPanel, ItemLocationLayout),
+        'mod_locs': (populate_location_details, LocationDetail, TabbedPanel, ModLocationsLayout),
+    }
 
     def on_kv_post(self, base_widget):
         super().on_kv_post(base_widget)
         for name, section in self.ids.items():
             try:
-                self.populate(name, section)
+                args = self.mapping[name]
             except KeyError:
                 print(f'Passed {name=}')
-            # else:
-            #     print(f'Added {name=}')
+            else:
+                self.populate(section, *args)
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
 
-    def populate(self, name, section):
-        child_cls, list_dict = MDApp.get_running_app().mapping[name]
-        if not name == 'mod_groups':
-            rv = AccessRecycleView(list_dict, viewclass=child_cls)
-            child_cls.rv = rv
-        else:
-            rv = BoxLayout(orientation='vertical',
-                           spacing=8)
-            for nested in list_dict:
-                widget = child_cls(nested)
-                rv.add_widget(widget)
-        section.content.rv_ref = rv
-        section.content.add_widget(rv)
+    # def __init__(self, **kwargs):
+    #     super().__init__(**kwargs)
+    #     for name, section in self.ids.items():
+    #         try:
+    #             args = self.mapping[name]
+    #         except KeyError:
+    #             print(f'Passed {name=}')
+    #         else:
+    #             self.populate(section, *args)
+
+    def populate(self, section, callback, *args):
+        db = MDApp.get_running_app().db
+        content = callback(db, *args)
+        section.content.rv_ref = content
+        section.content.add_widget(content)
 
         # Clock.schedule_once(lambda _: rv.refresh_from_data())
         # Clock.schedule_once(lambda _: rv.refresh_views())
@@ -247,7 +284,7 @@ class AccessTabbedPanel(TabbedPanel):
 class AccessMidButton(MDRectangleFlatIconButton):
     """Button that is visible on all tabbed panel screens"""
 
-    formulae = {
+    mapping = {
         'Group Names & Order': None,
         'Item Details': None,
         'Item: Location Mapping': None,
@@ -255,7 +292,7 @@ class AccessMidButton(MDRectangleFlatIconButton):
     }
 
     def add_new_entry(self, tab):
-        return self.formulae[tab.text]
+        return self.mapping[tab.text]
 
     def update_from_view(self, tab):
         ...
@@ -272,14 +309,6 @@ class AccessRoot(BoxLayout):
     """Root for the access app"""
 
 
-class AccessRecycleView(RecycleView):
-    """Holds various layouts in different sections of app."""
-
-    def __init__(self, data_dict, viewclass=None, **kwargs):
-        super().__init__(**kwargs)
-        self.data = data_dict
-        self.viewclass = viewclass
-
 
 class AccessManager(ScreenManager):
     """Manager for access app"""
@@ -295,7 +324,7 @@ class AccessLoadScreen(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
         self.app = MDApp.get_running_app()
-        self._trigger = Clock.create_trigger(self.real_load)
+        self._trigger = Clock.create_trigger(self.real_load, 1)
 
     def real_load(self, _):
         """Displays load screen while app builds itself"""
@@ -311,12 +340,6 @@ class AccessLoadScreen(Screen):
 
 
 class AccessApp(MDApp):
-    mapping = {
-        'mod_groups': (ModGroupLayout, GroupDetail.refreshed_group_details(db)),
-        'item_details': (ItemDetailsLayout, ItemDetail.refreshed_item_details(db)),
-        # 'locs_map': (Button, access_dicts.loc_maps),
-        # 'mod_locs': (ModLocationsLayout, access_dicts.loc_details),
-    }
 
     dh_color = DARK_HIGHLIGHT
     bg_color = BACKGROUND_COLOR
@@ -341,7 +364,7 @@ class AccessApp(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.set_theme()
-        self.db = db
+        self.db = Database('data/username/username.yaml')
         self.sm = None
 
     def set_theme(self):
