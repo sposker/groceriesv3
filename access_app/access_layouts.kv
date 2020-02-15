@@ -116,6 +116,28 @@
             root.reset_values()
 
 
+<LocsMapBase>
+    values: []
+#    NavBarButton:
+#        color: app.elem_color
+#        size_hint: (None, None)
+#        size: (self.parent.height - 4, self.parent.height)
+
+    Spinner:
+        values: root.values
+        background_color: app.bg_color
+        background_normal: app.elem_color_string
+        color: app.text_color
+        font_size: 26
+        foreground_color: app.text_color
+        size_hint: 1, .1
+        text_autoupdate: True
+        width: 246.0980634528224
+        text_color: app.text_color
+        on_text:
+            root.set_data()
+
+
 <ModLocationsLayout>
 
     MDLabel:
@@ -290,7 +312,7 @@
     TabbedPanelItem:
         id: locs_map
         text: 'Item: Location Mapping'
-        BoxLayout:
+        LocsMapBase:
             orientation: 'vertical'
 
 

@@ -198,6 +198,8 @@ class DropdownStack(DropDown):
         self.widgets.append(FloatingButton('+'))
 
         for w in self.widgets:
+            w.root_ = main_btn.root
+            w.stack_ = self
             self.add_widget(w)
 
     def open(self, widget):
@@ -231,8 +233,9 @@ class FloatingButton(MDFlatButton):
         if self.text == '+':
             return self.parent.parent.do_add_value()
         else:
-            self.parent.parent.main_button.text = self.text
-            self.parent.parent.dismiss()
+            self.root_.amount.text = self.text
+            self.root_.node.amount = self.text
+            self.stack_.dismiss()
 
 
 class DefaultsButton(MDFlatButton):

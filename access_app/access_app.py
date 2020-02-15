@@ -3,7 +3,7 @@
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty, StringProperty
+from kivy.properties import ObjectProperty, StringProperty, DictProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from kivy.uix.recycleview import RecycleView
@@ -18,31 +18,22 @@ from kivymd.uix.button import MDFlatButton, MDRectangleFlatIconButton, MDRectang
 from access_app.access_dicts import GroupDetail, ItemDetail, LocationMap, LocationDetail
 from access_app.tabbed_panel_builders import populate_mod_group, populate_item_details, populate_location_mapping, \
     populate_location_details
-from logical import as_list, as_string
+from __init__ import *
 from logical.database import Database
 from logical.groups_and_items import DisplayGroup
-from windows import screenwidth, screenheight
+from windows import *
+from windows.win_navbar import *
 
-GENERAL = ['preview', 'search', 'selection']
-SPECIFIC_WIN = ['win_navbar', 'dialogs']
-APP_KV_PATH = r'windows\windows.kv'
 
-DARK_HIGHLIGHT = BACKGROUND_COLOR = (0.07058823529411765, 0.07058823529411765, 0.07058823529411765, 1)  # Dark gray
-ELEMENT_COLOR = (0.12549019607843137, 0.12549019607843137, 0.12549019607843137, 1)  # Medium Gray
-LIGHT_HIGHLIGHT = (0.39215686274509803, 0.396078431372549, 0.41568627450980394, 1)  # Lighter Gray
-TEXT_COLOR = (0.8862745098039215, 0.8862745098039215, 0.8862745098039215, 1)  # Lightest Gray
-APP_COLORS = [DARK_HIGHLIGHT, BACKGROUND_COLOR, ELEMENT_COLOR, LIGHT_HIGHLIGHT, TEXT_COLOR]
+# APP_KV_PATH = r'windows\win_kv\_win_root.kv'
+#
+# Window.size = (screenwidth / 1.5, screenheight / 1.25)
+# # Window.borderless = True
+# Window.position = 'custom'
+# Window.left = screenwidth/2 - Window.size[0]/2
+# Window.top = screenheight/2 - Window.size[1]/2
+# Window.icon = 'data\\src\\main.ico'
 
-ITEM_ROW_HEIGHT = 72
-TEXT_BASE_SIZE = 40
-
-Window.size = (screenwidth / 1.5, screenheight / 1.25)
-# Window.borderless = True
-Window.position = 'custom'
-Window.left = screenwidth/2 - Window.size[0]/2
-Window.top = screenheight/2 - Window.size[1]/2
-Window.icon = 'data\\src\\main.ico'
-widgets_list = ['widget_sections/win' + s + '.kv' for s in GENERAL] + ['windows/' + s + '.kv' for s in SPECIFIC_WIN]
 
 # db = Database(item_db='data/username/username.yaml')
 
@@ -146,15 +137,13 @@ class ItemDetailsLayout(AccessBaseLayout):
 
         new_defaults = []
         for pair, val in zip(self.item.defaults, new_values):
-            if val == ' ':
+            if val == '':
                 continue
-            if val.upper() == 'N':
-                val = ''
             try:
                 t, num = pair
             except TypeError:
                 import time
-                t, num = time.time(), pair
+                t, num = int(round(time.time())), pair
             new_defaults.append((t, val))
         return new_defaults
 
@@ -204,17 +193,6 @@ class ItemLocationLayout(AccessBaseLayout):
     """Entry for mapping location to item"""
 
 
-
-class StoreSubTabbed(TabbedPanel):
-    """Entry for mapping location to item"""
-
-    def on_kv_post(self, base_widget):
-        super().on_kv_post(base_widget)
-
-
-
-
-
 class ModLocationsLayout(AccessBaseLayout,):
     """Allows adjusting Location names and order"""
 
@@ -240,13 +218,26 @@ class AccessRecycleView(RecycleView):
         self.viewclass = viewclass
 
 
+class LocsMapBase(BoxLayout):
+    """Base with spinner for recycleview"""
+
+    options = ObjectProperty()
+
+    def on_kv_post(self, base_widget):
+        super().on_kv_post(base_widget)
+        # self.options = {}
+
+    def set_data(self):
+        pass
+
+
 class AccessTabbedPanel(TabbedPanel):
     """Tabbed panels root"""
 
     mapping = {
         'mod_groups': (populate_mod_group, GroupDetail, ModGroupLayout,),
         'item_details': (populate_item_details, ItemDetail, AccessRecycleView, ItemDetailsLayout, ),
-        'locs_map': (populate_location_mapping, LocationMap, TabbedPanel, ItemLocationLayout),
+        'locs_map': (populate_location_mapping, LocationMap, LocsMapBase, ItemLocationLayout, ),
         'mod_locs': (populate_location_details, LocationDetail, TabbedPanel, ModLocationsLayout),
     }
 
@@ -340,16 +331,21 @@ class AccessLoadScreen(Screen):
 
 
 class AccessApp(MDApp):
+    card_color = CARD_COLOR
+    card_color_string = as_string(card_color)
+    card_color_list = as_list(card_color)
 
-    dh_color = DARK_HIGHLIGHT
     bg_color = BACKGROUND_COLOR
+    bg_color_string = as_string(bg_color)
+    bg_color_list = as_list(bg_color)
 
     elem_color = ELEMENT_COLOR
     elem_color_string = as_string(elem_color)
     elem_color_list = as_list(elem_color)
 
-    lh_color = LIGHT_HIGHLIGHT
     text_color = TEXT_COLOR
+    text_color_string = as_string(text_color)
+    text_color_list = as_list(text_color)
 
     trans = (1, 1, 1, 0)
     trans_string = '1, 1, 1, 0'
@@ -380,6 +376,7 @@ class AccessApp(MDApp):
         Builder.load_file(APP_KV_PATH)
         Builder.load_file('access_app/access_elements.kv')
         Builder.load_file('access_app/access_layouts.kv')
+        Builder.load_file('windows/win_kv/navbar.kv')
         self.sm = AccessManager()
         return self.sm
 

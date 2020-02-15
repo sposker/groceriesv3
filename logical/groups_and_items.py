@@ -95,8 +95,8 @@ class GroceryItem:
 
     @staticmethod
     def set_defaults(old):
-        if old in [None, []]:
-            return [(time.time(), '\u00B7')]
+        if not old:
+            return [(int(round(time.time())), '\u00B7')]  # u00B7 is a unicode dot
 
         defaults = []
         for time_, value_ in old:

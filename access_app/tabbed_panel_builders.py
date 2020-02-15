@@ -29,28 +29,24 @@ def populate_item_details(db, producer, parent_cls, child_cls):
     return container
 
 
-def populate_location_mapping(db, producer, sub_tab_panel, view_cls):
+def populate_location_mapping(db, producer, base, view_cls):
     """Mapping for locations to items"""
 
     pairs = producer.refreshed_store_mappings(db)
-    # for p in pairs:
-        # print(p)
-
-    sub = sub_tab_panel(do_default_tab=False,
-                        tab_width=Window.width/len(pairs),
-                        )
-    # print(len(pairs), pairs)
+    dict_ = {}
+    values = ['fucker']
     for mapping, store in pairs:
-        header = TabbedPanelHeader(text=store.name)
-        # header.content = BoxLayout()
-        rv = RecycleView()
-        header.content = rv
-        rv.data = mapping
-        rv.viewclass = view_cls
-        header.rv_ref = rv
-        sub.add_widget(header)
+        dict_[store.name] = mapping
+        values.append(store.name)
+    base = base()
+    base.values = values
+    rv = RecycleView(viewclass=view_cls)
+    rv.data = mapping
+    base.add_widget(rv)
+    rv.refresh_from_data()
+    base.options = values
 
-    return sub
+    return base
 
 
 def populate_location_details(db, producer, sub_tab_panel, child_cls):
@@ -65,9 +61,10 @@ def populate_location_details(db, producer, sub_tab_panel, child_cls):
         header = TabbedPanelHeader(text=store.name)
         content_ = BoxLayout(orientation='vertical')
         header.content = content_
-        content_.add_widget(Widget(size_hint=(1, .08)))
+        content_.add_widget(Widget())
         sub.add_widget(header)
-        bx = BoxLayout(orientation='vertical')
+        bx = BoxLayout(orientation='vertical', size_hint=(1, .92))
+        content_.add_widget(bx)
         # header.content = bx
         for store_ in mapping:
             print(store_)
@@ -75,6 +72,5 @@ def populate_location_details(db, producer, sub_tab_panel, child_cls):
                 widget = child_cls(nested)
                 bx.add_widget(widget)
         header.rv_ref = bx
-        content_.add_widget(bx)
 
     return sub

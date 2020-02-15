@@ -8,14 +8,13 @@ from kivy.uix.boxlayout import BoxLayout
 from kivymd.app import MDApp
 from kivymd.theming import ThemeManager
 from kivymd.uix.card import MDCard
-from kivymd.uix.managerswiper import MDSwiperPagination
 
-from __init__ import *
 from logical.state import ListState
 from widget_sections.preview import ItemCardContainer, ItemCard
-from . import *
 from logical.database import Database
-from .screens import SelectionScreen, PreviewScreen, DetailsScreen
+from android.screens import SelectionScreen, PreviewScreen, DetailsScreen
+# from android import *
+from __init__ import *
 
 APP_KV_PATH = r'android/android_kv/_android_root.kv'
 KV_WIDGETS = ['preview_screen',
