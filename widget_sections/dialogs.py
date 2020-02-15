@@ -1,6 +1,5 @@
 import os
-import smtplib
-import ssl
+from functools import wraps
 
 from kivy.clock import Clock
 from kivy.factory import Factory
@@ -13,7 +12,7 @@ from kivymd.app import MDApp
 from kivymd.uix.button import MDIconButton, MDFlatButton
 from kivymd.uix.textfield import MDTextField
 
-from logical.pools_and_lists import ShoppingList, ItemPool
+from logical.pools_and_lists import ListWriter, ItemPool
 from logical.state import ListState
 
 
@@ -145,7 +144,7 @@ class FilePickerButton(MDFlatButton, ToggleButtonBehavior):
 
     def __init__(self, popup, root, filename, **kwargs):
         self.filename = filename
-        y, m, d, _, _ = filename.split('.')
+        y, m, d, _filename, _ext = filename.split('.')
         self.display_name = f'{m}-{d}'
         self.path = os.path.join(root, filename)
         self.popup = popup
@@ -196,64 +195,25 @@ class SaveDialog(GroceriesAppBaseDialog):
     def __init__(self, item_pool, **kwargs):
         super().__init__(**kwargs)
         self.item_pool = item_pool
+        self.writer = None
         self.app = MDApp.get_running_app()
-        self.db = self.app.db
-        self.gro_list = None
 
     def make_list(self, store_name='default'):
-        store = self.db.stores[store_name]
-        path = x if (x := self.app.lists_path) else 'data\\username\\lists'
-        self.gro_list = ShoppingList(self.item_pool, store, path)
+        """Map a store to items"""
+        store = self.app.db.stores[store_name]
+        path = path_ if (path_ := self.app.lists_path) else 'data\\username\\lists'
+        self.writer = ListWriter(self.item_pool, store, path)
 
-    @staticmethod
-    def send_email(content):
-        """Read login info from credentials and access server to send email"""
-        with open('data\\credentials.txt') as f:
-            sender_email, receiver_email, password = [line.split(':')[1][:-1] for line in f]
-            # print(f'{sender_email}::{receiver_email}::{password}')
-
-        port = 465  # For SSL
-        context = ssl.create_default_context()  # Create a secure SSL context
-        with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
-            server.login(sender_email, password)
-            server.sendmail(sender_email, receiver_email, content)
-
-    def print_list(self):
-        self.make_list()
-        self.gro_list.format_plaintext()
-        self.gro_list.write(doprint=True)
-
-        self.complete('List saved;\nPrinting in progress')
-
-    def email_list(self):
-        self.make_list()
-        self.gro_list.format_plaintext()
-        self.gro_list.write()
-        self.send_email(self.gro_list.email_content)
-
-        self.complete('List sent via Email')
-
-    def save_formatted_list(self):
+    def list_instructions(self, *args):
+        """Wrap some calls with administrative tasks related to saving"""
         self.item_pool.dump_yaml()
-        # print('dumped')
-        # print(self.gro_list)
         self.make_list()
-        # print(self.gro_list)
-        self.gro_list.format_plaintext()
-        # print(self.gro_list)
-        self.gro_list.write()
-        # print(self.gro_list)
-
-        self.complete('List saved')
-
-    def save_incomplete(self):
-        self.item_pool.dump_yaml()
-
-        self.complete('Items saved to disk.')
-
-    def complete(self, text):
+        for callable_ in args:
+            list_method = getattr(self.writer, callable_)
+            result = list_method()
         self.dismiss()
-        Factory.CompleteDialog(text, self.gro_list, self.item_pool).open()
+        # noinspection PyUnboundLocalVariable
+        Factory.CompleteDialog(result, self.writer, self.item_pool).open()
 
 
 class SettingsDialog(GroceriesAppBaseDialog):

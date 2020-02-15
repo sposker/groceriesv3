@@ -18,7 +18,7 @@ class Database:
     new_items = {}
     stores = {}
 
-    def __init__(self, item_db=None, syntax=None, from_file=None, fullpath=None):
+    def __init__(self, item_db=None, syntax=None, from_file=None):
 
         if item_db:
             self.filepath = item_db
@@ -26,7 +26,6 @@ class Database:
             self.username, self.ext = self.filename.split('.')
         self.content_root = 'data'
         self.file_object = from_file
-        self.fullpath = fullpath
         self._store_default = 'shoppers'
 
         if not syntax:
@@ -38,7 +37,7 @@ class Database:
 
     def __getitem__(self, item):
         """Get a reference to any stored object by its UID"""
-        for dict_ in (self.groups, self.items, self.stores, self.new_items, ):
+        for dict_ in (self.groups, self.items, self.stores, self.new_items,):
             try:
                 return dict_[item]
             except KeyError:
@@ -82,17 +81,15 @@ class Database:
 
     def _build_items(self, from_file=None):
         """Build `GroceryItem` objects from data source"""
+
         def load_helper(file_object):
-            for entries_list in yaml.load_all(file_object, Loader=yaml.Loader):
-                for entry in entries_list:
-                    for name, kwargs in entry.items():
-                        item = GroceryItem(name, **kwargs)
-                        self.items[item.uid] = item
+            for uid, kwargs in yaml.load(file_object, Loader=yaml.Loader).items():
+                item = GroceryItem(uid=uid, **kwargs)
+                self.items[item.uid] = item
 
         if not from_file:
             with open(self.filepath) as self.file_object:
                 load_helper(self.file_object)
-
         else:
             load_helper(self.file_object)
 
@@ -122,7 +119,7 @@ class Database:
         for key, triple in pool.items():
             _, new_num, new_note = triple
             item = self[key]
-            defaults_ = [num for _, num in item.defaults]
+            defaults_ = [amount for _, amount in sorted(item.defaults, key=lambda d: d[0])]
 
             try:
                 new_num = int(new_num)
@@ -141,21 +138,30 @@ class Database:
 
     def _dump_yaml(self, f):
         all_items = list(self.items.values()) + list(self.new_items.values())
+        data = {}
+
         for item in all_items:
             name = item.name
             uid = item.uid
             group = item.group.uid
-            defaults = [[float(u), v] for u, v in item.defaults]
+
+            new_defaults = []
+            for time_, amount_ in item.defaults:
+                try:
+                    amount_ = int(amount_)
+                except (ValueError, TypeError):
+                    amount_ = None
+                new_defaults.append([int(round(time_)), amount_])
+
             note = item.note
 
-            data = [{name: {'group': group,
-                            'defaults': defaults,
-                            'note': note,
-                            'uid': uid,
-                            }
-                     }]
+            data[uid] = {'group': group,
+                         'defaults': new_defaults,
+                         'note': note,
+                         'name': name,
+                         }
 
-            yaml.dump(data, f, allow_unicode=True)
+        yaml.dump(data, f)
 
     def dump_local(self):
         abs_path = os.path.join(os.getcwd(), self.path)

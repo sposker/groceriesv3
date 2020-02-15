@@ -1,4 +1,5 @@
-from operator import itemgetter
+"""Preview widgets which display a list in progress-- VIEW in the MVC paradigm"""
+
 
 from kivy.animation import Animation
 from kivy.clock import Clock
@@ -87,9 +88,9 @@ class ItemCard(MDCard):
         self.node = node
 
         # work with item defaults list
-        self.defaults_list = self.item.defaults.copy()
-        self.defaults_list.sort(key=itemgetter(0))
-        self.defaults_list = [str(num) for _, num in self.defaults_list]
+        print(self.item.defaults)
+        self.defaults_pairs = sorted(self.item.defaults.copy(), key=lambda d: d[0])
+        self.defaults_list = [str(num) for _, num in self.defaults_pairs]
 
         # set up animations and properties
         super().__init__(**kwargs)
@@ -100,17 +101,18 @@ class ItemCard(MDCard):
         self.note_input.text = self.item.note
 
         self.expand_anim = Animation(size=(self.width, self.normal_height + self.expansion_height), duration=.12)
-        self.expand_anim.bind(on_progress=lambda _, __, progress:
-                         self._anim_progress(self.expansion_height, progress))
-        self.expand_anim.bind(on_complete=lambda _, __: self._anim_complete())
+        self.expand_anim.bind(on_progress=lambda a_, b_, progress:
+                              self._anim_progress(self.expansion_height, progress))
+        self.expand_anim.bind(on_complete=lambda a_, b_: self._anim_complete())
 
         self.contract_anim = Animation(size=(self.width, self.normal_height), duration=.12)
-        self.contract_anim.bind(on_progress=lambda _, __, progress:
-                           self._anim_progress(-self.expansion_height, progress))
-        self.contract_anim.bind(on_complete=lambda _, __: self._anim_complete())
+        self.contract_anim.bind(on_progress=lambda a_, b_, progress:
+                                self._anim_progress(-self.expansion_height, progress))
+        self.contract_anim.bind(on_complete=lambda a_, b_: self._anim_complete())
 
     @property
     def toggle(self):
+        """This is a reference to a toggle button in the selection part of the app-- NOT a function"""
         return self.node.toggle
 
     @property
@@ -166,9 +168,9 @@ class ItemCard(MDCard):
 
     def kvlang_remove_card(self):
         """Called from card's delete button"""
-        t = self.node.toggle
+        t = self.node.toggle  # get a reference to toggle button now, because we are about to delete the node
         ListState.instance.remove_card(self.node)
-        if t:
+        if t:  # If it was a new item, there is no toggle button associated with the card or node
             t.node = None
 
     def note_text_validate(self, text):
@@ -178,7 +180,7 @@ class ItemCard(MDCard):
 
     @property
     def item_name(self):
-        """Used for sorting by name"""
+        """Used in kvlang"""
         return self.item.name
 
 
@@ -219,10 +221,8 @@ class FloatingButton(MDFlatButton):
     def __init__(self, value, **kwargs):
         self.pos_hint = {'center_x': .5, 'center_y': .6}
         super().__init__(**kwargs)
-        self.text = value  # TODO
-        if value == '':
-            self.icon = 'minus-circle-outline'
-        elif value == '+':
+        self.text = value
+        if value == '+':
             self.icon = 'plus-circle-outline'
         else:
             self.icon = f'numeric-{value}-circle-outline'
@@ -249,7 +249,7 @@ class NoteInput(MDTextField):
         """Show note label and collapse the card"""
         if self.text:
             self.root.note_text_validate(self.text)
-            self.root.chevron.trigger_action(duration=.1)
+            self.root.chevron.trigger_action(duration=.1)  # simulate a touch down on the chevron
 
 
 class PreviewIconButton(MDIconButton, MDTooltip):

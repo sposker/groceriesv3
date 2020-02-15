@@ -1,7 +1,6 @@
 from logical.database import Database
 
-db = Database(r'C:\Users\Oliver\PycharmProjects\groceriesv3\data\username.yaml',
-              fullpath=r'C:\Users\Oliver\PycharmProjects\groceriesv3\data')
+db = Database(r'C:\Users\Oliver\PycharmProjects\groceriesv3\data\username.yaml')
 
 
 body = '\n'.join([f'{uid}:{item.name}:l05:Aisle 05:FALSE' for uid, item in db.items.items()])

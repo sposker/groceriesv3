@@ -118,7 +118,7 @@ class MobileApp(MDApp):
         #
         # for line in lines:
         #     if now in line:
-        #         lists += '/' + now + '.ShoppingList.txt'
+        #         lists += '/' + now + '.ListWriter.txt'
         #         file = requests.get(lists)
         #         self.load_list(file.content, from_bytes=True)
 

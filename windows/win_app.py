@@ -2,7 +2,6 @@ import datetime
 import os
 
 from kivy.clock import Clock
-from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivymd.app import MDApp
@@ -12,23 +11,11 @@ from logical.database import Database
 from logical.pools_and_lists import ItemPool
 from logical.state import ListState
 from widget_sections.preview import ItemCard, ItemCardContainer
-from windows import screenwidth, screenheight
-from __init__ import *
+from __init__ import *  # general app settings
+from windows import *  # windows specific settings
 
 
-APP_KV_PATH = r'windows/win_kv/_win_root.kv'
-KV_WIDGETS = ['preview', 'search', 'selection', 'navbar', 'dialogs']
-
-Window.size = (screenwidth / 2, screenheight / 2)
-Window.borderless = True
-Window.position = 'custom'
-Window.left = screenwidth/2 - Window.size[0]/2
-Window.top = screenheight/2 - Window.size[1]/2
-Window.icon = 'data\\src\\main.ico'
-widgets_list = ['windows/win_kv/' + s + '.kv' for s in KV_WIDGETS]
-
-
-# noinspection PyAttributeOutsideInit
+# noinspection PyAttributeOutsideInit,PyUnresolvedReferences
 class WinApp(MDApp):
 
     card_color = CARD_COLOR
@@ -64,8 +51,6 @@ class WinApp(MDApp):
         super().__init__(**kwargs)
         self._set_nonetypes()
         self.set_theme()
-        self.path = 'data/username/username.yaml'
-        self.db = Database(item_db=self.path)
 
     def build(self):
         """Load various .kv files and create screen manager."""
@@ -93,7 +78,9 @@ class WinApp(MDApp):
             self._load_defaults()
 
     def load_data(self):
+        """Called on entering load screen"""
         self.load_user_settings()
+        self.db = Database(self.db_path)
         ListState.container = ItemCardContainer()
         ListState.view_cls = ItemCard
         self.list_state = ListState()
@@ -115,6 +102,8 @@ class WinApp(MDApp):
 
         attrs = {
             'sm',
+            'db',
+            'db_path',
             'username',
             'credentials_path',
             'pools_path',
@@ -145,6 +134,7 @@ class WinApp(MDApp):
             'pools_path': os.path.join(cwd, 'data/username/pools'),
             'old_db_path': os.path.join(cwd, 'data/username/old_database'),
             'lists_path': os.path.join(cwd, 'data/username/lists'),
+            'db_path': os.path.join(cwd, 'data/username/username.yaml')
         }
 
         for k, v in attrs.items():
@@ -152,12 +142,7 @@ class WinApp(MDApp):
 
 
 class GroManager(ScreenManager):
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-    def change(self):
-        pass
+    pass
 
 
 class MainScreen(Screen):
@@ -172,6 +157,9 @@ class LoadScreen(Screen):
         self.app = MDApp.get_running_app()
         self._trigger = Clock.create_trigger(self.real_load, 2)
 
+    def on_enter(self, *args):
+        self._trigger()
+
     def real_load(self, _):
         """Displays load screen while app builds itself"""
         self.app.load_data()
@@ -180,9 +168,6 @@ class LoadScreen(Screen):
     def swap_screen(self, _):
         """Once loading is complete, swap the screen"""
         return setattr(self.app.sm, 'current', "main")
-
-    def on_enter(self, *args):
-        self._trigger()
 
 
 if __name__ == '__main__':

@@ -102,16 +102,15 @@ class ItemNode:
 
     @property
     def list_fields(self):
-        """Used for construction of list: Name, Group, Number, Note"""
-        amount = self.amount if self.amount else None
-        return self.item, amount, self.note
+        """Used for construction of list: Name, Number, Note"""
+        return self.item, self.amount, self.note
 
 
 class ContextList(deque):
     """`deque` subclass that manages order and provides references to cards in the container.
     Class `ContextList` handles administrative tasks associated with adding and sorting cards while the class
-     `ListState` is responsible for the general state of the list and uses this class to manage it.
-     """
+    `ListState` is responsible for the general state of the list and uses this class to manage it.
+    """
 
     instance = None
 
@@ -195,6 +194,7 @@ class ListState:
         self.app = MDApp.get_running_app()
         self.nodes_list = ContextList()
         self.sort_type = 'time'
+        self.frozen_pool = None
 
     @property
     def container_height(self):
@@ -325,4 +325,17 @@ class ListState:
     def convert_to_pool(self):
         """Convert preview items into ItemPool"""
         items = {node.list_fields for node in self.nodes_list}
-        return ItemPool(items)
+        self.frozen_pool = ItemPool(items)
+        return self.frozen_pool
+
+
+
+
+
+
+
+
+
+
+
+

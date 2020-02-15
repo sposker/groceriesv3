@@ -1,5 +1,7 @@
 import datetime
 import os
+import smtplib
+import ssl
 import time
 from operator import itemgetter
 
@@ -117,14 +119,14 @@ class ItemPool:
             yaml.dump(dump_dict, f)
 
 
-class ShoppingList:
-    """Formatted list for a given store"""
+class ListWriter:
+    """Combine an unsorted pool of items with mapping from a given store to produce a sorted, readable list"""
 
     def __init__(self, pool: ItemPool, store: Store, path: str):
 
         self.store = store
         self.path = path
-        self.subject = self.header = self.body = None
+        self.subject = self.header = self.body = self.abs_path = None
 
         self.items = {}
         for uid, triple in pool.items():  # item, num, note = triple
@@ -138,8 +140,7 @@ class ShoppingList:
             except KeyError:
                 loc_pool = set()
                 self.items[location_key] = loc_pool
-            finally:
-                loc_pool.add(triple)
+            loc_pool.add(triple)
 
         self.build_header()
 
@@ -162,7 +163,7 @@ class ShoppingList:
                 needed.append(len(nested))
                 do_build = True
 
-        self.subject = f" ShoppingList {self.get_date()}"
+        self.subject = f" ListWriter {self.get_date()}"
         self.header = f"{self.get_date()}: Grocery List\n"
 
         if do_build:
@@ -183,27 +184,26 @@ class ShoppingList:
     @staticmethod
     def get_date():
         """Generate today's date in a path-friendly format"""
-
         dashes = str(datetime.datetime.now()).split(" ")[0]
         y, m, d = dashes.split('-')
         return f'{y}.{m}.{d}'
 
-    def write(self, do_print=False):
-        """Write list to text format.
-        Note that email functionality belongs to the GUI which is responsible for loading the credentials file.
-        """
+    def write(self):
+        """Write list to plaintext format."""
+        if not self.body:
+            self.format_plaintext()
         date = self.get_date()
         filename = date + '.ShoppingList.txt'
-        abspath = os.path.join(self.path, filename)
+        rel_path = os.path.join(self.path, filename)
+        self.abs_path = os.path.join(os.getcwd(), rel_path)
 
-        with open(abspath, 'w') as f:
+        with open(self.abs_path, 'w') as f:
             f.write(self.content)
 
-        if do_print:
-            os.startfile(abspath, 'print')
+        return 'List saved'
 
     def format_plaintext(self):
-        """Convert an grouped-- but not yet sorted-- set of items into a list for humans to read"""
+        """Convert a grouped-- but not yet sorted-- set of items into a list for humans to read"""
 
         s = sorted([loc for loc in self.items])
 
@@ -218,8 +218,10 @@ class ShoppingList:
             for triple in section:
                 name, amount, note = triple
                 item_line = f'  {name}'  # Two spaces for items, amount on same line
-                if amount:
-                    item_line += f': {amount}'
+                try:
+                    item_line += f': {int(amount)}'
+                except (TypeError, ValueError):
+                    pass
                 if note:
                     item_line += f'\n    -{note}'  # Four spaces for notes
                 item_line += '\n'
@@ -232,4 +234,30 @@ class ShoppingList:
 
     @property
     def content(self):
-        return f'{self.header}{self.body}'
+        return f'{self.header}' f'{self.body}'
+
+    def send_email(self):
+        """Read login info from credentials and access server to send email"""
+        if not self.body:
+            self.write()
+
+        with open('data\\credentials.txt') as f:
+            sender_email, receiver_email, password = [line.split(':')[1][:-1] for line in f]
+            # print(f'{sender_email}::{receiver_email}::{password}')
+
+        port = 465  # For SSL
+        context = ssl.create_default_context()  # Create a secure SSL context
+        with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
+            server.login(sender_email, password)
+            server.sendmail(sender_email, receiver_email, self.email_content)
+
+        return 'List sent via Email'
+
+    @staticmethod
+    def save_incomplete():
+        return 'Items saved to disk.'
+
+    def do_print(self):
+        self.write()
+        os.startfile(self.abs_path, 'print')
+        return 'List saved;\n printing in progress'

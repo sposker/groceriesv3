@@ -43,14 +43,18 @@ class GroceryItem:
     _uids = set()
 
     def __init__(self,
-                 name,
+                 name=None,
                  group=None,
                  defaults=None,
                  note=None,
                  uid=None,
                  ):
 
+        if not name:
+            raise ValueError('Item name cannot be `None`')
+
         self.name = name
+
         if not uid:
             self.uid = self._try_uid(0)
         elif 'i' in str(uid):
@@ -60,15 +64,7 @@ class GroceryItem:
 
         self._group = None  # Set by @group.setter
         self.group = group  # ibid
-
-        self.defaults = [(time.time(), '\u00B7')] if defaults in [None, []] else defaults
-        for i, pair in enumerate(self.defaults):
-            t, v = pair
-            try:
-                _ = int(v)
-            except ValueError:
-                self.defaults[i] = (t, '\u00B7')
-
+        self.defaults = self.set_defaults(defaults)
         self.note = '' if not note else note
 
         GroceryItem._uids.add(self.uid)  # Needed for uid calc
@@ -96,6 +92,20 @@ class GroceryItem:
             return uid_
         else:
             return self._try_uid(n + 1)
+
+    @staticmethod
+    def set_defaults(old):
+        if old in [None, []]:
+            return [(time.time(), '\u00B7')]
+
+        defaults = []
+        for time_, value_ in old:
+            try:
+                value = int(value_)
+            except (TypeError, ValueError):
+                value = '\u00B7'
+            defaults.append((int(time_), value))
+        return defaults
 
     @property
     def group(self):
