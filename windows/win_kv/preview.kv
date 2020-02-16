@@ -1,8 +1,3 @@
-#:import GroupScrollBar widget_sections.selection
-#:import MDIconButton kivymd.uix.button
-#:import MDTextField kivymd.uix.button
-#:import DefaultsDialog widget_sections.dialogs
-
 
 <PreviewIconButton>
     user_font_size: '26sp'
@@ -38,11 +33,11 @@
 
 
 
-<ItemCard>
+<WinItemCard>
     id: card
     orientation: "vertical"
     size_hint: 1, None
-    height: self.minimum_height
+#    height: self.minimum_height
     pos_hint: {"center_x": .5, "center_y": .5}
     primary: primary
     item_title: item_title
@@ -60,10 +55,6 @@
         size_hint: .95, None
         pos_hint: {'x': .05, 'center_y': .5}
         height: dp(72)
-
-#        Widget:
-#            size_hint: .05, 1
-#            disabled: True
 
         BoxLayout:
             pos_hint: {'x': .05, 'center_y': .5}

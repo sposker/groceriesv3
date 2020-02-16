@@ -4,11 +4,8 @@
 from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.metrics import dp
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.dropdown import DropDown
-from kivy.uix.relativelayout import RelativeLayout
-from kivy.uix.scrollview import ScrollView
-from kivymd.uix.button import MDIconButton, MDFlatButton
+from kivymd.uix.button import MDFlatButton, MDIconButton
 from kivymd.uix.card import MDCard
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.tooltip import MDTooltip
@@ -16,49 +13,10 @@ from kivymd.uix.tooltip import MDTooltip
 from __init__ import hide_widget
 from logical.state import ListState
 from widget_sections.dialogs import DefaultsDialog
+from widget_sections.shared_preview import ItemCardContainer
 
 
-class ListScrollHelper(RelativeLayout):
-    """Element background and scrollbar alignment"""
-    pass
-
-
-class ListScrollBar(ScrollView):
-    """ScrollBar for list"""
-
-    instance = None
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.instance = self
-        Clock.schedule_once(self._bar_width)
-
-    def _bar_width(self, _):
-        from widget_sections.selection import GroupScrollBar
-        self.bar_width = GroupScrollBar.instance.bar_width
-
-
-class ItemCardContainer(BoxLayout):
-    """List preview displaying item cards"""
-
-    instance = None
-    sort_type = 'creation'
-
-    def on_kv_post(self, base_widget):
-        super().on_kv_post(base_widget)
-        ItemCardContainer.instance = self
-
-    def __new__(cls, *args, **kwargs):
-        if cls.instance is None:
-            cls.instance = super().__new__(cls, *args, **kwargs)
-        return cls.instance
-
-    def trigger_refresh(self):
-        """Called when ListState is updated to signal a changed state"""
-        self.height = ListState.instance.container_height
-
-
-class ItemCard(MDCard):
+class WinItemCard(MDCard):
     """Item Preview Widget"""
 
     normal_height = 72
@@ -88,7 +46,6 @@ class ItemCard(MDCard):
         self.node = node
 
         # work with item defaults list
-        print(self.item.defaults)
         self.defaults_pairs = sorted(self.item.defaults.copy(), key=lambda d: d[0])
         self.defaults_list = [str(num) for _, num in self.defaults_pairs]
 
@@ -146,12 +103,15 @@ class ItemCard(MDCard):
 
     def _anim_complete(self):
         """Update the stepped height of the container so the next animation uses new base value;
-        Adjust widget visibility as animation is now complete
+        Adjust widget visibility as animation is now complete;
+        Focus the note input widget.
         """
 
         ListState.instance.anim_progress_delta = 0
         value = -1 if self.expanded else 1
         self.expanded = not self.expanded
+        if self.expanded:
+            Clock.schedule_once(lambda _: setattr(self.note_input, 'focus', True), .1)
         ListState.instance.anim_complete(value)
         return self._make_hidden()
 
@@ -217,27 +177,6 @@ class DropdownStack(DropDown):
         dialog.open()
 
 
-class FloatingButton(MDFlatButton):
-    """Floating values for defaults selection"""
-
-    def __init__(self, value, **kwargs):
-        self.pos_hint = {'center_x': .5, 'center_y': .6}
-        super().__init__(**kwargs)
-        self.text = value
-        if value == '+':
-            self.icon = 'plus-circle-outline'
-        else:
-            self.icon = f'numeric-{value}-circle-outline'
-
-    def on_release(self):
-        if self.text == '+':
-            return self.parent.parent.do_add_value()
-        else:
-            self.root_.amount.text = self.text
-            self.root_.node.amount = self.text
-            self.stack_.dismiss()
-
-
 class DefaultsButton(MDFlatButton):
 
     def __init__(self, **kwargs):
@@ -265,3 +204,24 @@ class PreviewIconButton(MDIconButton, MDTooltip):
                 Animation(_scale_x=1, _scale_y=1, d=0.4)
                 + Animation(opacity=1, d=0.4)
         ).start(self._tooltip)
+
+
+class FloatingButton(MDFlatButton):
+    """Floating values for defaults selection"""
+
+    def __init__(self, value, **kwargs):
+        self.pos_hint = {'center_x': .5, 'center_y': .6}
+        super().__init__(**kwargs)
+        self.text = value
+        if value == '+':
+            self.icon = 'plus-circle-outline'
+        else:
+            self.icon = f'numeric-{value}-circle-outline'
+
+    def on_release(self):
+        if self.text == '+':
+            return self.parent.parent.do_add_value()
+        else:
+            self.root_.amount.text = self.text
+            self.root_.node.amount = self.text
+            self.stack_.dismiss()

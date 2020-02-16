@@ -1,3 +1,4 @@
+from kivy.clock import Clock
 from kivy.utils import platform
 from kivy.properties import StringProperty, ObjectProperty, NumericProperty
 from kivy.uix.behaviors import ButtonBehavior
@@ -11,62 +12,37 @@ from kivymd.uix.button import MDIconButton, MDRaisedButton
 from kivymd.uix.card import MDCard
 from kivymd.uix.label import MDLabel
 
-from __init__ import as_list
+from __init__ import as_list, TEXT_COLOR
 from logical.state import ListState
-from widget_sections.dialogs import AddItemDialog
 
 
-class SectionTitle(MDCard):
-    """Widget holding group titles"""
-
-    group = StringProperty()
+class SectionHeader(BoxLayout):
+    """Title for `DisplayGrid` containing add item function button"""
 
     def __init__(self, group, **kwargs):
+        self.group = group
         super().__init__(**kwargs)
-        self.group = group.name
 
 
-class SectionAddItem(MDCard, ButtonBehavior):
-    """Layout allowing item entry"""
-
-    group = StringProperty()
-
-    def __init__(self, group, **kwargs):
-        super().__init__(**kwargs)
-        self.group = group.name
-
-    def on_release(self):
-        AddItemDialog(self.group).open()
-
-
-class ItemName(MDLabel):
-    """Part of toggle button"""
-
-
-class ItemCheckbox(MDIconButton):
-    """Right side of toggle button"""
-
-    icon = StringProperty()
-
-
-class ToggleLayout(MDRaisedButton):
+class PairedToggleButtons(MDRaisedButton):
     """ToggleButtons for items in db organized by group"""
-
-    width = NumericProperty()
-    """
-    Redeclaration of `width` property prevents excessive iteration, which seems to originate from implementation of
-    `BaseRectangularButton` in kivymd.buttons but may in fact also be present somewhere else in the library.
-    """
 
     group = None
     item = ObjectProperty()
     icon = StringProperty()
-    app = MDApp.get_running_app()
+
+    """
+    Redeclaration of `width` property prevents excessive iteration, which seems to originate from implementation of
+    `BaseRectangularButton` in kivymd.buttons-- but may in fact also be present somewhere else in the library.
+    Either way, it's not worth adjusting that code or searching any further when this fix works.
+    """
+    width = NumericProperty()
 
     def __init__(self, item, **kwargs):
         self.item = item
         super().__init__(**kwargs)
         self.node = None
+        self.text_color = TEXT_COLOR
         ListState.instance.toggles_dict[self.item.uid] = self
 
     def do_toggle(self):
@@ -84,6 +60,10 @@ class ToggleLayout(MDRaisedButton):
         else:
             self.icon = 'checkbox-marked-outline'
             self.text_color = as_list(self.app.theme_cls.accent_color)
+
+    @property
+    def app(self):
+        return MDApp.get_running_app()
 
     @property
     def display_name(self):
@@ -131,43 +111,29 @@ class GroupScrollBar(ScrollView):
         return GroupDisplay.instance.heights
 
 
-class DisplaySubsection(GridLayout):
+class DisplayGrid(GridLayout):
     """Subsection of scrollview holding Groups"""
 
-    def __init__(self, grp, **kwargs):
+    def __init__(self, grp, items, **kwargs):
         super().__init__(**kwargs)
         self._scrollview_pos = None
-        self.widget_list = []
+        self.toggles_list = []
         self.group = grp
-        self.generate()
+        self.generate(items)
 
-    def generate(self):
+    def generate(self, items):
         """Pull information from database to use when constructing subsection"""
 
-        size_kwargs = {'size_hint': (1, None), 'size': (self.width, self.app.item_row_height * 9 / 8)}
+        items_ = sorted(items, key=lambda i: i.name, reverse=True)
 
-        items = {item.name: item for item in self.app.db.items.values() if item.group == self.group}
-        keys = sorted(list(items), reverse=True)
-
-        title = SectionTitle(self.group, **size_kwargs)
-        add_button = SectionAddItem(self.group, **size_kwargs)
-
-        if self.cols == 3:
-            extra_spacer = Widget(**size_kwargs)
-            self.widget_list.append(extra_spacer)
-        self.widget_list.append(title)
-        self.widget_list.append(add_button)
-
-        while keys:
-            name = keys.pop()
-            item = items[name]
-            toggle = ToggleLayout(item)
-            self.widget_list.append(toggle)
+        while items_:
+            toggle = self.toggle_cls(items_.pop())
+            self.toggles_list.append(toggle)
 
     def populate(self):
-        for widget in self.widget_list:
+        for widget in self.toggles_list:
             self.add_widget(widget)
-        del self.widget_list
+        del self.toggles_list
 
     def set_position(self, top, bot):
         self._scrollview_pos = (top, bot)
@@ -182,12 +148,21 @@ class DisplaySubsection(GridLayout):
 
     @property
     def grid_rows(self):
-        q, r = divmod(len(self.widget_list) - 1, 3)
+        q, r = divmod(len(self.toggles_list) - 1, self.cols)
         return q + 1
+
+    @property
+    def spacers_height(self):
+        return (self.grid_rows - 1) * self.spacing[0]
+
+    @property
+    def toggle_cls(self):
+        """Different toggle class for mobile and desktop"""
+        return MDApp.get_running_app().toggle_cls
 
 
 class GroupDisplay(BoxLayout):
-    """Widget placed in scrollview; holds DisplaySubsections (which hold toggle buttons)"""
+    """Widget placed in scrollview; holds `SectionHeaders` and `DisplayGrids` (which hold toggle buttons)"""
 
     instance = None
     _heights_list = []
@@ -197,19 +172,21 @@ class GroupDisplay(BoxLayout):
         GroupDisplay.instance = self
 
         self.app = MDApp.get_running_app()
-        groups = [obj for obj in self.app.db.groups.values()]  # Values used for construction of display
-        groups.reverse()
+        groups = self.app.db.items_by_group  # Values used for construction of display
+        groups = sorted(groups.items(), key=lambda pair_: pair_[0].uid)
         self.heightplaceholder = 0
 
-        while groups:
-            group = groups.pop()
-            gridlayout = DisplaySubsection(group)
+        for pair in groups:
+            group, items = pair
+            header = SectionHeader(group)
+            gridlayout = DisplayGrid(group, items)
 
             top = self.heightplaceholder  # Top of grid section- pixels
-            gridlayout.height = (gridlayout.grid_rows + 9 / 8) * self.app.item_row_height
-            self.heightplaceholder += gridlayout.height  # Add height to running total
+            gridlayout.height = (gridlayout.grid_rows * self.app.item_row_height) + gridlayout.spacers_height
+            self.heightplaceholder += (self.app.item_row_height + gridlayout.height)  # Add height to running total
             gridlayout.set_position(top, self.heightplaceholder)
 
+            self.add_widget(header)
             self.add_widget(gridlayout)
             gridlayout.populate()
             self._heights_list.append(
@@ -222,4 +199,3 @@ class GroupDisplay(BoxLayout):
             return x
 
         self.heights = {k: v for k, v in (unpack(quad) for quad in self._heights_list)}
-

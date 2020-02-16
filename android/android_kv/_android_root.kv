@@ -2,17 +2,6 @@
 #:import Factory kivy.factory.Factory
 #:import Clock kivy.clock
 
-#:import MDCard kivymd.uix.card
-#:import MDRectangleFlatIconButton kivymd.uix.button
-#:import MDLabel kivymd.uix.label
-#:import MDTextFieldRound kivymd.uix.textfield
-#:import MDProgressLoader kivymd.uix.progressloader
-#:import MDSpinner kivymd.uix.spinner
-
-#: import ListPreview widget_sections.preview
-#: import SearchBar widget_sections.search
-#: import GroupSelection widget_sections.selection
-
 
 <LoadScreen>
     name: "load_android"
@@ -47,17 +36,22 @@
             size: self.size
 
     MDToolbar:
-        id: toolbar
+        id: base_toolbar
         title: ''
         md_bg_color: app.theme_cls.primary_color
-        background_palette: "Primary"
         elevation: 10
-        left_action_items: [["menu", lambda x: x]]
+        left_action_items: [['menu', lambda x: nav_drawer.toggle_nav_drawer()]]
+        right_action_items:[['arrow-right-bold-outline', lambda x: setattr(swiper_manager, 'current', 'preview')]]
+        disabled: True
 
-    BoxLayout:
-#        padding: dp(10)
-        orientation: "vertical"
+    NavigationLayout:
 
-        MobileManager:
+        ScreenManager:
             id: swiper_manager
             LoadScreen:
+
+        MDNavigationDrawer:
+            id: nav_drawer
+
+            ContentNavigationDrawer:
+                id: content_drawer

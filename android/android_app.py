@@ -1,19 +1,19 @@
 """Android version"""
-import datetime
-import requests
 
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.app import MDApp
 from kivymd.theming import ThemeManager
-from kivymd.uix.card import MDCard
+from kivymd.uix.button import MDRectangleFlatIconButton
 
+from android.and_toggle import LongPressToggle
 from logical.state import ListState
-from widget_sections.preview import ItemCardContainer, ItemCard
+from android.and_card import AndroidItemCard
+from widget_sections.shared_preview import ItemCardContainer
 from logical.database import Database
 from android.screens import SelectionScreen, PreviewScreen, DetailsScreen
-# from android import *
+from android import *
 from __init__ import *
 
 APP_KV_PATH = r'android/android_kv/_android_root.kv'
@@ -63,12 +63,13 @@ class MobileApp(MDApp):
     text_base_size = TEXT_BASE_SIZE
     item_row_height = ITEM_ROW_HEIGHT
 
-    swiper_manager = ObjectProperty()
+    manager = ObjectProperty()
 
     def __init__(self, **kwargs):
         self.set_theme()
         super().__init__(**kwargs)
         self.sm = None
+        self.toolbar = None
         self.shopping_list = None
 
     def set_theme(self):
@@ -84,25 +85,28 @@ class MobileApp(MDApp):
         Builder.load_file(APP_KV_PATH)
         for f in widgets_list:
             Builder.load_file(f)
-        start_screen = Runner()
-        self.swiper_manager = start_screen.ids.swiper_manager
-        return start_screen
+        root_ = Runner()
+        self.manager = root_.ids.swiper_manager
+        self.toolbar = root_.ids.base_toolbar
+        return root_
 
     def load_data(self):
 
         self.db = Database('data/username/username.yaml')  # TODO
 
         ListState.container = ItemCardContainer()
-        ListState.view_cls = ItemCard
+        ListState.view_cls = AndroidItemCard
         self.list_state = ListState()
+        self.toggle_cls = LongPressToggle
 
-        load = self.swiper_manager.current_screen
-        screens = [SelectionScreen(name="picker"), PreviewScreen(name="preview"), DetailsScreen(name="details")]
+        load = self.manager.current_screen
+        screens = [SelectionScreen(name="picker"), PreviewScreen(name="preview")]
         for s in screens:
-            self.swiper_manager.add_widget(s)
+            self.manager.add_widget(s)
 
-        self.swiper_manager.current = "picker"
-        self.swiper_manager.remove_widget(load)
+        self.toolbar.disabled = False
+        self.manager.current = "picker"
+        self.manager.remove_widget(load)
 
         # lists = f'http://{self.host}:{self.read_port}/lists'
         # r = requests.get(lists)
@@ -122,12 +126,22 @@ class MobileApp(MDApp):
         #         self.load_list(file.content, from_bytes=True)
 
 
+class ContentNavigationDrawer(BoxLayout):
+    """Shown on root screen"""
+
+
 class Runner(BoxLayout):
-    """Handles swipe events"""
+    """App root"""
 
 
-class MyCard(MDCard):
-    text = StringProperty("")
+class NavigationItem(MDRectangleFlatIconButton):
+    icon = StringProperty()
+    screen_text = StringProperty()
 
-
+    def on_release(self):
+        app = MDApp.get_running_app()
+        app.manager.current = self.screen_text
+        nd = app.root.ids.nav_drawer
+        nd.toggle_nav_drawer()
+        nd.__state = 'close'
 

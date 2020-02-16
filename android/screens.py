@@ -1,72 +1,101 @@
 from kivy.clock import Clock
+from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.screenmanager import Screen
 from kivymd.app import MDApp
-from kivymd.uix.managerswiper import MDSwiperManager
 
 
 class LoadScreen(Screen):
 
-    def do_load(*_):
-        return MDApp.get_running_app().load_data()
+    def __init__(self, **kw):
+        super().__init__(**kw)
+        self.app = MDApp.get_running_app()
+        self._trigger = Clock.create_trigger(self.real_load, 2)
 
-    def on_enter(self, *args):
-        Clock.schedule_once(self.do_load, 2)
+    def on_enter(self, *_):
+        self._trigger()
+
+    def real_load(self, *_):
+        """Displays load screen while app builds itself"""
+        self.app.load_data()
+        return Clock.schedule_once(self.swap_screen)
+
+    def swap_screen(self, *_):
+        """Once loading is complete, swap the screen"""
+        return setattr(self.app.manager, 'current', "picker")
 
 
 class SelectionScreen(Screen):
     """Pick items to add to preview"""
 
+    def on_enter(self, *args):
+        """Update toolbar"""
+        toolbar = MDApp.get_running_app().toolbar
+        for widget in toolbar.walk(restrict=True):
+            try:
+                if widget.icon in ('arrow-right-bold-outline', 'arrow-left-bold-outline'):
+                    break
+            except AttributeError:
+                pass
+        else:
+            return
+        widget.icon = 'arrow-right-bold-outline'
+        setattr(widget, 'on_release', lambda: setattr(self.parent, 'current', 'preview'))
+        self.parent.transition.direction = 'left'
+
 
 class PreviewScreen(Screen):
     """Shows list in progress"""
 
+    def on_enter(self, *args):
+        """Update toolbar"""
+        toolbar = MDApp.get_running_app().toolbar
+        for widget in toolbar.walk(restrict=True):
+            try:
+                if widget.icon in ('arrow-right-bold-outline', 'arrow-left-bold-outline'):
+                    break
+            except AttributeError:
+                pass
+        else:
+            return
+        widget.icon = 'arrow-left-bold-outline'
+        setattr(widget, 'on_release', lambda: setattr(self.parent, 'current', 'picker'))
+        self.parent.transition.direction = 'right'
+
 
 class DetailsScreen(Screen):
     """Shows item details"""
+
+    instance = None
+
+    def __init__(self, card,  **kw):
+        self.card = card
+        super().__init__(**kw)
+
+    def on_enter(self, *args):
+        self.parent.transition.direction = 'right'
+        btns = ToggleButtonBehavior.get_widgets('defaults_toggles')
+        print(btns)
+        del btns
+
+        amount = self.ids['amount']
+        for c in amount.children:
+            try:
+                print(c.group)
+            except AttributeError:
+                c.group = 'defaults_toggles'
+
+    def add_defaults(self, defaults):
+        from android.and_card import FloatingButton
+
+        amount = self.ids['amount']
+        widgets = [FloatingButton(v) for v in defaults]
+
+        for w in widgets:
+            amount.add_widget(w)
+        widgets[0].state = 'down'
 
 
 class SearchScreen(Screen):
     """"""
 
 
-class MobileManager(MDSwiperManager):
-    """Manages various screens"""
-
-    # def swith_screen(self, direction):
-    #     print(direction)
-    #     if direction == "right":
-    #         if self.index_screen == 0:
-    #             pass
-    #         else:
-    #             self.index_screen -= 1
-    #     else:
-    #         if self.index_screen == len(self.screen_names) - 1:
-    #             pass
-    #         else:
-    #             self.index_screen += 1
-    #
-    #     print(self.index_screen)
-    #
-    #     self.transition.direction = direction
-    #     if self.current != (scrn := self.screen_names[self.index_screen]):
-    #         self.current = scrn
-    #     if self.paginator:
-    #         self.paginator.set_current_screen_round(self.index_screen)
-    #
-    #     # self.on_complete()
-
-    def swith_screen(self, direction):
-        print('direction')
-        if direction == "right":
-            if self.index_screen == 0:
-                self.index_screen = len(self.screen_names) - 1
-            else:
-                self.index_screen -= 1
-        else:
-            self.index_screen += 1
-        if self.index_screen >= len(self.screen_names) and direction != "right":
-            self.index_screen = 0
-        self.transition.direction = direction
-        self.current = self.screen_names[self.index_screen]
-        if self.paginator:
-            self.paginator.set_current_screen_round(self.index_screen)

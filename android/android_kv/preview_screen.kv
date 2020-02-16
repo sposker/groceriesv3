@@ -1,7 +1,4 @@
 #:import GroupScrollBar widget_sections.selection
-#:import MDIconButton kivymd.uix.button
-#:import MDTextField kivymd.uix.button
-#:import DefaultsDialog widget_sections.dialogs
 
 
 <PreviewIconButton>
@@ -37,33 +34,26 @@
     font_size: 20
 
 
-
-<ItemCard>
+<AndroidItemCard>
     id: card
     orientation: "vertical"
     size_hint: 1, None
-    height: self.minimum_height
     pos_hint: {"center_x": .5, "center_y": .5}
-    primary: primary
     item_title: item_title
     note_display: note_display
-    note_input: note_input
     amount: amount
     chevron: chevron
-    expansion: expansion
-    history: history
-    delete_card: delete_card
 
     BoxLayout:
         name: 'primary'
         id: primary
-        size_hint: .95, None
+        size_hint: .95, 1
         pos_hint: {'x': .05, 'center_y': .5}
-        height: dp(72)
 
-#        Widget:
-#            size_hint: .05, 1
-#            disabled: True
+
+        Widget:
+            size_hint: .05, 1
+            disabled: True
 
         BoxLayout:
             pos_hint: {'x': .05, 'center_y': .5}
@@ -75,7 +65,7 @@
                 theme_text_color: 'Custom'
                 text_color: app.text_color
                 halign: 'left'
-                font_size: 22
+                font_size: 32
 
             MDLabel:
                 id: note_display
@@ -84,74 +74,80 @@
                 text_color: app.text_color
                 halign: 'left'
                 valign: 'top'
-                font_size: 16
+                font_size: 32
 
 
-        DefaultsButton:
+        MDFlatButton:
             root: card
             id: amount
             pos: chevron.pos[0] - self. width, primary.pos[1]
-            size_hint: None, None
+            size_hint: None, 1
             theme_text_color: 'Custom'
             text_color: app.text_color
             text: card.defaults_list[-1]
-            font_size: 24
-            size: dp(88), dp(72)
+            font_size: 48
+            width: dp(88)
             on_release:
-                root.defaults_dropdown.open(self)
                 self.color: app.bg_color
 
 
-        PreviewIconButton:
+        MDIconButton:
             id: chevron
 
-            icon: "chevron-down"
+            icon: "chevron-right"
+            user_font_size: sp(40)
             pos_hint: {'right': 1, 'center_y': .5}
             size_hint: None, 1
             height: self.size[1]
             on_release:
-                root.resize()
+                root.show_details()
 
         Widget:
             size_hint: .05, 1
             disabled: True
 
 
-    BoxLayout:
-        id: expansion
-        size_hint: 1, None
-        height: root.expansion_height
-
-        NoteInput:
-            id: note_input
-            root: card
-            size_hint: 1, 1
-            name: 'note_input'
-            pos_hint: {'center_x': .5, 'center_y': .5}
-
-
-        PreviewIconButton:
-            id: history
-            icon: "history"
-            pos_hint: {'center_x': .5, 'center_y': .5}
-            tooltip_text: 'Item History'
-
-        PreviewIconButton:
-            id: delete_card
-            icon: "delete"
-            pos_hint: {'center_x': .5, 'center_y': .5}
-            tooltip_text: 'Remove Item'
-            on_release:
-                root.kvlang_remove_card()
+#    BoxLayout:
+#        id: expansion
+#        size_hint: 1, None
+#        height: root.expansion_height
+#
+#        NoteInput:
+#            id: note_input
+#            root: card
+#            size_hint: 1, 1
+#            name: 'note_input'
+#            pos_hint: {'center_x': .5, 'center_y': .5}
+#
+#
+#        PreviewIconButton:
+#            id: history
+#            icon: "history"
+#            pos_hint: {'center_x': .5, 'center_y': .5}
+#            tooltip_text: 'Item History'
+#
+#        PreviewIconButton:
+#            id: delete_card
+#            icon: "delete"
+#            pos_hint: {'center_x': .5, 'center_y': .5}
+#            tooltip_text: 'Remove Item'
+#            on_release:
+#                root.kvlang_remove_card()
 
 
 <PreviewScreen>
+    canvas:
+        Color:
+            rgba: app.bg_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
 
     ListScrollBar:
 
-        bar_width: self.parent.height * 0.024
+
         size_hint: 1, 1
-        color: app.elem_color
+        color: app.bg_color
         do_scroll_x: False
         do_scroll_y: True
         scroll_type: ['bars']
@@ -160,9 +156,10 @@
 
         ItemCardContainer:
 
+            padding: dp(16)
             spacing: dp(4)
             orientation: 'vertical'
-            size_hint: .95, None
+            size_hint: 1, None
             height: 0
             width: self.parent.width
             minimum_height: self.parent.height

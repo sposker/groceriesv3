@@ -34,7 +34,7 @@ class ItemNode:
         self.next = None
 
         self.card = self.view_cls(self)
-        self.card.height = ListState.height_normal
+        self.card.height = self.view_cls.normal_height
         self._height = ListState.height_normal
         ItemNode.all_nodes.add(self)
 
@@ -55,7 +55,10 @@ class ItemNode:
 
     @property
     def is_expanded(self):
-        return self.card.expanded
+        try:
+            return self.card.expanded
+        except AttributeError:  # Android
+            return False
 
     @property
     def view_cls(self):
@@ -169,8 +172,6 @@ class ListState:
     container = None
     view_cls = None
     sort_desc = True
-    height_normal = 72
-    height_expanded = height_normal + 60
 
     sort_map = {
         'time': 'creation_time',
@@ -195,6 +196,18 @@ class ListState:
         self.nodes_list = ContextList()
         self.sort_type = 'time'
         self.frozen_pool = None
+
+    @classmethod
+    def values_from_card(cls, **kwargs):
+        """Set certain values and definitions based on the card type used in the running app"""
+
+    @property
+    def height_normal(self):
+        return self.view_cls.normal_height
+
+    @property
+    def height_expanded(self):
+        return self.view_cls.normal_height + 60
 
     @property
     def container_height(self):
@@ -252,7 +265,7 @@ class ListState:
         return card_node
 
     def remove_card(self, node: ItemNode):
-        """Delete a card from our list, adjusting state of `ToggleButton`, `ItemCard`, and `self.nodes_list`."""
+        """Delete a card from our list, adjusting state of `ToggleButton`, `WinItemCard`, and `self.nodes_list`."""
 
         with self.nodes_list as nl:
 

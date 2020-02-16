@@ -1,0 +1,91 @@
+<PreviewIconButton>
+    user_font_size: '26sp'
+    size_hint: None, None
+    theme_text_color: 'Custom'
+    text_color: 1, 1, 1, 1
+    tooltip_bg_color: app.bg_color
+    tooltip_text_color: app.text_color
+
+
+<FloatingButton>
+    group: 'defaults_toggles'
+    size_hint: 1, .2
+    elevation: 5
+    md_bg_color: app.theme_cls.primary_color
+    theme_text_color: 'Custom'
+    text_color: app.text_color
+    font_size: 20
+
+
+<DetailsScreen>
+    canvas:
+        Color:
+            rgba: app.bg_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    name: 'details'
+    defaults: self.card.defaults_list
+    primary: primary
+    item_title: item_title
+    note_input: note_input
+    amount: amount
+    actions: actions
+    history: history
+    delete_card: delete_card
+
+    BoxLayout:
+        canvas:
+            Color:
+                rgba: app.elem_color
+            RoundedRectangle:
+                size: self.size
+                pos: self.pos
+                radius: 12, 12, 12, 12
+
+        orientation: "vertical"
+        id: primary
+#        size_hint: .95, 1
+#        pos_hint: {'x': .05, 'center_y': .5}
+
+        MDLabel:
+            id: item_title
+            text: root.card.item_name
+            theme_text_color: 'Custom'
+            text_color: app.text_color
+            halign: 'center'
+            font_size: 22
+
+        BoxLayout:
+            canvas:
+                Color:
+                    rgba: .5, .1, .8, .3
+                RoundedRectangle:
+                    size: self.size
+                    pos: self.pos
+                    radius: 12, 12, 12, 12
+            id: amount
+
+        NoteInput:
+            id: note_input
+            size_hint: 1, 1
+            name: 'note_input'
+            pos_hint: {'center_x': .5, 'center_y': .5}
+
+        BoxLayout:
+            id: actions
+            size_hint: 1, .2
+
+            PreviewIconButton:
+                id: history
+                icon: "history"
+                pos_hint: {'center_x': .5, 'center_y': .5}
+
+            PreviewIconButton:
+                id: delete_card
+                icon: "delete"
+                pos_hint: {'center_x': .5, 'center_y': .5}
+                on_release:
+                    root.card.kvlang_remove_card()
+

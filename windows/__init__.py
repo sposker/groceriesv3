@@ -6,7 +6,8 @@ user32 = ctypes.windll.user32
 screenwidth, screenheight = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
 # screenwidth, screenheight = 1920, 1080
 
-
+ITEM_ROW_HEIGHT = 72
+TEXT_BASE_SIZE = 40
 
 APP_KV_PATH = r'windows/win_kv/_win_root.kv'
 KV_WIDGETS = ['preview', 'search', 'selection', 'navbar', 'dialogs']

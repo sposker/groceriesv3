@@ -32,8 +32,13 @@ class DisplayGroup:
         return str.__lt__(self.uid, other.uid)
 
     def __eq__(self, other):
-        if self.uid == other.uid:
+        if self.uid == other:
             return True
+        try:
+            if self.uid == other.uid:
+                return True
+        except (AttributeError, ValueError):
+            pass
 
     def __hash__(self):
         return hash(self.uid)

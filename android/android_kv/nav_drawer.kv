@@ -1,0 +1,81 @@
+
+
+<NavigationItem>
+    theme_text_color: 'Custom'
+    text_color: app.text_color
+    font_size: '26sp'
+#    user_font_size: '30sp'
+    size_hint: 1, None
+    height: dp(80)
+
+
+<ContentNavigationDrawer>
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        FloatLayout:
+            size_hint_y: None
+            height: "200dp"
+
+            canvas:
+                Color:
+                    rgba: app.bg_color
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+            BoxLayout:
+                id: top_box
+                size_hint_y: None
+                height: "200dp"
+                padding: "10dp"
+                x: root.parent.x
+                pos_hint: {"top": 1}
+
+                Image:
+                    source: "src/mainicon.png"
+
+            MDIconButton:
+                icon: "close"
+                user_font_size: 32
+                x: root.parent.x + dp(10)
+                pos_hint: {"top": 1}
+                on_release: root.parent.toggle_nav_drawer()
+
+        ScrollView:
+            pos_hint: {"top": 1}
+
+            GridLayout:
+                id: box_item
+                cols: 1
+                spacing: dp(8)
+                size_hint_y: None
+                height: self.minimum_height
+
+                NavigationItem:
+                    text: "Selection"
+                    icon: "home-circle-outline"
+                    screen_text: 'picker'
+                NavigationItem:
+                    text: 'Preview'
+                    icon: 'update'
+                    screen_text: 'preview'
+                NavigationItem:
+                    text: 'Search'
+                    icon: 'magnify'
+                    screen_text: 'search'
+                NavigationItem:
+                    text: 'Save List'
+                    icon: 'content-save'
+                    screen_text: 'save'
+                NavigationItem:
+                    text: 'Open Saved List'
+                    icon: 'file-find'
+                    screen_text: 'file_picker'
+                NavigationItem:
+                    text: 'Quit Without Saving'
+                    icon: 'exit-run'
+                    screen_text: 'exit'
+
+

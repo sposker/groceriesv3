@@ -10,12 +10,13 @@ from kivymd.theming import ThemeManager
 from logical.database import Database
 from logical.pools_and_lists import ItemPool
 from logical.state import ListState
-from widget_sections.preview import ItemCard, ItemCardContainer
+from widget_sections.selection import PairedToggleButtons
+from windows.win_card import WinItemCard
+from widget_sections.shared_preview import ItemCardContainer
 from __init__ import *  # general app settings
 from windows import *  # windows specific settings
 
 
-# noinspection PyAttributeOutsideInit,PyUnresolvedReferences
 class WinApp(MDApp):
 
     card_color = CARD_COLOR
@@ -82,7 +83,8 @@ class WinApp(MDApp):
         self.load_user_settings()
         self.db = Database(self.db_path)
         ListState.container = ItemCardContainer()
-        ListState.view_cls = ItemCard
+        ListState.view_cls = WinItemCard
+        self.toggle_cls = PairedToggleButtons
         self.list_state = ListState()
 
         s = MainScreen(name='main')

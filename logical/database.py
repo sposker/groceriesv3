@@ -93,6 +93,16 @@ class Database:
         else:
             load_helper(self.file_object)
 
+    @property
+    def items_by_group(self):
+        by_group = {}
+        for item in self.items.values():
+            try:
+                by_group[item.group].append(item)
+            except KeyError:
+                by_group[item.group] = [item]
+        return by_group
+
     def _load_network_file(self):
         self.file_object = self.filepath
         self.build(mobile=True)

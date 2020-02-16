@@ -20,8 +20,7 @@ class NavBarSpinner(Spinner):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         app = MDApp.get_running_app()
-        NavBarSpinner.values = [k.name for k in app.db.groups.values()]
-
+        NavBarSpinner.values = [k.name for k in app.db.items_by_group]
 
     @staticmethod
     def jump(text, padding=120):
@@ -59,9 +58,3 @@ class WinNavBar(BoxLayout):
             Window.maximize()
             btn.icon = 'window-restore'
             Window.is_maximized = True
-
-    # @staticmethod
-    # def exit_dialogue(*_):
-    #     Factory.ExitDialog().open()
-
-# class SpinnerDropdown(DropDown)

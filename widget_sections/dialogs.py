@@ -30,7 +30,7 @@ class AddItemDialog(GroceriesAppBaseDialog):
             app = MDApp.get_running_app()
             self.groups = {group.name: group for group in app.db.groups.values()}
             self.values = [n for n in self.groups.keys()]
-            i = self.values.pop(self.values.index(AddItemDialog.group))
+            i = self.values.pop(self.values.index(AddItemDialog.group.name))
             self.values.insert(0, i)
 
             super().__init__(**kwargs)
@@ -100,6 +100,7 @@ class DefaultsDialog(GroceriesAppBaseDialog):
     def __init__(self, main_button, **kwargs):
         super().__init__(**kwargs)
         self.main_button = main_button
+        self.root_ = main_button.root
 
         field = None
 
@@ -121,6 +122,7 @@ class DefaultsDialog(GroceriesAppBaseDialog):
     def write_input(self, value):
         """Set main button text to given value"""
         self.main_button.text = f'{value}'
+        self.root_.node.amount = value
         self.dismiss()
 
 
