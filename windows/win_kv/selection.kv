@@ -16,17 +16,26 @@
 <SectionHeader>
     canvas.before:
         Color:
-            rgba: .6,.1,.1,.4
-        Rectangle:
-            size: self.size
-            pos: self.pos
+            rgba: app.theme_cls.primary_color
+        Line:
+            points: [(self.x, self.y + .1*self.height), (self.x + self.width, self.y + .1*self.height)]
+            width: dp(4)
+            cap: 'none'
+
+        Color:
+            rgba: app.elem_color
+        RoundedRectangle:
+            size: self.size[0], .85*self.size[1]
+            pos: self.x, self.y + self.height*.15
+            radius: 18, 18, 0, 0
+
 
     size_hint: 1, None
-    height: app.item_row_height
+    height: app.item_row_height*11/8
 
     MDLabel:
         size_hint: .85, 1
-        font_style: 'H4'
+        font_style: 'H3'
         halign: 'center'
         valign: 'bottom'
         color: app.theme_cls.primary_color
@@ -50,16 +59,15 @@
 
 <DisplayGrid>
 
-    canvas.before:
-        Color:
-            rgba: .3,.1,.6,.4
-        Rectangle:
-            size: self.size
-            pos: self.pos
+#    canvas.before:
+#        Color:
+#            rgba: .3,.1,.6,.4
+#        Rectangle:
+#            size: self.size
+#            pos: self.pos
 
     size_hint: 1, None
-    height: app.item_row_height*9/8
-
+#    height: app.item_row_height*9/8
     app: app
     spacing: dp(6)
     size_hint: 1, None
@@ -130,13 +138,13 @@
     smooth_scroll_end: 10
 
     GroupDisplay:
-        canvas.before:
-            Color:
-                rgba: app.elem_color
-            RoundedRectangle:
-                size: self.size
-                pos: self.pos
-                radius: 40, 0, 40, 40
+#        canvas.before:
+#            Color:
+#                rgba: app.elem_color
+#            RoundedRectangle:
+#                size: self.size
+#                pos: self.pos
+#                radius: 40, 0, 40, 40
 
         orientation: 'vertical'
         size_hint: .98, None

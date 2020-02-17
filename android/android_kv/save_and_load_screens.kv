@@ -1,0 +1,87 @@
+<FilePickerButton>
+
+    theme_text_color: 'Custom'
+    text_color: app.text_color
+    font_size: 20
+    text: self.display_name
+
+
+<ListLoaderScreen>
+
+    options: 20
+
+    GridLayout:
+        id: grid_container
+        cols: 1
+        size_hint: 1, 1
+        spacing: dp(8)
+        padding: dp(8)
+
+<DialogButton>
+    font_size: app.text_base_size
+    size_hint: (1, .7/5)
+    pos_hint: {'center_x': .5}
+    text_color: app.text_color
+    on_kv_post:
+        self.ids['lbl_ic'].user_font_size: app.text_base_size
+
+
+<SaveScreen>
+
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: dp(16)
+        padding: dp(24)
+
+        Label:
+            text: 'Complete List?'
+            color: app.text_color
+            font_size: 32
+            size_hint: 1, .3
+
+        DialogButton:
+            text: '  Cancel'
+            icon: 'cancel'
+            size_hint: 1, 1
+            pos_hint: {'center_x': .5}
+            text_color: app.text_color
+            on_release:
+                root.dismiss()
+
+        DialogButton:
+            text: '  Print List'
+            disabled: True
+            icon: 'printer'
+            size_hint: 1, 1
+            pos_hint: {'center_x': .5}
+            text_color: app.text_color
+            on_release:
+                root.list_instructions('do_print')
+
+        DialogButton:
+            text: '  Email List'
+            icon: 'email-send-outline'
+            disabled: True
+            size_hint: 1, 1
+            pos_hint: {'center_x': .5}
+            text_color: app.text_color
+            on_release:
+                root.list_instructions('send_email')
+
+        DialogButton:
+            text: '  Save Incomplete'
+            icon: 'content-save-outline'
+            size_hint: 1, 1
+            pos_hint: {'center_x': .5}
+            text_color: app.text_color
+            on_release:
+                root.list_instructions('save_incomplete')
+
+        DialogButton:
+            text: '  Save Formatted List'
+            icon: 'typewriter'
+            size_hint: 1, 1
+            pos_hint: {'center_x': .5}
+            text_color: app.text_color
+            on_release:
+                root.list_instructions('write')

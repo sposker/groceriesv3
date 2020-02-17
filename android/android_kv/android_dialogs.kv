@@ -214,12 +214,12 @@
             cols: 3
             size_hint: 1, .6
 
-<DialogButton@MDRectangleFlatIconButton>
-
-    font_size: self.parent.font_size
-    size_hint: (None, .7/3)
-    pos_hint: {'center_x': .5}
-    text_color: app.text_color
+#<DialogButton@MDRectangleFlatIconButton>
+#
+#    font_size: self.parent.font_size
+#    size_hint: (None, .7/3)
+#    pos_hint: {'center_x': .5}
+#    text_color: app.text_color
 
 
 <ExitDialog>
@@ -254,25 +254,25 @@
             on_release:
                 root.do_exit()
 
-<FilePickerButton>
-
-    theme_text_color: 'Custom'
-    text_color: app.text_color
-    font_size: 20
-    text: self.display_name
-
-
-<FilePickerDialog>
-
-    options: 20
-
-    GridLayout:
-        id: grid_container
-        cols: 4
-        size: root.size
-        pos: root.pos
-        spacing: dp(8)
-        padding: dp(8)
+#<FilePickerButton>
+#
+#    theme_text_color: 'Custom'
+#    text_color: app.text_color
+#    font_size: 20
+#    text: self.display_name
+#
+#
+#<FilePickerDialog>
+#
+#    options: 20
+#
+#    GridLayout:
+#        id: grid_container
+#        cols: 4
+#        size: root.size
+#        pos: root.pos
+#        spacing: dp(8)
+#        padding: dp(8)
 
 
 <SaveDialog>

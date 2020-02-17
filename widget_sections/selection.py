@@ -78,7 +78,7 @@ class PairedToggleButtons(MDRaisedButton):
         """`display_name` helper method"""
         half_, _ = half, x = divmod(len(string), 2)
         if string[half] == ' ':
-            return string[:half] + '\n' + string[half+1:]
+            return string[:half] + '\n' + string[half + 1:]
         while True:
             if x:
                 half += 1
@@ -149,7 +149,7 @@ class DisplayGrid(GridLayout):
     @property
     def grid_rows(self):
         q, r = divmod(len(self.toggles_list) - 1, self.cols)
-        return q + 1
+        return q
 
     @property
     def spacers_height(self):
@@ -182,15 +182,16 @@ class GroupDisplay(BoxLayout):
             gridlayout = DisplayGrid(group, items)
 
             top = self.heightplaceholder  # Top of grid section- pixels
-            gridlayout.height = (gridlayout.grid_rows * self.app.item_row_height) + gridlayout.spacers_height
-            self.heightplaceholder += (self.app.item_row_height + gridlayout.height)  # Add height to running total
+            gridlayout.height = (gridlayout.grid_rows * self.app.item_row_height) \
+                                  + gridlayout.spacers_height + self.header_height
+            self.heightplaceholder += (self.header_height + gridlayout.height)  # Add height to running total
             gridlayout.set_position(top, self.heightplaceholder)
 
             self.add_widget(header)
             self.add_widget(gridlayout)
             gridlayout.populate()
             self._heights_list.append(
-                (gridlayout.group.name, gridlayout, self.heightplaceholder-gridlayout.height, self.heightplaceholder))
+                (gridlayout.group.name, gridlayout, self.heightplaceholder - gridlayout.height, self.heightplaceholder))
 
         self.height = self.heightplaceholder
 
@@ -199,3 +200,7 @@ class GroupDisplay(BoxLayout):
             return x
 
         self.heights = {k: v for k, v in (unpack(quad) for quad in self._heights_list)}
+
+    @property
+    def header_height(self):
+        return self.app.item_row_height  # TODO: Fix for win/android

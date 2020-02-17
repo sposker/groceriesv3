@@ -55,10 +55,7 @@ class ItemNode:
 
     @property
     def is_expanded(self):
-        try:
-            return self.card.expanded
-        except AttributeError:  # Android
-            return False
+        return self.card.expanded
 
     @property
     def view_cls(self):

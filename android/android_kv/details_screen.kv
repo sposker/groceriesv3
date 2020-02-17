@@ -14,7 +14,7 @@
     md_bg_color: app.theme_cls.primary_color
     theme_text_color: 'Custom'
     text_color: app.text_color
-    font_size: 20
+    font_size: app.text_base_size
 
 
 <DetailsScreen>
@@ -36,56 +36,119 @@
     delete_card: delete_card
 
     BoxLayout:
-        canvas:
-            Color:
-                rgba: app.elem_color
-            RoundedRectangle:
-                size: self.size
-                pos: self.pos
-                radius: 12, 12, 12, 12
+#        canvas:
+#            Color:
+#                rgba: app.elem_color
+#            RoundedRectangle:
+#                size: self.size
+#                pos: self.pos
+#                radius: 12, 12, 12, 12
 
         orientation: "vertical"
         id: primary
-#        size_hint: .95, 1
-#        pos_hint: {'x': .05, 'center_y': .5}
+        padding: dp(24)
 
         MDLabel:
+            size_hint: 1, .2
             id: item_title
             text: root.card.item_name
             theme_text_color: 'Custom'
             text_color: app.text_color
+            font_size: app.text_base_size * 1.5
             halign: 'center'
-            font_size: 22
 
         BoxLayout:
-            canvas:
-                Color:
-                    rgba: .5, .1, .8, .3
-                RoundedRectangle:
-                    size: self.size
-                    pos: self.pos
-                    radius: 12, 12, 12, 12
-            id: amount
+            size_hint: 1, .25
 
-        NoteInput:
-            id: note_input
-            size_hint: 1, 1
-            name: 'note_input'
-            pos_hint: {'center_x': .5, 'center_y': .5}
+            Label:
+                text: "Amount:"
+                size_hint: 1/3, 1
+                theme_text_color: 'Custom'
+                color: app.text_color
+                font_size: app.text_base_size
+
+            GridLayout:
+                cols: 2
+                size_hint: 2/3, 1
+                id: amount
+                root_: root
+                canvas:
+                    Color:
+                        rgba: app.elem_color
+                    RoundedRectangle:
+                        size: self.size
+                        pos: self.pos
+                        radius: 12, 12, 12, 12
+
+
+        BoxLayout:
+            size_hint: 1, .15
+
+            Label:
+                text: "Note:"
+                size_hint: 1/3, 1
+                theme_text_color: 'Custom'
+                color: app.text_color
+                font_size: app.text_base_size
+
+            TextInput:
+                background_color: app.elem_color
+                background_normal: ''
+                font_size: app.text_base_size
+                foreground_color: app.text_color
+                id: note_input
+                size_hint: 2/3, 2/3
+                multiline: False
+                pos_hint: {'center_x': .5, 'center_y': .4}
+                text_size: app.text_base_size
+                write_tab: False
+
+        Widget:
+            size_hint: 1, .12
 
         BoxLayout:
             id: actions
-            size_hint: 1, .2
+            size_hint: 1, .16
 
             PreviewIconButton:
                 id: history
+                disabled: True
                 icon: "history"
+                size_hint: .25, 1
+                user_font_size: app.text_base_size * 2
+#                text_color: app.theme_cls.primary_color
                 pos_hint: {'center_x': .5, 'center_y': .5}
 
             PreviewIconButton:
                 id: delete_card
                 icon: "delete"
                 pos_hint: {'center_x': .5, 'center_y': .5}
+                user_font_size: app.text_base_size * 2
+                size_hint: .25, 1
+                text_color: app.theme_cls.primary_color
                 on_release:
                     root.card.kvlang_remove_card()
+                    root.do_leave()
 
+            PreviewIconButton:
+                id: back_to_preview
+                icon: "restart"
+                user_font_size: app.text_base_size * 2
+                size_hint: .25, 1
+                text_color: app.theme_cls.primary_color
+                pos_hint: {'center_x': .5, 'center_y': .5}
+                on_release:
+                    root.do_leave()
+
+            PreviewIconButton:
+                id: save
+                icon: "content-save-outline"
+                pos_hint: {'center_x': .5, 'center_y': .5}
+                size_hint: .25, 1
+                text_color: app.theme_cls.primary_color
+                user_font_size: app.text_base_size * 2
+                on_release:
+                    root.do_save()
+
+        Widget:
+            size_hint: 1, .12

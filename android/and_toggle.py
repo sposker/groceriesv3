@@ -6,6 +6,7 @@ from kivy.factory import Factory
 from kivy.properties import StringProperty, ObjectProperty, NumericProperty
 from kivymd.app import MDApp
 
+from logical.state import ListState
 from widget_sections.selection import PairedToggleButtons
 
 
@@ -22,6 +23,7 @@ class LongPressToggle(PairedToggleButtons):
 
     def __init__(self, item, **kwargs):
         super().__init__(item, **kwargs)
+
         self._clockev = None
 
         self.bind(
@@ -48,10 +50,12 @@ class LongPressToggle(PairedToggleButtons):
         self.dispatch('on_long_press')
 
     def on_long_press(self, *largs):
-        # self.state = 'down'
-        # wid = self.preview_widget.defaults_btn
-        # Factory.ButtonPopup(wid, wid.defaults).open()
-        print('long_press')
+        pass  # TODO
+
+        # if not self.node:
+        #     print(self.item)
+        #     self.node = ListState.instance.add_card(item=self.item, toggle=self)
+        #     self.node.card.show_details()
 
 
 

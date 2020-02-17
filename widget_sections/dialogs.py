@@ -97,10 +97,11 @@ class DefaultsInput(MDTextField):
 
 class DefaultsDialog(GroceriesAppBaseDialog):
 
-    def __init__(self, main_button, **kwargs):
+    def __init__(self, main_button, floating_btn=None, **kwargs):
         super().__init__(**kwargs)
         self.main_button = main_button
         self.root_ = main_button.root
+        self._floating = floating_btn
 
         field = None
 
@@ -123,6 +124,8 @@ class DefaultsDialog(GroceriesAppBaseDialog):
         """Set main button text to given value"""
         self.main_button.text = f'{value}'
         self.root_.node.amount = value
+        if self._floating:
+            self._floating.text = f'{value}'
         self.dismiss()
 
 

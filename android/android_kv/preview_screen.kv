@@ -9,20 +9,6 @@
     tooltip_bg_color: app.bg_color
     tooltip_text_color: app.text_color
 
-<DropdownStack>
-    canvas.before:
-        Color:
-            rgba: app.bg_color
-        RoundedRectangle:
-            size: self.size
-            pos: self.pos
-            radius: [0, 0, 16, 16]
-
-
-    height: app.item_row_height/2
-    background_color: app.trans_list
-    background_normal: ''
-    color: app.text_color
 
 <FloatingButton>
     size_hint: None, None
@@ -47,7 +33,7 @@
     BoxLayout:
         name: 'primary'
         id: primary
-        size_hint: .95, 1
+        size_hint: 1, 1
         pos_hint: {'x': .05, 'center_y': .5}
 
 
@@ -58,6 +44,7 @@
         BoxLayout:
             pos_hint: {'x': .05, 'center_y': .5}
             size_hint: .7, 1
+            orientation: 'vertical'
 
             MDLabel:
                 id: item_title
@@ -65,16 +52,31 @@
                 theme_text_color: 'Custom'
                 text_color: app.text_color
                 halign: 'left'
-                font_size: 32
+                font_size: app.text_base_size * .8
+                size_hint: 1, 1
 
-            MDLabel:
-                id: note_display
-                size_hint: 0, 0
-                theme_text_color: 'Custom'
-                text_color: app.text_color
-                halign: 'left'
-                valign: 'top'
-                font_size: 32
+            FloatLayout:
+                size_hint: 1, None
+                height: 0
+
+                MDLabel:
+                    canvas.before:
+                        Color:
+                            rgba: 1, 1, 0, .2
+                        Rectangle:
+                            size: self.size
+                            pos: self.pos
+
+                    id: note_display
+                    size_hint: None, None
+                    pos: root.pos[0] + root.width * .1, root.pos[1] + root.height * .15
+                    theme_text_color: 'Custom'
+                    text_color: app.text_color
+                    font_size: app.text_base_size * .5
+                    halign: 'left'
+                    height: 0
+                    width: root.width
+
 
 
         MDFlatButton:
@@ -85,15 +87,14 @@
             theme_text_color: 'Custom'
             text_color: app.text_color
             text: card.defaults_list[-1]
-            font_size: 48
+            font_size: app.text_base_size
             width: dp(88)
             on_release:
-                self.color: app.bg_color
+                root.open_defaults_dialog(self)
 
 
         MDIconButton:
             id: chevron
-
             icon: "chevron-right"
             user_font_size: sp(40)
             pos_hint: {'right': 1, 'center_y': .5}
@@ -105,34 +106,6 @@
         Widget:
             size_hint: .05, 1
             disabled: True
-
-
-#    BoxLayout:
-#        id: expansion
-#        size_hint: 1, None
-#        height: root.expansion_height
-#
-#        NoteInput:
-#            id: note_input
-#            root: card
-#            size_hint: 1, 1
-#            name: 'note_input'
-#            pos_hint: {'center_x': .5, 'center_y': .5}
-#
-#
-#        PreviewIconButton:
-#            id: history
-#            icon: "history"
-#            pos_hint: {'center_x': .5, 'center_y': .5}
-#            tooltip_text: 'Item History'
-#
-#        PreviewIconButton:
-#            id: delete_card
-#            icon: "delete"
-#            pos_hint: {'center_x': .5, 'center_y': .5}
-#            tooltip_text: 'Remove Item'
-#            on_release:
-#                root.kvlang_remove_card()
 
 
 <PreviewScreen>
@@ -150,8 +123,7 @@
         color: app.bg_color
         do_scroll_x: False
         do_scroll_y: True
-        scroll_type: ['bars']
-        smooth_scroll_end: 10
+        scroll_type: ['content']
         smooth_scroll_end: 10
 
         ItemCardContainer:

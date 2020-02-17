@@ -1,5 +1,6 @@
 from kivy.animation import Animation
 from kivy.clock import Clock
+from kivy.factory import Factory
 from kivy.properties import ListProperty, ObjectProperty
 from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
@@ -32,16 +33,6 @@ class AndroidItemCard(MDCard):
         # set up animations and properties
         super().__init__(**kwargs)
 
-        # self.expand_anim = Animation(size=(self.width, self.normal_height + self.expansion_height), duration=.12)
-        # self.expand_anim.bind(on_progress=lambda a_, b_, progress:
-        #                       self._anim_progress(self.expansion_height, progress))
-        # self.expand_anim.bind(on_complete=lambda a_, b_: self._anim_complete())
-        #
-        # self.contract_anim = Animation(size=(self.width, self.normal_height), duration=.12)
-        # self.contract_anim.bind(on_progress=lambda a_, b_, progress:
-        #                         self._anim_progress(-self.expansion_height, progress))
-        # self.contract_anim.bind(on_complete=lambda a_, b_: self._anim_complete())
-
     @property
     def toggle(self):
         """This is a reference to a toggle button in the selection part of the app-- NOT a function"""
@@ -51,27 +42,6 @@ class AndroidItemCard(MDCard):
     def item(self):
         return self.node.item
 
-    def _anim_progress(self, delta, progress):
-        """Increment the size of card and container"""
-
-        ListState.instance.anim_progress_delta = delta * progress
-        self.node.height = self.normal_height + delta * progress
-        ItemCardContainer.instance.trigger_refresh()
-
-    def _anim_complete(self):
-        """Update the stepped height of the container so the next animation uses new base value;
-        Adjust widget visibility as animation is now complete;
-        Focus the note input widget.
-        """
-
-        ListState.instance.anim_progress_delta = 0
-        value = -1 if self.expanded else 1
-        self.expanded = not self.expanded
-        if self.expanded:
-            Clock.schedule_once(lambda _: setattr(self.note_input, 'focus', True), .1)
-        ListState.instance.anim_complete(value)
-        return self._make_hidden()
-
     def show_details(self):
         sm = MDApp.get_running_app().manager
         s = DetailsScreen(self)
@@ -79,6 +49,10 @@ class AndroidItemCard(MDCard):
         sm.transition.direction = 'left'
         sm.add_widget(s)
         sm.current = 'details'
+
+    @staticmethod
+    def open_defaults_dialog(btn):
+        Factory.DefaultsDialog(btn).open()
 
     def kvlang_remove_card(self):
         """Called from card's delete button"""
@@ -98,25 +72,30 @@ class AndroidItemCard(MDCard):
         return self.item.name
 
 
-class FloatingButton(MDFlatButton, ToggleButtonBehavior):
+class FloatingButton(MDFlatButton,):
     """Toggle button for details screen"""
 
-    group = ObjectProperty(None, allownone=True)
-
     def __init__(self, value, **kwargs):
-        self.group = 'defaults_toggles'
         super().__init__(**kwargs)
         self.text = value
-        try:
-            self.icon = f'numeric-{int(value)}-circle-outline'
-        except ValueError:
-            self.icon = 'roman-numeral-10'
+        self.state = 'normal'
 
-    def on_state(self, _, value):
-        if value == 'down':
-            self.text_color = MDApp.get_running_app().theme_cls.accent_color
-        else:
-            self.text_color = MDApp.get_running_app().text_color
+    def on_release(self):
+
+        for button in self.parent.children:
+            if button is self:
+                self.text_color = MDApp.get_running_app().theme_cls.accent_color
+                self.state = 'down'
+            else:
+                button.text_color = MDApp.get_running_app().text_color
+                button.state = 'normal'
+
+        if self.text == "+":
+            return self.do_add_value()
+
+    def do_add_value(self):
+        btn = self.parent.root_.card.amount
+        Factory.DefaultsDialog(btn, floating_btn=self).open()
 
 
 class DefaultsOptions(BoxLayout):
@@ -124,7 +103,6 @@ class DefaultsOptions(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
 
 
 class NoteInput(MDTextField):

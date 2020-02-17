@@ -16,10 +16,18 @@
 <SectionHeader>
     canvas.before:
         Color:
+            rgba: app.theme_cls.primary_color
+        Line:
+            points: [(self.x, self.y + .1*self.height), (self.x + self.width, self.y + .1*self.height)]
+            width: dp(4)
+            cap: 'none'
+
+        Color:
             rgba: app.elem_color
-        Rectangle:
-            size: self.size
-            pos: self.pos
+        RoundedRectangle:
+            size: self.size[0], .7*self.size[1]
+            pos: self.x, self.y + self.height*.15
+            radius: 24, 24, 0, 0
 
     size_hint: 1, None
     height: app.item_row_height
@@ -31,20 +39,29 @@
         valign: 'bottom'
         color: app.theme_cls.primary_color
 #        font_size: 40
-        font_size: app.text_base_size / 2
+        font_size: app.text_base_size*1
         text: root.group.name
 
     SectionDivider:
 
     MDFlatButton:
-        size_hint: None , 1
+#        canvas.before:
+#            Color:
+#                rgba: [c for c in app.elem_color[:3]] + [1]
+#
+#            RoundedRectangle:
+#                size: self.size
+#                pos: self.pos
+#                radius: [6 for _ in range(3)]
+
+        size_hint: None , .6
         pos_hint: {'center_x': .5, 'center_y': .5}
         font_style: 'Custom'
         halign: 'center'
 #        height: app.item_row_height
         text_color: app.text_color
         text: 'Add Item'
-        font_size: app.text_base_size * 2/5
+        font_size: app.text_base_size * 4/5
         on_release:
             Factory.AddItemDialog(root.group).open()
 
@@ -93,7 +110,7 @@
         MDLabel:
             theme_text_color: 'Custom'
             text: root.display_name
-            font_size: sp(root.font_size)
+            font_size: app.text_base_size*.6
             font_name: self.font_name
             text_size: (None, root.height)
             height: root.height
@@ -106,12 +123,12 @@
         MDIcon:
             theme_text_color: 'Custom'
             icon: root.icon
-            font_size: root.font_size
+            user_font_size: 100
             text_color: root.text_color
             valign: 'middle'
             halign: 'center'
-            size_hint: None, 1
-            width: dp(32)
+            size_hint: .2, 1
+            width: dp(42)
 
 
 <GroupScrollBar>
