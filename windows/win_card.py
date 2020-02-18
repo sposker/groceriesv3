@@ -98,7 +98,11 @@ class WinItemCard(MDCard):
         """Increment the size of card and container"""
 
         ListState.instance.anim_progress_delta = delta * progress
-        self.node.height = self.normal_height + delta * progress
+        if self.expanded:
+            self.node.height = self.expansion_height+ self.normal_height + delta * progress
+        else:
+            self.node.height = self.normal_height + delta * progress
+
         ItemCardContainer.instance.trigger_refresh()
 
     def _anim_complete(self):

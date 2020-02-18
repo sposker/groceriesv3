@@ -28,7 +28,6 @@ class AndroidItemCard(MDCard):
         self.defaults_pairs = sorted(self.item.defaults.copy(), key=lambda d: d[0])
 
         self.defaults_list = [str(num) for _, num in self.defaults_pairs]
-        print(self.defaults_list)
 
         # set up animations and properties
         super().__init__(**kwargs)

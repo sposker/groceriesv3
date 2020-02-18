@@ -176,6 +176,10 @@ class SaveScreen(Screen):
     def list_instructions(self, *args):
         ...
 
+    @staticmethod
+    def dismiss():
+        """Called when trying to dismiss popup"""
+        MDApp.get_running_app().manager.current = 'preview'
 
 
 

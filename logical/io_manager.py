@@ -161,6 +161,8 @@ class NetworkManager(IOManager):
 
         super().__init__(**kwargs)  # Defaults may be overwritten by `super().__init__`
 
+        self.host = '127.0.0.1'  # TODO: remove me
+
     def dump_database(self):
         """Send updated data to server which will handle renaming old data and saving new data"""
         db = MDApp.get_running_app().db
@@ -192,6 +194,11 @@ class NetworkManager(IOManager):
 
     def _construct_store_pairs(self):
         """Generate paired values for creating store objects from network location"""
+        # stores_path = f'http://{self.host}:{self.read_port}/stores/shoppers.yaml'
+        # with requests.get(stores_path) as f:
+        #     c = f.content.decode()
+        #     print(c)
+        # return 'shoppers', yaml.load(c, Loader=yaml.Loader)
 
         stores_path = f'http://{self.host}:{self.read_port}/stores'
         listing = ''.join(chunk.decode() for chunk in requests.get(stores_path))
@@ -199,8 +206,11 @@ class NetworkManager(IOManager):
         for line in lines:
             if '.yaml' in line:
                 _, filename, _ = line.split('"')
+                print(os.path.join(stores_path, filename))
                 name, ext = filename.split('.')
-                content = requests.get(os.path.join(stores_path, filename)).content
+                with requests.get(f'{stores_path}/{filename}') as f:
+                    content = f.content.decode()
+                print(content)
                 mapping = yaml.load(content, Loader=yaml.Loader)
                 yield name, mapping
 
@@ -209,8 +219,9 @@ class NetworkManager(IOManager):
 
         groups_path = f'http://{self.host}:{self.read_port}/groups.txt'
         r = requests.get(groups_path)
-        groups_raw = str(r.content)
-        groupnames = groups_raw.split('\n')
+        groups_raw = r.content.decode()
+        groupnames = [n for n in groups_raw.split('\n') if n]
+        print(groupnames)
 
         stores = {k: v for k, v in self._construct_store_pairs()}
 
@@ -225,8 +236,6 @@ class NetworkManager(IOManager):
 
     def locate_pool(self, date=None, return_names=False,):
         """Check a network location for a list in progress containing today's date"""
-
-        self.host = '127.0.0.1'  # TODO: remove me
 
         items = ''
         pools_path = f'http://{self.host}:{self.read_port}/username/pools'
@@ -248,9 +257,9 @@ class NetworkManager(IOManager):
         if not (self.locate_pool(date)):
             return  # No pool matching date
 
-        network_path = f'{self.host}:{self.read_port}/{self.username}/pools/{date}itempool.yaml'
-        req = requests.get(network_path)
-        content = ''.join(file.decode() for file in req)
+        network_path = f'http://{self.host}:{self.read_port}/{self.username}/pools/{date}itempool.yaml'
+        with requests.get(network_path) as req:
+            content = req.content.decode()
         pool_params = self.interpret_pool_data(content)
         ListState.instance.populate_from_pool(ItemPool(pool_params))
 
