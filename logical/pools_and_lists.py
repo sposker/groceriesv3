@@ -101,16 +101,17 @@ class ListWriter:
 
         needed = []
         do_build = False
-        for loc in self.store.specials:
-            print(loc)
+        for loc in sorted(self.store.specials):
+            print(loc.uid)
             try:
-                nested = self.items[loc]
+                nested = self.items[loc.uid]
             except KeyError:
                 needed.append(0)
             else:
                 needed.append(len(nested))
                 do_build = True
 
+        print(needed)
         self.subject = f" Shoppinglist {self.get_date()}"
         self.header = f"{self.get_date()}: Grocery List\n"
 
@@ -166,4 +167,4 @@ class ListWriter:
     @staticmethod
     def get_date():
         from logical.io_manager import IOManager
-        return IOManager.get_date(3)
+        return IOManager.get_date(3)[:-1]

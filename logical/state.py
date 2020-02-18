@@ -27,13 +27,13 @@ class ItemNode:
         self.toggle = toggle
 
         self._note = note
-        self._amount = amount if amount else ''
         self.creation_time = creation if creation else time.time()
 
         self.prev = None
         self.next = None
 
         self.card = self.view_cls(self)
+        self.amount = self.card.defaults_list[-1]
         self.card.height = self.view_cls.normal_height
         self._height = ListState.height_normal
         ItemNode.all_nodes.add(self)
@@ -71,7 +71,7 @@ class ItemNode:
 
     @property
     def amount(self):
-        if self._amount is None:
+        if not self._amount:
             self._amount = self.card.defaults_list[-1]
         return self._amount
 
