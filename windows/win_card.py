@@ -141,6 +141,7 @@ class WinItemCard(MDCard):
         """Set the note label visibility and text"""
         self.note_display.size_hint = (1, .2)
         self.note_display.text = text
+        self.node.note = text
 
     @property
     def item_name(self):

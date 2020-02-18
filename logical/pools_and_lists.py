@@ -102,6 +102,7 @@ class ListWriter:
         needed = []
         do_build = False
         for loc in self.store.specials:
+            print(loc)
             try:
                 nested = self.items[loc]
             except KeyError:
