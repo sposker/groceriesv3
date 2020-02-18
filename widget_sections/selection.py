@@ -1,16 +1,11 @@
-from kivy.clock import Clock
-from kivy.utils import platform
 from kivy.properties import StringProperty, ObjectProperty, NumericProperty
-from kivy.uix.behaviors import ButtonBehavior
+from kivy.properties import StringProperty, ObjectProperty, NumericProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.scrollview import ScrollView
-from kivy.uix.widget import Widget
 from kivymd.app import MDApp
-from kivymd.uix.button import MDIconButton, MDRaisedButton
-from kivymd.uix.card import MDCard
-from kivymd.uix.label import MDLabel
+from kivymd.uix.button import MDRaisedButton
 
 from __init__ import as_list, TEXT_COLOR
 from logical.state import ListState

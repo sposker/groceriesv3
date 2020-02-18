@@ -19,7 +19,7 @@ class IOManager:
     """Common functionality for file managers"""
 
     def __init__(self, **kwargs):
-        """Create default properties, then overwrite them if values are provided"""
+        """Define default properties, then overwrite them if values are provided"""
 
         self.username = 'username'
         self.credentials_path = '/credentials.txt'
@@ -198,11 +198,6 @@ class NetworkManager(IOManager):
 
     def _construct_store_pairs(self):
         """Generate paired values for creating store objects from network location"""
-        # stores_path = f'http://{self.host}:{self.read_port}/stores/shoppers.yaml'
-        # with requests.get(stores_path) as f:
-        #     c = f.content.decode()
-        #     print(c)
-        # return 'shoppers', yaml.load(c, Loader=yaml.Loader)
 
         stores_path = f'http://{self.host}:{self.read_port}/stores'
         listing = ''.join(chunk.decode() for chunk in requests.get(stores_path))
@@ -210,11 +205,9 @@ class NetworkManager(IOManager):
         for line in lines:
             if '.yaml' in line:
                 _, filename, _ = line.split('"')
-                print(os.path.join(stores_path, filename))
                 name, ext = filename.split('.')
                 with requests.get(f'{stores_path}/{filename}') as f:
                     content = f.content.decode()
-                print(content)
                 mapping = yaml.load(content, Loader=yaml.Loader)
                 yield name, mapping
 
@@ -373,20 +366,3 @@ class LocalManager(IOManager):
             # print(content)
             pool_params = self.interpret_pool_data(content)
             ListState.instance.populate_from_pool(ItemPool(pool_params))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

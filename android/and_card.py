@@ -1,8 +1,4 @@
-from kivy.animation import Animation
-from kivy.clock import Clock
 from kivy.factory import Factory
-from kivy.properties import ListProperty, ObjectProperty
-from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.app import MDApp
 from kivymd.uix.button import MDFlatButton, MDIconButton
@@ -11,7 +7,6 @@ from kivymd.uix.textfield import MDTextField
 
 from android.screens import DetailsScreen
 from logical.state import ListState
-from widget_sections.shared_preview import ItemCardContainer
 
 
 class AndroidItemCard(MDCard):

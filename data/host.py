@@ -4,9 +4,9 @@
 
 import datetime
 import os
-from http import server, HTTPStatus
-import threading
 import socket
+import threading
+from http import server, HTTPStatus
 
 
 class MyHandler(server.SimpleHTTPRequestHandler):

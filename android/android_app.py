@@ -7,15 +7,15 @@ from kivymd.app import MDApp
 from kivymd.theming import ThemeManager
 from kivymd.uix.button import MDRectangleFlatIconButton
 
+from __init__ import *
+from android import *
+from android.and_card import AndroidItemCard
 from android.and_toggle import LongPressToggle
+from android.screens import SelectionScreen, PreviewScreen, ListLoaderScreen, SaveScreen
 from logical.io_manager import NetworkManager
 from logical.state import ListState
-from android.and_card import AndroidItemCard
 from widget_sections.selection import GroupDisplay
 from widget_sections.shared_preview import ItemCardContainer
-from android.screens import SelectionScreen, PreviewScreen, ListLoaderScreen, SaveScreen
-from android import *
-from __init__ import *
 
 APP_KV_PATH = r'android/android_kv/_android_root.kv'
 KV_WIDGETS = ['preview_screen',

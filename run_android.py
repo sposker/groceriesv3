@@ -1,5 +1,5 @@
-from android.android_app import MobileApp
 from android import *
+from android.android_app import MobileApp
 
 MobileApp.host = '127.0.0.1'
 Window.size = (540, 960)

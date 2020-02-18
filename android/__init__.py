@@ -2,6 +2,8 @@ from kivy.core.window import Window
 from kivy.factory import Factory
 
 from widget_sections.dialogs import DefaultsDialog, FilePickerDialog
+# Actually need to import this somewhere to have it registered for .kv files
+# noinspection PyUnresolvedReferences
 from widget_sections.search import ListFunctionsBar, MyMDIconButton
 
 ITEM_ROW_HEIGHT = 240

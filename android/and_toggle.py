@@ -3,10 +3,8 @@ from threading import Event
 
 from kivy.clock import Clock
 from kivy.factory import Factory
-from kivy.properties import StringProperty, ObjectProperty, NumericProperty
-from kivymd.app import MDApp
+from kivy.properties import StringProperty, ObjectProperty
 
-from logical.state import ListState
 from widget_sections.selection import PairedToggleButtons
 
 

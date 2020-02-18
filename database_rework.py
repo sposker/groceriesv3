@@ -1,8 +1,4 @@
-import os
-
 from logical.database import Database
-import yaml
-
 
 # def local(self):
 #     abs_path = os.path.join(os.getcwd(), self.path)

@@ -1,6 +1,3 @@
-import os
-from functools import wraps
-
 from kivy.clock import Clock
 from kivy.factory import Factory
 from kivy.properties import NumericProperty
@@ -12,7 +9,6 @@ from kivymd.app import MDApp
 from kivymd.uix.button import MDIconButton, MDFlatButton
 from kivymd.uix.textfield import MDTextField
 
-from logical.pools_and_lists import ListWriter, ItemPool
 from logical.state import ListState
 
 

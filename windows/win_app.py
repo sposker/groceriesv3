@@ -1,21 +1,16 @@
-import datetime
-import os
-
 from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivymd.app import MDApp
 from kivymd.theming import ThemeManager
 
-from logical.database import Database
+from __init__ import *  # general app settings
 from logical.io_manager import LocalManager
-from logical.pools_and_lists import ItemPool
 from logical.state import ListState
 from widget_sections.selection import PairedToggleButtons, GroupDisplay
-from windows.win_card import WinItemCard
 from widget_sections.shared_preview import ItemCardContainer
-from __init__ import *  # general app settings
 from windows import *  # windows specific settings
+from windows.win_card import WinItemCard
 
 
 class WinApp(MDApp):

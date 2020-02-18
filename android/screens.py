@@ -1,17 +1,10 @@
-import os
-
 from kivy.clock import Clock
-from kivy.factory import Factory
-from kivy.properties import NumericProperty
-from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.screenmanager import Screen
 from kivymd.app import MDApp
 from kivymd.uix.button import MDRectangleFlatIconButton
 
-from logical.pools_and_lists import ListWriter
 from logical.state import ListState
 from widget_sections.dialogs import FilePickerButton
-
 
 TOOLBAR_ICON = None
 

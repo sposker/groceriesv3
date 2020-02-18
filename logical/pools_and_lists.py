@@ -1,12 +1,4 @@
-import datetime
-import os
-import smtplib
-import ssl
-import time
 from operator import itemgetter
-
-import yaml
-from kivymd.app import MDApp
 
 from logical.stores import Store
 
