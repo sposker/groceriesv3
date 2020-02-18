@@ -67,15 +67,14 @@ class ClearListDialog(GroceriesAppBaseDialog):
 class CompleteDialog(GroceriesAppBaseDialog):
     """Shown when list is completed"""
 
-    def __init__(self, message, gro_list, pool, **kwargs):
+    def __init__(self, message, pool, **kwargs):
         self.message = message
-        self.gro_list = gro_list
         self.pool = pool
         super().__init__(**kwargs)
 
     def do_exit(self):
         app = MDApp.get_running_app()
-        app.exit_routine(gro_list=self.gro_list, pool=self.pool)
+        app.exit_routine(pool=self.pool)
 
 
 class DefaultsDialogButton(MDIconButton):
@@ -159,9 +158,9 @@ class FilePickerButton(MDFlatButton, ToggleButtonBehavior):
     def on_release(self):
         self.parent_.clear_list()
         io = MDApp.get_running_app().io_manager
-        pool = ItemPool.from_file(self.path)
-        ListState.instance.populate_from_pool(pool)
+        io.load_pool(date=self.date)
         self.parent_.dismiss()
+        self.__class__.instances = 0
 
 
 class FilePickerDialog(GroceriesAppBaseDialog):
@@ -170,24 +169,19 @@ class FilePickerDialog(GroceriesAppBaseDialog):
     options = NumericProperty()  # Number of visible widgets
 
     def __init__(self, **kwargs):
-        self.app = MDApp.get_running_app()
-        self.filepicker_path = x if (x := self.app.pools_path) else \
-            os.path.join(os.getcwd(), r'data\username\lists')
+        io = MDApp.get_running_app().io_manager
+        names = io.locate_pool(return_names=True)
         super().__init__(**kwargs)
-        self.display_options()
+        self.display_options(names)
 
-    def display_options(self):
+    def display_options(self, names):
         """Load the list of choices"""
-        walk = os.walk(self.filepicker_path)
-        root, _, filenames = next(walk)
-
-        sorted_names = sorted(filenames)
-        sorted_names.reverse()
+        sorted_names = sorted(names, reverse=True)
 
         for filename in sorted_names:
             if FilePickerButton.instances >= self.options:
                 break
-            btn = FilePickerButton(self, root, filename)
+            btn = FilePickerButton(self, filename)
             self.ids['grid_container'].add_widget(btn)
 
     @staticmethod
@@ -206,13 +200,13 @@ class SaveDialog(GroceriesAppBaseDialog):
     def list_instructions(self, *args):
         """Wrap some calls with administrative tasks related to saving"""
         # self.item_pool.dump_yaml()
-        io = self.app.io_manager.make_list(self.item_pool)
+        io = self.app.io_manager
         for callable_ in args:
             list_method = getattr(io, callable_)
-            result = list_method(io)  # TODO: make sure this is correct
+            result = list_method(self.item_pool)
         self.dismiss()
         # noinspection PyUnboundLocalVariable
-        Factory.CompleteDialog(result, io.should_update, self.item_pool).open()
+        Factory.CompleteDialog(result, self.item_pool).open()
 
 
 class SettingsDialog(GroceriesAppBaseDialog):

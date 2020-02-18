@@ -124,29 +124,3 @@ class Database:
             if new_note:
                 item.note = new_note
 
-    def _dump_yaml(self, f):
-        ...
-
-    def dump_local(self):
-        abs_path = os.path.join(os.getcwd(), self.path)
-        filename = f'{self.get_date()}{self.username}.{self.ext}'
-        db_copy_destination = os.path.join(abs_path, 'old_database')
-        new_filepath = os.path.join(db_copy_destination, filename)
-        os.rename(self.filepath, new_filepath)
-
-        with open(self.filepath, 'w') as f:
-            self._dump_yaml(f)
-
-    def dump_mobile(self, pair):
-        # TODO: check whether socketserver is availible
-
-        s = socket.socket()
-        s.connect(pair)
-
-        with s.makefile(mode='w') as f:
-            self._dump_yaml(f)
-
-        s.close()
-
-    def _load_picker(self):
-        pass

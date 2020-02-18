@@ -103,10 +103,10 @@ class WinApp(MDApp):
 
         self.io_manager.load_pool()
 
-    def exit_routine(self, gro_list=None, pool=None):
-        if gro_list:
+    def exit_routine(self, pool=None):
+        if self.io_manager.should_update:
             self.db.set_new_defaults(pool)
-            self.db.dump_local()
+            self.io_manager.dump_database()
         MDApp.get_running_app().stop()
 
     def _real_user_load(self):

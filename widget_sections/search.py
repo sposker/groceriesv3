@@ -89,8 +89,8 @@ class ListFunctionsBar(BoxLayout):
     @staticmethod
     def save(_):
         """Launch the save dialog"""
-        gro_list = ListState.instance.convert_to_pool()
-        Factory.SaveDialog(gro_list).open()
+        item_pool = ListState.instance.convert_to_pool()
+        Factory.SaveDialog(item_pool).open()
 
 
 class SearchBar(MDTextFieldRound):

@@ -286,7 +286,7 @@
                 pos_hint: {'center_x': .5}
                 text_color: app.text_color
                 on_release:
-                    root.list_instructions('do_print')
+                    root.list_instructions('print_list')
 
             DialogButton:
                 text: '  Email List'
@@ -304,7 +304,7 @@
                 pos_hint: {'center_x': .5}
                 text_color: app.text_color
                 on_release:
-                    root.list_instructions('save_incomplete')
+                    root.list_instructions('dump_pool')
 
             DialogButton:
                 text: '  Cancel'
@@ -322,7 +322,7 @@
                 pos_hint: {'center_x': .5}
                 text_color: app.text_color
                 on_release:
-                    root.list_instructions('write')
+                    root.list_instructions('dump_list')
 
 
 <SettingsDialog>

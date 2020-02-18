@@ -69,8 +69,6 @@ class IOManager:
         self.writer = ListWriter(item_pool, store)
         self.should_update = True
 
-        return self
-
     @staticmethod
     def format_pool(pool: ItemPool):
         """Convert ItemPool to yaml-friendly object"""
@@ -225,7 +223,7 @@ class NetworkManager(IOManager):
                         items=items,
                         )
 
-    def locate_pool(self, date, return_names=False,):
+    def locate_pool(self, date=None, return_names=False,):
         """Check a network location for a list in progress containing today's date"""
 
         self.host = '127.0.0.1'  # TODO: remove me
@@ -269,13 +267,12 @@ class LocalManager(IOManager):
         with open(self.db_path, 'w') as f:
             yaml.dump(data, f)
 
-    def dump_list(self, filename=None):
+    def dump_list(self, pool):
         """Write list to plaintext format"""
-        if not self.writer.body:
-            self.writer.format_plaintext()
+        self.make_list(pool)
+        self.writer.format_plaintext()
 
-        if not filename:
-            filename = self.get_date(3) + 'ShoppingList.txt'
+        filename = self.get_date(3) + 'ShoppingList.txt'
 
         write_destination = os.path.join(self.lists_path, filename)
 
@@ -292,18 +289,18 @@ class LocalManager(IOManager):
 
         return 'Items saved to disk.'
 
-    def print_list(self):
+    def print_list(self, pool):
         """Option to start printing (Windows only)."""
+        self.dump_list(pool)
         filename = self.get_date(3) + 'ShoppingList.txt'
-        self.dump_list(filename=filename)
         write_destination = os.path.join(self.lists_path, filename)
         os.startfile(write_destination, 'print')
         return 'List saved;\n printing in progress'
 
-    def send_email(self):
+    def send_email(self, pool):
         """Read login info from credentials and access server to send email"""
-        if not self.writer.body:
-            self.dump_list()
+        self.make_list(pool)
+        self.dump_list(pool)
 
         with open('data\\credentials.txt') as f:
             sender_email, receiver_email, password = [line.split(':')[1][:-1] for line in f]
@@ -342,7 +339,7 @@ class LocalManager(IOManager):
                         items=items,
                         )
 
-    def locate_pool(self, date, return_names=False, ):
+    def locate_pool(self, date=None, return_names=False, ):
         """Check local filesystem for a pool in progress"""
 
         root, dirs, filenames = next(os.walk(self.pools_path))
