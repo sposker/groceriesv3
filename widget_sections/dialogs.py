@@ -147,20 +147,21 @@ class FilePickerButton(MDFlatButton, ToggleButtonBehavior):
 
     instances = 0
 
-    def __init__(self, popup, root, filename, **kwargs):
+    def __init__(self, parent_, filename, **kwargs):
         self.filename = filename
         y, m, d, _filename, _ext = filename.split('.')
         self.display_name = f'{m}-{d}'
-        self.path = os.path.join(root, filename)
-        self.popup = popup
+        self.date = f'{y}.{m}.{d}.'
+        self.parent_ = parent_
         super().__init__(**kwargs)
         self.__class__.instances += 1
 
     def on_release(self):
-        self.popup.clear_list()
+        self.parent_.clear_list()
+        io = MDApp.get_running_app().io_manager
         pool = ItemPool.from_file(self.path)
         ListState.instance.populate_from_pool(pool)
-        self.popup.dismiss()
+        self.parent_.dismiss()
 
 
 class FilePickerDialog(GroceriesAppBaseDialog):
@@ -200,25 +201,18 @@ class SaveDialog(GroceriesAppBaseDialog):
     def __init__(self, item_pool, **kwargs):
         super().__init__(**kwargs)
         self.item_pool = item_pool
-        self.writer = None
         self.app = MDApp.get_running_app()
-
-    def make_list(self, store_name='default'):
-        """Map a store to items"""
-        store = self.app.db.stores[store_name]
-        path = path_ if (path_ := self.app.lists_path) else 'data\\username\\lists'
-        self.writer = ListWriter(self.item_pool, store, path)
 
     def list_instructions(self, *args):
         """Wrap some calls with administrative tasks related to saving"""
-        self.item_pool.dump_yaml()
-        self.make_list()
+        # self.item_pool.dump_yaml()
+        io = self.app.io_manager.make_list(self.item_pool)
         for callable_ in args:
-            list_method = getattr(self.writer, callable_)
-            result = list_method()
+            list_method = getattr(io, callable_)
+            result = list_method(io)  # TODO: make sure this is correct
         self.dismiss()
         # noinspection PyUnboundLocalVariable
-        Factory.CompleteDialog(result, self.writer, self.item_pool).open()
+        Factory.CompleteDialog(result, io.should_update, self.item_pool).open()
 
 
 class SettingsDialog(GroceriesAppBaseDialog):

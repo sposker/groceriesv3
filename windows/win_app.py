@@ -8,9 +8,10 @@ from kivymd.app import MDApp
 from kivymd.theming import ThemeManager
 
 from logical.database import Database
+from logical.io_manager import LocalManager
 from logical.pools_and_lists import ItemPool
 from logical.state import ListState
-from widget_sections.selection import PairedToggleButtons
+from widget_sections.selection import PairedToggleButtons, GroupDisplay
 from windows.win_card import WinItemCard
 from widget_sections.shared_preview import ItemCardContainer
 from __init__ import *  # general app settings
@@ -50,16 +51,21 @@ class WinApp(MDApp):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._set_nonetypes()
         self.set_theme()
+
+        self.db = None
+        self.list_state = None
+        self.manager = None
+        self.io_manager = None
+        self.toggle_cls = None
 
     def build(self):
         """Load various .kv files and create screen manager."""
         Builder.load_file(APP_KV_PATH)
         for f in widgets_list:
             Builder.load_file(f)
-        self.sm = GroManager()
-        return self.sm
+        self.manager = GroManager()
+        return self.manager
 
     def set_theme(self):
         """Colors for app; must be done as part of `__init__` method"""
@@ -74,48 +80,28 @@ class WinApp(MDApp):
         """Reads the user settings file for things like save path, etc."""
         # 'TODO: specify what this loads'
         try:
-            self._real_user_load()
+            data = self._real_user_load()
         except FileNotFoundError:
-            self._load_defaults()
+            return {}
+        else:
+            return data
 
     def load_data(self):
         """Called on entering load screen"""
-        self.load_user_settings()
-        self.db = Database(self.db_path)
+        data = self.load_user_settings()
+        self.io_manager = LocalManager(**data)
+        self.db = self.io_manager.load_databse()
+
         ListState.container = ItemCardContainer()
         ListState.view_cls = WinItemCard
         self.toggle_cls = PairedToggleButtons
         self.list_state = ListState()
+        GroupDisplay._header_height = self.item_row_height * 11/8
 
         s = MainScreen(name='main')
-        self.sm.add_widget(s)
+        self.manager.add_widget(s)
 
-        now = str(datetime.datetime.now()).split(" ")[0]  # Just the date
-        now = now.replace('-', '.')  # Path-friendly formatting used for writing to disk
-
-        for _, _, pools in os.walk(self.pools_path):
-            for pool in pools:
-                if now in pool:  # today's date matches the date of an item list
-                    itempool = ItemPool.from_file(os.path.join(self.pools_path, pool))
-                    ListState.instance.populate_from_pool(itempool)
-
-    def _set_nonetypes(self):
-        """Create app attributes to be overwritten by user settings or defaults"""
-
-        attrs = {
-            'sm',
-            'db',
-            'db_path',
-            'username',
-            'credentials_path',
-            'pools_path',
-            'old_db_path',
-            'lists_path',
-            'theme_path',
-        }
-
-        for attr in attrs:
-            setattr(self, attr, None)
+        self.io_manager.load_pool()
 
     def exit_routine(self, gro_list=None, pool=None):
         if gro_list:
@@ -126,21 +112,6 @@ class WinApp(MDApp):
     def _real_user_load(self):
         """Load user data"""  # TODO
         raise FileNotFoundError
-
-    def _load_defaults(self):
-
-        cwd = os.getcwd()
-        attrs = {
-            'username': 'username',
-            'credentials_path': os.path.join(cwd, 'data/credentials.txt'),
-            'pools_path': os.path.join(cwd, 'data/username/pools'),
-            'old_db_path': os.path.join(cwd, 'data/username/old_database'),
-            'lists_path': os.path.join(cwd, 'data/username/lists'),
-            'db_path': os.path.join(cwd, 'data/username/username.yaml')
-        }
-
-        for k, v in attrs.items():
-            setattr(self, k, v)
 
 
 class GroManager(ScreenManager):
@@ -169,7 +140,7 @@ class LoadScreen(Screen):
 
     def swap_screen(self, _):
         """Once loading is complete, swap the screen"""
-        return setattr(self.app.sm, 'current', "main")
+        return setattr(self.app.manager, 'current', "main")
 
 
 if __name__ == '__main__':

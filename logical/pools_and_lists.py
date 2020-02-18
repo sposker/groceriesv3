@@ -66,66 +66,13 @@ class ItemPool:
     def items(self):
         return self._items.items()
 
-    @staticmethod
-    def get_date():
-        """Generate today's date in a path-friendly format"""
-
-        dashes = str(datetime.datetime.now()).split(" ")[0]
-        y, m, d = dashes.split('-')
-        return f'{y}.{m}.{d}.'
-
-    @classmethod
-    def from_file(cls, path):
-        """Create an ItemPool object by loading data from file
-        Lines in files should have the following format:
-        `item_uid` OR `item.name`: [`amount`, `note`]
-        Item object will be looked up via DB, if not found it is a new/unsorted item and created
-        """
-
-        db = MDApp.get_running_app().db
-        pool = set()
-        now = time.time()
-        with open(path) as doc:
-            for base_dict in yaml.load_all(doc, Loader=yaml.Loader):
-                for uid, info in base_dict.items():
-                    try:
-                        item = db.items[uid]
-                    except KeyError:  # New item created during previous program run
-                        amount, note = info
-                        name, group = uid.split(';')
-                        kwargs = {'name': name, 'group': group, 'defaults': [(now, amount)], 'note': note}
-                        item = db.add_new_item(kwargs)
-                    else:
-                        amount, note = info
-                    pool.add((item, amount, note))
-
-        return cls(pool)
-
-    def dump_yaml(self, filename=None):
-        """Save ItemPool to text format"""
-        db = MDApp.get_running_app().db
-        dump_dict = {}
-        for key, value in self._items.items():
-            name, amount, note = value
-            if key not in db.items:
-                item = db.new_items[key]
-                key = f'{name};{item.group.uid}'
-            dump_dict[key] = [amount, note]
-
-        if not filename:
-            filename = os.path.join('data\\username\\pools', self.get_date() + 'itempool.yaml')
-
-        with open(filename, 'w') as f:
-            yaml.dump(dump_dict, f)
-
 
 class ListWriter:
     """Combine an unsorted pool of items with mapping from a given store to produce a sorted, readable list"""
 
-    def __init__(self, pool: ItemPool, store: Store, path: str):
+    def __init__(self, pool: ItemPool, store: Store):
 
         self.store = store
-        self.path = path
         self.subject = self.header = self.body = self.abs_path = None
 
         self.items = {}
@@ -163,7 +110,7 @@ class ListWriter:
                 needed.append(len(nested))
                 do_build = True
 
-        self.subject = f" ListWriter {self.get_date()}"
+        self.subject = f" Shoppinglist {self.get_date()}"
         self.header = f"{self.get_date()}: Grocery List\n"
 
         if do_build:
@@ -180,27 +127,6 @@ class ListWriter:
                     _head, _subj = strings
                     self.header += _head(val)
                     self.subject += _subj(val)
-
-    @staticmethod
-    def get_date():
-        """Generate today's date in a path-friendly format"""
-        dashes = str(datetime.datetime.now()).split(" ")[0]
-        y, m, d = dashes.split('-')
-        return f'{y}.{m}.{d}'
-
-    def write(self):
-        """Write list to plaintext format."""
-        if not self.body:
-            self.format_plaintext()
-        date = self.get_date()
-        filename = date + '.ShoppingList.txt'
-        rel_path = os.path.join(self.path, filename)
-        self.abs_path = os.path.join(os.getcwd(), rel_path)
-
-        with open(self.abs_path, 'w') as f:
-            f.write(self.content)
-
-        return 'List saved'
 
     def format_plaintext(self):
         """Convert a grouped-- but not yet sorted-- set of items into a list for humans to read"""
@@ -236,28 +162,7 @@ class ListWriter:
     def content(self):
         return f'{self.header}' f'{self.body}'
 
-    def send_email(self):
-        """Read login info from credentials and access server to send email"""
-        if not self.body:
-            self.write()
-
-        with open('data\\credentials.txt') as f:
-            sender_email, receiver_email, password = [line.split(':')[1][:-1] for line in f]
-            # print(f'{sender_email}::{receiver_email}::{password}')
-
-        port = 465  # For SSL
-        context = ssl.create_default_context()  # Create a secure SSL context
-        with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
-            server.login(sender_email, password)
-            server.sendmail(sender_email, receiver_email, self.email_content)
-
-        return 'List sent via Email'
-
     @staticmethod
-    def save_incomplete():
-        return 'Items saved to disk.'
-
-    def do_print(self):
-        self.write()
-        os.startfile(self.abs_path, 'print')
-        return 'List saved;\n printing in progress'
+    def get_date():
+        from logical.io_manager import IOManager
+        return IOManager.get_date(3)

@@ -8,11 +8,12 @@ from kivymd.theming import ThemeManager
 from kivymd.uix.button import MDRectangleFlatIconButton
 
 from android.and_toggle import LongPressToggle
+from logical.io_manager import NetworkManager
 from logical.state import ListState
 from android.and_card import AndroidItemCard
+from widget_sections.selection import GroupDisplay
 from widget_sections.shared_preview import ItemCardContainer
-from logical.database import Database
-from android.screens import SelectionScreen, PreviewScreen, DetailsScreen, ListLoaderScreen, SaveScreen
+from android.screens import SelectionScreen, PreviewScreen, ListLoaderScreen, SaveScreen
 from android import *
 from __init__ import *
 
@@ -30,14 +31,6 @@ widgets_list = ['android/android_kv/' + s + '.kv' for s in KV_WIDGETS]
 
 
 class MobileApp(MDApp):
-    db = None
-    db_path = None
-    list_state = None
-    runner = None
-    host = '192.168.1.241'
-    read_port = 42209
-    send_list_port = 42210
-    db_port = 42211
 
     card_color = CARD_COLOR
     card_color_string = as_string(card_color)
@@ -69,19 +62,13 @@ class MobileApp(MDApp):
     def __init__(self, **kwargs):
         self.set_theme()
         super().__init__(**kwargs)
-        self.sm = None
-        self.toolbar = None
-        self.shopping_list = None
-        self.pools_path = 'data/username/pools'
 
-    def set_theme(self):
-        """Colors for app; must be done as part of `__init__` method"""
-        self.theme_cls = ThemeManager()
-        self.theme_cls.primary_palette = 'BlueGray'
-        self.theme_cls.primary_hue = '500'
-        self.theme_cls.accent_palette = 'Orange'
-        self.theme_cls.accent_hue = '700'
-        self.theme_cls.theme_style = 'Dark'
+        self.db = None
+        self.toolbar = None
+        self.list_state = None
+        self.runner = None
+        self.io_manager = None
+        self.toggle_cls = None
 
     def build(self):
         Builder.load_file(APP_KV_PATH)
@@ -92,14 +79,35 @@ class MobileApp(MDApp):
         self.toolbar = root_.ids.base_toolbar
         return root_
 
-    def load_data(self):
+    def set_theme(self):
+        """Colors for app; must be done as part of `__init__` method"""
+        self.theme_cls = ThemeManager()
+        self.theme_cls.primary_palette = 'BlueGray'
+        self.theme_cls.primary_hue = '500'
+        self.theme_cls.accent_palette = 'Orange'
+        self.theme_cls.accent_hue = '700'
+        self.theme_cls.theme_style = 'Dark'
 
-        self.db = Database('data/username/username.yaml')  # TODO
+    def load_user_settings(self):
+        """Reads the user settings file for things like save path, etc."""
+        # TODO: specify what this loads
+        try:
+            x = self._real_user_load()
+        except FileNotFoundError:
+            return {}
+        else:
+            return x
+
+    def load_data(self):
+        data = self.load_user_settings()
+        self.io_manager = NetworkManager(**data)
+        self.db = self.io_manager.load_databse()
 
         ListState.container = ItemCardContainer()
         ListState.view_cls = AndroidItemCard
         self.list_state = ListState()
         self.toggle_cls = LongPressToggle
+        GroupDisplay._header_height = self.item_row_height
 
         load = self.manager.current_screen
         screens = [SelectionScreen(name="picker"),
@@ -107,6 +115,7 @@ class MobileApp(MDApp):
                    ListLoaderScreen(name='file_picker'),
                    SaveScreen(name='save')
                    ]
+
         for s in screens:
             self.manager.add_widget(s)
 
@@ -114,22 +123,17 @@ class MobileApp(MDApp):
         self.manager.current = "picker"
         self.manager.remove_widget(load)
 
-        # lists = f'http://{self.host}:{self.read_port}/lists'
-        # r = requests.get(lists)
-        # items = ''
-        # now = str(datetime.datetime.now()).split(" ")[0]
-        # now = now.replace('-', '.')
+        self.io_manager.load_pool()
 
-        # for file in r:
-        #     items += str(file.decode())
-        #
-        # lines = items.split('\n')
-        #
-        # for line in lines:
-        #     if now in line:
-        #         lists += '/' + now + '.ListWriter.txt'
-        #         file = requests.get(lists)
-        #         self.load_list(file.content, from_bytes=True)
+    def exit_routine(self, gro_list=None, pool=None):
+        if gro_list:
+            self.db.set_new_defaults(pool)
+            self.io_manager.dump_database(self.db)
+        MDApp.get_running_app().stop()
+
+    def _real_user_load(self):
+        """Load user data"""  # TODO
+        raise FileNotFoundError
 
 
 class ContentNavigationDrawer(BoxLayout):

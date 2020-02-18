@@ -166,6 +166,7 @@ class GroupDisplay(BoxLayout):
 
     instance = None
     _heights_list = []
+    _header_height = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -203,4 +204,4 @@ class GroupDisplay(BoxLayout):
 
     @property
     def header_height(self):
-        return self.app.item_row_height  # TODO: Fix for win/android
+        return self._header_height

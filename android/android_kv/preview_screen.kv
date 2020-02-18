@@ -1,6 +1,47 @@
 #:import GroupScrollBar widget_sections.selection
 
 
+<MyMDIconButton>
+    user_font_size: app.text_base_size * 4/3
+    size_hint: 1/5, 1
+    theme_text_color: 'Custom'
+    text_color: app.theme_cls.primary_color
+    tooltip_bg_color: app.bg_color
+    tooltip_text_color: app.text_color
+
+
+<ListFunctionsBar>
+
+    MyMDIconButton:
+        name: 'toggle_asc_desc'
+        icon: "sort-descending"
+        tooltip_text: "Current: Descending"
+
+    MyMDIconButton:
+        name: 'alphabetical'
+        icon: "sort-alphabetical"
+        tooltip_text: 'SortBy: A-Z'
+        group: 'members'
+
+    MyMDIconButton:
+        name: 'group'
+        icon: "cards-outline"
+        tooltip_text: 'SortBy: Group'
+        group: 'members'
+
+    MyMDIconButton:
+        name: 'time'
+        icon: "clock-fast"
+        tooltip_text: "SortBy: Time Added"
+        group: 'members'
+        text_color: app.theme_cls.accent_color
+
+    MyMDIconButton:
+        name: 'reset'
+        icon: "restart"
+        tooltip_text: 'Clear List'
+
+
 <PreviewIconButton>
     user_font_size: '26sp'
     size_hint: None, None
@@ -116,23 +157,28 @@
             size: self.size
             pos: self.pos
 
-    ListScrollBar:
+    BoxLayout:
+        orientation: 'vertical'
 
+        ListFunctionsBar:
+            size_hint: 1, .15
 
-        size_hint: 1, 1
-        color: app.bg_color
-        do_scroll_x: False
-        do_scroll_y: True
-        scroll_type: ['content']
-        smooth_scroll_end: 10
+        ListScrollBar:
 
-        ItemCardContainer:
+            size_hint: 1, .85
+            color: app.bg_color
+            do_scroll_x: False
+            do_scroll_y: True
+            scroll_type: ['content']
+            smooth_scroll_end: 10
 
-            padding: dp(16)
-            spacing: dp(4)
-            orientation: 'vertical'
-            size_hint: 1, None
-            height: 0
-            width: self.parent.width
-            minimum_height: self.parent.height
+            ItemCardContainer:
+
+                padding: dp(16)
+                spacing: dp(4)
+                orientation: 'vertical'
+                size_hint: 1, None
+                height: 0
+                width: self.parent.width
+                minimum_height: self.parent.height
 

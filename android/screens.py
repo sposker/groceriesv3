@@ -98,10 +98,11 @@ class DetailsScreen(Screen):
 
     def do_save(self):
         note = self.ids['note_input']
-        self.card.note_display.text = note.text  # TODO node state
+        self.card.note_display.text = note.text
         for btn in self.ids['amount'].children:
             if btn.state == 'down':
                 self.card.amount.text = btn.text
+                self.node.amount = btn.text
                 break
         self.parent.current = 'preview'
 
@@ -124,6 +125,10 @@ class DetailsScreen(Screen):
                 w.text_color = MDApp.get_running_app().theme_cls.accent_color
                 w.state = 'down'
 
+    @property
+    def node(self):
+        return self.card.node
+
 
 class SearchScreen(Screen):
     """"""
@@ -133,10 +138,8 @@ class ListLoaderScreen(Screen):
     """Load lists over the network"""
 
     def on_enter(self, *args):
-        walk = os.walk(MDApp.get_running_app().pools_path)
-        root, _, filenames = next(walk)
-
-        sorted_names = sorted(filenames, reverse=True)
+        io = MDApp.get_running_app().io_manager
+        sorted_names = sorted(io.locate_pool(return_names=True), reverse=True)
 
         if self.ids['grid_container'].children:
             return
@@ -144,7 +147,7 @@ class ListLoaderScreen(Screen):
         for filename in sorted_names:
             if FilePickerButton.instances >= self.options:
                 break
-            btn = FilePickerButton(self, root, filename)
+            btn = FilePickerButton(self, filename)
             self.ids['grid_container'].add_widget(btn)
 
     @staticmethod
@@ -170,34 +173,8 @@ class SaveScreen(Screen):
         walk_toolbar()
         self.item_pool = ListState.instance.convert_to_pool()
 
-    def print_list(self):
-        ...
-
-    def email_list(self):
-        ...
-
-    def save_incomplete(self):
-        ...
-
-    def dismiss(self):
-        self.app.manager.current = 'preview'
-
-    def make_list(self, store_name='default'):
-        """Map a store to items"""
-        store = self.app.db.stores[store_name]
-        path = path_ if (path_ := self.app.lists_path) else 'data\\username\\lists'
-        self.writer = ListWriter(self.item_pool, store, path)
-
     def list_instructions(self, *args):
-        """Wrap some calls with administrative tasks related to saving"""
-        self.item_pool.dump_yaml()
-        self.make_list()
-        for callable_ in args:
-            list_method = getattr(self.writer, callable_)
-            result = list_method()
-        self.dismiss()
-        # noinspection PyUnboundLocalVariable
-        Factory.CompleteDialog(result, self.writer, self.item_pool).open()
+        ...
 
 
 
