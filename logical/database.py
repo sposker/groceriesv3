@@ -36,7 +36,6 @@ class Database:
         else:
             raise KeyError(f'No database key present in set(items, groups, stores, new_items) for {item}')
 
-    # noinspection PyTypeChecker
     def build(self, **kwargs):
         """Create various python objects for use in app"""
         self.build_groups(kwargs.get('groups'))

@@ -15,7 +15,7 @@
     auto_dismiss: False
     font_size: 20
     separator_color: app.trans
-    size: (app.screenwidth/6, app.screenheight/5)
+    size: (app.popup_width/6, app.popup_height/5)
     size_hint: (None, None)
     title: ''
     title_size: 0
@@ -168,7 +168,7 @@
 
 
 <DefaultsDialog>
-    size: (app.screenwidth/10, app.screenheight/5)
+    size: (app.popup_width/10, app.popup_height/5)
     auto_dismiss: True
 
     BoxLayout:
@@ -197,7 +197,7 @@
 
     font_size: self.parent.font_size
     size_hint: (None, .7/3)
-    width: app.screenwidth/6 - 20
+    width: app.popup_width/6 - 20
     pos_hint: {'center_x': .5}
     text_color: app.text_color
 
@@ -257,7 +257,7 @@
 
 <SaveDialog>
 
-    size: (app.screenwidth/4, app.screenheight/5)
+    size: (app.popup_width/4, app.popup_height/5)
 
     BoxLayout:
         orientation: 'vertical'

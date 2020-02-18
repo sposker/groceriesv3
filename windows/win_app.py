@@ -41,8 +41,8 @@ class WinApp(MDApp):
     # hint_text_color = (0.6705882352941176, 0.6705882352941176, 0.6705882352941176, .1)
     text_base_size = TEXT_BASE_SIZE
     item_row_height = ITEM_ROW_HEIGHT
-    screenheight = screenheight
-    screenwidth = screenwidth
+    popup_height = screenheight * popup_scale
+    popup_width = screenwidth * popup_scale
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
