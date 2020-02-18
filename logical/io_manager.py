@@ -66,6 +66,7 @@ class IOManager:
         """Map a store to items"""
         db = MDApp.get_running_app().db
         store = db.stores[store_name]
+        self.dump_pool(item_pool)
         self.writer = ListWriter(item_pool, store)
         self.should_update = True
 
@@ -145,6 +146,9 @@ class IOManager:
             return f'{y}.{m}.{d}.'
         else:
             raise NotImplementedError(f'Incorrect parameter for method `get_date` {length}')
+
+    def dump_pool(self, item_pool):
+        raise NotImplementedError
 
 
 class NetworkManager(IOManager):
