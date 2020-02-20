@@ -29,6 +29,7 @@ class IOManager:
         self.db_path = f'data/{self.username}/{self.username}.yaml'
         self.groups_path = 'data/groups.txt'
         self.stores_path = 'data/stores'
+        self.default_store = None
         self.__dict__ = {**self.__dict__, **kwargs}  # Overwrite some or all defaults with custom values
 
         self.writer = None  # List formatting object
@@ -238,6 +239,7 @@ class NetworkManager(IOManager):
         return Database(groups=groupnames,
                         stores=stores,
                         items=items,
+                        default_store=self.default_store,
                         )
 
     def locate_pool(self, date=None, return_names=False,):
@@ -352,6 +354,7 @@ class LocalManager(IOManager):
         return Database(groups=groupnames,
                         stores=stores,
                         items=items,
+                        default_store=self.default_store,
                         )
 
     def locate_pool(self, date=None, return_names=False, ):

@@ -83,19 +83,23 @@ class WinApp(MDApp):
 
     def load_data(self):
         """Called on entering load screen"""
+        # Load data from IO sources
         data = self.load_user_settings()
         self.io_manager = LocalManager(**data)
         self.db = self.io_manager.load_databse()
 
+        # Set up widgets representing the state of the app (Model in MVC)
         ListState.container = ItemCardContainer()
         ListState.view_cls = WinItemCard
         self.toggle_cls = PairedToggleButtons
         self.list_state = ListState()
         GroupDisplay._header_height = self.item_row_height * 11/8
 
+        # Populate selection widgets and associate them with app state (Controller in MVC)
         s = MainScreen(name='main')
         self.screen_manager.add_widget(s)
 
+        # Automatically load a pool in progress, if available (adjusts View in MVC)
         self.io_manager.load_pool()
 
     def exit_routine(self, pool=None):
@@ -110,7 +114,7 @@ class WinApp(MDApp):
 
 
 class GroManager(ScreenManager):
-    pass
+    """Screen Manager-- used more heavily in other OS versions of app."""
 
 
 class MainScreen(Screen):
@@ -129,7 +133,7 @@ class LoadScreen(Screen):
         self._trigger()
 
     def real_load(self, _):
-        """Displays load screen while app builds itself"""
+        """Now that loading splash is displayed, begin actually loading the app"""
         self.app.load_data()
         return Clock.schedule_once(self.swap_screen)
 

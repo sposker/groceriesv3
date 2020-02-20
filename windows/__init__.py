@@ -1,10 +1,13 @@
 import ctypes
 
 from kivy.core.window import Window
+from kivy.utils import platform
 
-user32 = ctypes.windll.user32
-screenwidth, screenheight = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
-# screenwidth, screenheight = 1920, 1080
+if platform == 'win':
+    user32 = ctypes.windll.user32
+    screenwidth, screenheight = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
+else:
+    screenwidth, screenheight = 2560, 1440
 
 ITEM_ROW_HEIGHT = 72
 TEXT_BASE_SIZE = 40

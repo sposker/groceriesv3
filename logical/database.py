@@ -56,9 +56,9 @@ class Database:
         for name, data in source.items():
             loc_pool = set()
 
-            for loc_name, values in data.items():
-                uid = values['_uid']
-                special = values['_special']
+            for uid, values in data.items():
+                loc_name = values['_name']
+                special = values['_is_special']
                 item_pool = set(values['items'])
                 loc = Location(loc_name, items=item_pool, uid=uid, special=special)
                 loc_pool.add(loc)

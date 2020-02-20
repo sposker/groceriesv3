@@ -1,0 +1,192 @@
+l00:
+  _is_special: true
+  _name: Unsorted
+  items: []
+l01:
+  _is_special: true
+  _name: walmart
+  items:
+  - i094
+  - i097
+  - i096
+  - i095
+l02:
+  _is_special: false
+  _name: produce
+  items:
+  - i001
+  - i002
+  - i006
+  - i003
+  - i007
+  - i004
+  - i005
+  - i000
+l03:
+  _is_special: false
+  _name: near_deli
+  items:
+  - i025
+  - i027
+  - i026
+l04:
+  _is_special: true
+  _name: deli
+  items:
+  - i010
+  - i008
+  - i009
+l05:
+  _is_special: false
+  _name: bakery
+  items:
+  - i012
+  - i013
+  - i011
+  - i028
+l07:
+  _is_special: false
+  _name: Aisle 01
+  items:
+  - i021
+  - i018
+  - i017
+  - i019
+  - i020
+l08:
+  _is_special: false
+  _name: Aisle 02
+  items:
+  - i032
+  - i040
+  - i031
+  - i034
+  - i035
+  - i039
+  - i101
+  - i041
+  - i037
+  - i029
+  - i038
+  - i022
+  - i036
+  - i033
+  - i030
+l09:
+  _is_special: false
+  _name: Aisle 03
+  items:
+  - i070
+  - i014
+  - i015
+  - i016
+l10:
+  _is_special: false
+  _name: Aisle 04
+  items:
+  - i050
+  - i044
+  - i045
+  - i048
+  - i049
+  - i051
+  - i098
+  - i046
+  - i047
+l11:
+  _is_special: false
+  _name: Aisle 05
+  items:
+  - i055
+  - i042
+  - i052
+  - i054
+  - i043
+  - i053
+l12:
+  _is_special: false
+  _name: Aisle 06
+  items:
+  - i062
+  - i061
+  - i057
+  - i060
+  - i058
+  - i056
+  - i059
+l13:
+  _is_special: false
+  _name: Aisle 07
+  items:
+  - i064
+  - i065
+  - i066
+  - i063
+  - i068
+l14:
+  _is_special: false
+  _name: Aisle 08
+  items:
+  - i067
+l15:
+  _is_special: false
+  _name: Aisle 09
+  items:
+  - i024
+  - i072
+  - i023
+  - i071
+l16:
+  _is_special: false
+  _name: Aisle 10
+  items:
+  - i077
+  - i102
+  - i073
+  - i074
+  - i078
+  - i075
+  - i076
+  - i103
+l17:
+  _is_special: false
+  _name: Aisle 11
+  items:
+  - i080
+  - i079
+  - i081
+  - i100
+l18:
+  _is_special: false
+  _name: Aisle 12
+  items:
+  - i085
+  - i086
+l19:
+  _is_special: false
+  _name: Aisle 13
+  items:
+  - i083
+  - i082
+  - i084
+l20:
+  _is_special: false
+  _name: Aisle 14
+  items:
+  - i104
+  - i069
+l21:
+  _is_special: false
+  _name: Aisle 15
+  items:
+  - i087
+l22:
+  _is_special: false
+  _name: toiletries
+  items:
+  - i088
+  - i090
+  - i092
+  - i093
+  - i091
+  - i089
