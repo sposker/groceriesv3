@@ -50,7 +50,7 @@ class WinApp(MDApp):
 
         self.db = None
         self.list_state = None
-        self.manager = None
+        self.screen_manager = None
         self.io_manager = None
         self.toggle_cls = None
 
@@ -59,8 +59,8 @@ class WinApp(MDApp):
         Builder.load_file(APP_KV_PATH)
         for f in widgets_list:
             Builder.load_file(f)
-        self.manager = GroManager()
-        return self.manager
+        self.screen_manager = GroManager()
+        return self.screen_manager
 
     def set_theme(self):
         """Colors for app; must be done as part of `__init__` method"""
@@ -94,7 +94,7 @@ class WinApp(MDApp):
         GroupDisplay._header_height = self.item_row_height * 11/8
 
         s = MainScreen(name='main')
-        self.manager.add_widget(s)
+        self.screen_manager.add_widget(s)
 
         self.io_manager.load_pool()
 
@@ -135,7 +135,7 @@ class LoadScreen(Screen):
 
     def swap_screen(self, _):
         """Once loading is complete, swap the screen"""
-        return setattr(self.app.manager, 'current', "main")
+        return setattr(self.app.screen_manager, 'current', "main")
 
 
 if __name__ == '__main__':

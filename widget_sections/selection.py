@@ -1,5 +1,4 @@
 from kivy.properties import StringProperty, ObjectProperty, NumericProperty
-from kivy.properties import StringProperty, ObjectProperty, NumericProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.relativelayout import RelativeLayout

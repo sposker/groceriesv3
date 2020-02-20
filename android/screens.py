@@ -51,7 +51,7 @@ class LoadScreen(Screen):
 
     def swap_screen(self, *_):
         """Once loading is complete, swap the screen"""
-        return setattr(self.app.manager, 'current', "picker")
+        return setattr(self.app.screen_manager, 'current', "picker")
 
 
 class SelectionScreen(Screen):
@@ -103,7 +103,7 @@ class DetailsScreen(Screen):
         self.parent.current = 'preview'
 
     def on_leave(self, *args):
-        manager = MDApp.get_running_app().manager
+        manager = MDApp.get_running_app().screen_manager
         manager.remove_widget(self)
 
     def add_defaults(self, defaults):
@@ -151,7 +151,7 @@ class ListLoaderScreen(Screen):
     @staticmethod
     def dismiss():
         """Called when trying to dismiss popup"""
-        MDApp.get_running_app().manager.current = 'preview'
+        MDApp.get_running_app().screen_manager.current = 'preview'
 
 
 class SaveScreen(Screen):
@@ -172,7 +172,7 @@ class SaveScreen(Screen):
     @staticmethod
     def dismiss():
         """Called when trying to dismiss popup"""
-        MDApp.get_running_app().manager.current = 'preview'
+        MDApp.get_running_app().screen_manager.current = 'preview'
 
 
 

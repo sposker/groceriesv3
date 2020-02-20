@@ -1,6 +1,5 @@
 """Preview widgets which display a list in progress-- VIEW in the MVC paradigm"""
 
-
 from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.metrics import dp
@@ -59,12 +58,12 @@ class WinItemCard(MDCard):
 
         self.expand_anim = Animation(size=(self.width, self.normal_height + self.expansion_height), duration=.12)
         self.expand_anim.bind(on_progress=lambda a_, b_, progress:
-                              self._anim_progress(self.expansion_height, progress))
+        self._anim_progress(self.expansion_height, progress))
         self.expand_anim.bind(on_complete=lambda a_, b_: self._anim_complete())
 
         self.contract_anim = Animation(size=(self.width, self.normal_height), duration=.12)
         self.contract_anim.bind(on_progress=lambda a_, b_, progress:
-                                self._anim_progress(-self.expansion_height, progress))
+        self._anim_progress(-self.expansion_height, progress))
         self.contract_anim.bind(on_complete=lambda a_, b_: self._anim_complete())
 
     @property
@@ -99,7 +98,7 @@ class WinItemCard(MDCard):
 
         ListState.instance.anim_progress_delta = delta * progress
         if self.expanded:
-            self.node.height = self.expansion_height+ self.normal_height + delta * progress
+            self.node.height = self.expansion_height + self.normal_height + delta * progress
         else:
             self.node.height = self.normal_height + delta * progress
 

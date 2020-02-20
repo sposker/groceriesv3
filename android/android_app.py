@@ -57,7 +57,7 @@ class MobileApp(MDApp):
     text_base_size = TEXT_BASE_SIZE
     item_row_height = ITEM_ROW_HEIGHT
 
-    manager = ObjectProperty()
+    screen_manager = ObjectProperty()
 
     def __init__(self, **kwargs):
         self.set_theme()
@@ -75,7 +75,7 @@ class MobileApp(MDApp):
         for f in widgets_list:
             Builder.load_file(f)
         root_ = Runner()
-        self.manager = root_.ids.swiper_manager
+        self.screen_manager = root_.ids.swiper_manager
         self.toolbar = root_.ids.base_toolbar
         return root_
 
@@ -109,7 +109,7 @@ class MobileApp(MDApp):
         self.toggle_cls = LongPressToggle
         GroupDisplay._header_height = self.item_row_height
 
-        load = self.manager.current_screen
+        load = self.screen_manager.current_screen
         screens = [SelectionScreen(name="picker"),
                    PreviewScreen(name="preview"),
                    ListLoaderScreen(name='file_picker'),
@@ -117,11 +117,11 @@ class MobileApp(MDApp):
                    ]
 
         for s in screens:
-            self.manager.add_widget(s)
+            self.screen_manager.add_widget(s)
 
         self.toolbar.disabled = False
-        self.manager.current = "picker"
-        self.manager.remove_widget(load)
+        self.screen_manager.current = "picker"
+        self.screen_manager.remove_widget(load)
 
         self.io_manager.load_pool()
 
@@ -150,7 +150,7 @@ class NavigationItem(MDRectangleFlatIconButton):
 
     def on_release(self):
         app = MDApp.get_running_app()
-        app.manager.current = self.screen_text
+        app.screen_manager.current = self.screen_text
         nd = app.root.ids.nav_drawer
         nd.toggle_nav_drawer()
         nd.__state = 'close'

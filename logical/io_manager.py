@@ -29,10 +29,19 @@ class IOManager:
         self.db_path = f'data/{self.username}/{self.username}.yaml'
         self.groups_path = 'data/groups.txt'
         self.stores_path = 'data/stores'
+        self.__dict__ = {**self.__dict__, **kwargs}  # Overwrite some or all defaults with custom values
 
-        self.__dict__ = {**self.__dict__, **kwargs}
-        self.writer = None
-        self.should_update = False
+        self.writer = None  # List formatting object
+        self.should_update = False  # Whether or not to update database with new values
+
+    @classmethod
+    def custom_manager(cls, **kwargs):
+        """Create a manager with custom attributes"""
+
+        new = cls()
+        for key, value in kwargs.items():
+            setattr(new, key, value)
+        return new
 
     @staticmethod
     def format_database(database):

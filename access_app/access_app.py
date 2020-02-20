@@ -16,21 +16,9 @@ from access_app.tabbed_panel_builders import populate_mod_group, populate_item_d
     populate_location_details
 from logical.database import Database
 from logical.groups_and_items import DisplayGroup
+from logical.io_manager import LocalManager
 from windows import *
 from windows.win_navbar import *
-
-
-# APP_KV_PATH = r'windows\win_kv\_win_root.kv'
-#
-# Window.size = (screenwidth / 1.5, screenheight / 1.25)
-# # Window.borderless = True
-# Window.position = 'custom'
-# Window.left = screenwidth/2 - Window.size[0]/2
-# Window.top = screenheight/2 - Window.size[1]/2
-# Window.icon = 'data\\src\\main.ico'
-
-
-# db = Database(item_db='data/username/username.yaml')
 
 
 class MySpinnerButton(MDFlatButton):
@@ -295,7 +283,6 @@ class AccessRoot(BoxLayout):
     """Root for the access app"""
 
 
-
 class AccessManager(ScreenManager):
     """Manager for access app"""
 
@@ -348,15 +335,19 @@ class AccessApp(MDApp):
 
     hint_text_color = (0.6705882352941176, 0.6705882352941176, 0.6705882352941176, .1)
     text_base_size = TEXT_BASE_SIZE
-    # item_row_height = ITEM_ROW_HEIGHT
-    screenheight = screenheight
-    screenwidth = screenwidth
+    item_row_height = ITEM_ROW_HEIGHT
+    popup_height = screenheight * popup_scale
+    popup_width = screenwidth * popup_scale
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.set_theme()
-        self.db = Database('data/username/username.yaml')
-        self.sm = None
+
+        self.db = None
+        self.list_state = None
+        self.manager = None
+        self.io_manager = None
+        self.toggle_cls = None
 
     def set_theme(self):
         """Must be done as part of `__init__` method"""
@@ -376,6 +367,9 @@ class AccessApp(MDApp):
         return self.sm
 
     def load_data(self):
+        self.io_manager = LocalManager()
+        self.db = self.io_manager.load_databse()
+
         s = AccessMainScreen(name='Amain')
         self.sm.add_widget(s)
 

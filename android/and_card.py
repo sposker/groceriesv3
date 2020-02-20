@@ -37,7 +37,7 @@ class AndroidItemCard(MDCard):
         return self.node.item
 
     def show_details(self):
-        sm = MDApp.get_running_app().manager
+        sm = MDApp.get_running_app().screen_manager
         s = DetailsScreen(self)
         s.add_defaults(self.defaults_list)
         sm.transition.direction = 'left'
