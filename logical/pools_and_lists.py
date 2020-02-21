@@ -102,8 +102,8 @@ class ListWriter:
                 needed.append(len(nested))
                 do_build = True
 
-        self.subject = f" Shoppinglist {self.get_date()}"
-        self.header = f"{self.get_date()}: Grocery List\n"
+        self.subject = f"{self.store.name} grocery list: {self.get_date()}"
+        self.header = f"Grocery List: {self.get_date()} ({self.store.name})\n"
 
         if do_build:
             fstrings = [(lambda u: f"List contains {u} unsorted item(s).\n",

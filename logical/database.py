@@ -6,7 +6,7 @@ from logical.stores import Store, Location
 
 
 class Database:
-    """Handles parsing database files and creating python objects"""
+    """Handles creation of python objects from data sources"""
 
     groups = {}
     items = {}
@@ -14,16 +14,8 @@ class Database:
     stores = {}
 
     def __init__(self, **kwargs):
-
-        try:
-            self._store_default = kwargs.get('default_store')
-        except KeyError:
-            self._store_default = None
-
-        try:
-            if not kwargs.get('build_empty'):
-                self.build(**kwargs)
-        except KeyError:
+        self._store_default = kwargs.get('default_store')
+        if not kwargs.get('build_empty'):
             self.build(**kwargs)
 
     def __getitem__(self, item):
@@ -65,13 +57,11 @@ class Database:
 
             self.stores[name] = Store(name, loc_pool)
 
-            if self._store_default:
-                self.stores['default'] = self.stores[self._store_default]
+        if self._store_default:
+            self.stores['default'] = self.stores[self._store_default]
 
     def build_items(self, source):
         """Build `GroceryItem` objects from data source"""
-
-        # print(source)
 
         for uid, kwargs in source.items():
             item = GroceryItem(uid=uid, **kwargs)
@@ -117,4 +107,3 @@ class Database:
 
             if new_note:
                 item.note = new_note
-

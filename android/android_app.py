@@ -88,27 +88,20 @@ class MobileApp(MDApp):
         self.theme_cls.accent_hue = '700'
         self.theme_cls.theme_style = 'Dark'
 
-    def load_user_settings(self):
-        """Reads the user settings file for things like save path, etc."""
-        # TODO: specify what this loads
-        try:
-            x = self._real_user_load()
-        except FileNotFoundError:
-            return {}
-        else:
-            return x
-
     def load_data(self):
-        data = self.load_user_settings()
-        self.io_manager = NetworkManager(**data)
-        self.db = self.io_manager.load_databse()
+        """Called on entering load screen"""
+        # Load data from IO sources
+        self.io_manager = NetworkManager()
+        self.db = self.io_manager.create_database()
 
+        # Set up widgets representing the state of the app (Model in MVC)
         ListState.container = ItemCardContainer()
         ListState.view_cls = AndroidItemCard
         self.list_state = ListState()
         self.toggle_cls = LongPressToggle
         GroupDisplay._header_height = self.item_row_height
 
+        # Populate selection widgets and associate them with app state (Controller in MVC)
         load = self.screen_manager.current_screen
         screens = [SelectionScreen(name="picker"),
                    PreviewScreen(name="preview"),
@@ -123,6 +116,7 @@ class MobileApp(MDApp):
         self.screen_manager.current = "picker"
         self.screen_manager.remove_widget(load)
 
+        # Automatically load a pool in progress, if available (adjusts View in MVC)
         self.io_manager.load_pool()
 
     def exit_routine(self, gro_list=None, pool=None):
@@ -130,10 +124,6 @@ class MobileApp(MDApp):
             self.db.set_new_defaults(pool)
             self.io_manager.dump_database(self.db)
         MDApp.get_running_app().stop()
-
-    def _real_user_load(self):
-        """Load user data"""  # TODO
-        raise FileNotFoundError
 
 
 class ContentNavigationDrawer(BoxLayout):

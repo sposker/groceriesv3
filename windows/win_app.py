@@ -71,22 +71,11 @@ class WinApp(MDApp):
         self.theme_cls.accent_hue = '700'
         self.theme_cls.theme_style = 'Dark'
 
-    def load_user_settings(self):
-        """Reads the user settings file for things like save path, etc."""
-        # 'TODO: specify what this loads'
-        try:
-            data = self._real_user_load()
-        except FileNotFoundError:
-            return {}
-        else:
-            return data
-
     def load_data(self):
         """Called on entering load screen"""
         # Load data from IO sources
-        data = self.load_user_settings()
-        self.io_manager = LocalManager(**data)
-        self.db = self.io_manager.load_databse()
+        self.io_manager = LocalManager()
+        self.db = self.io_manager.create_database()
 
         # Set up widgets representing the state of the app (Model in MVC)
         ListState.container = ItemCardContainer()
@@ -96,8 +85,10 @@ class WinApp(MDApp):
         GroupDisplay._header_height = self.item_row_height * 11/8
 
         # Populate selection widgets and associate them with app state (Controller in MVC)
+        load = self.screen_manager.current_screen
         s = MainScreen(name='main')
         self.screen_manager.add_widget(s)
+        self.screen_manager.remove_widget(load)
 
         # Automatically load a pool in progress, if available (adjusts View in MVC)
         self.io_manager.load_pool()
@@ -107,10 +98,6 @@ class WinApp(MDApp):
             self.db.set_new_defaults(pool)
             self.io_manager.dump_database()
         MDApp.get_running_app().stop()
-
-    def _real_user_load(self):
-        """Load user data"""  # TODO
-        raise FileNotFoundError
 
 
 class GroManager(ScreenManager):

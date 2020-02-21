@@ -1,8 +1,3 @@
-ll00:
-  _is_special: true
-  _name: Unsorted
-  items: []
-
 l01:
   _is_special: true
   _name: walmart
@@ -14,7 +9,7 @@ l01:
   - i069
   - i070
 
-l2:
+l02:
   _is_special: false
   _name: Produce
   items:
@@ -27,7 +22,7 @@ l2:
   - i006
   - i007
 
-l3:
+l03:
   _is_special: false
   _name: Aisle 3
   items:
@@ -35,7 +30,7 @@ l3:
   - i022
   - i023
 
-l4:
+l04:
   _is_special: false
   _name: Deli
   items:
@@ -48,7 +43,7 @@ l4:
   - i024
   - i028
   -
-l5:
+l05:
   _is_special: false
   _name: Aisle 6
   items:
@@ -56,7 +51,7 @@ l5:
   - i036
   - i035
 
-l6:
+l06:
   _is_special: false
   _name: Aisle 7
   items:
@@ -66,14 +61,14 @@ l6:
   - i060
   - i059
 
-l7:
+l07:
   _is_special: false
   _name: Aisle 8
   items:
   - i057
   - i056
 
-l8:
+l08:
   _is_special: false
   _name: Aisle 10
   items:
@@ -82,7 +77,7 @@ l8:
   - i052
   - i055
 
-l9:
+l09:
   _is_special: false
   _name: Aisle 11
   items:

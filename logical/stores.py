@@ -44,7 +44,7 @@ class Store:
 
     def __init__(self, name, locations: set, basket=None):
 
-        self.name = name
+        self.name = name.capitalize()
         self.locations = {}
         self.specials = set()
         self._basket = basket

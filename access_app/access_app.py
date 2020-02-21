@@ -368,7 +368,7 @@ class AccessApp(MDApp):
 
     def load_data(self):
         self.io_manager = LocalManager()
-        self.db = self.io_manager.load_databse()
+        self.db = self.io_manager.create_database()
 
         s = AccessMainScreen(name='Amain')
         self.sm.add_widget(s)

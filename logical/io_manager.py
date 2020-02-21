@@ -15,34 +15,114 @@ from logical.pools_and_lists import ItemPool, ListWriter
 from logical.state import ListState
 
 
-class IOManager:
+class SettingsManager:
+    """Separation of concerns between storing info needed for I/O and coordinating it"""
+
+    def __init__(self,
+                 username='username',
+                 groups_path='data/groups.txt',
+                 stores_path='data/stores',
+                 credentials_path=None,
+                 pools_path=None,
+                 old_db_path=None,
+                 lists_path=None,
+                 db_path=None,
+                 default_store=None,
+                 host='127.0.0.1',
+                 readport=42209,
+                 send_list_port=42210,
+                 db_port=42211,
+                 pool_port=42212,
+                 ):
+
+        # Basic properties
+        self.username = username
+        self.groups_path = groups_path
+        self.stores_path = stores_path
+        self.default_store = default_store
+
+        # Network properties
+        self.host = host
+        self.read_port = readport
+        self.send_list_port = send_list_port
+        self.db_port = db_port
+        self.pool_port = pool_port
+
+        # Can be replaced with custom values or inferred using @property decorator
+        self._credentials_path = credentials_path
+        self._pools_path = pools_path
+        self._old_db_path = old_db_path
+        self._lists_path = lists_path
+        self._db_path = db_path
+
+    @property
+    def credentials_path(self):
+        if not self._credentials_path:
+            self._credentials_path = f'data/{self.username}/credentials.txt'
+        return self._credentials_path
+
+    @property
+    def pools_path(self):
+        if not self._pools_path:
+            self._pools_path = f'data/{self.username}/pools'
+        return self._pools_path
+
+    @property
+    def old_db_path(self):
+        if not self._old_db_path:
+            self._old_db_path = f'data/{self.username}/old_database'
+        return self._old_db_path
+
+    @property
+    def lists_path(self):
+        if not self._lists_path:
+            self._lists_path = f'data/{self.username}/lists'
+        return self._lists_path
+
+    @property
+    def db_path(self):
+        if not self._db_path:
+            self._db_path = f'data/{self.username}/{self.username}.yaml'
+        return self._db_path
+
+    @property
+    def db_save_location(self):
+        new_filename = self.get_date(5) + self.username + '.yaml'
+        return os.path.join(self.old_db_path, new_filename)
+
+    @staticmethod
+    def get_date(len_):
+        date_, time_ = str(datetime.now()).split(" ")
+        y, m, d = date_.split('-')
+        hour, minute, _ = time_.split(':')
+        if len_ == 5:
+            return f'{y}.{m}.{d}.{hour}.{minute}.'
+        elif len_ == 3:
+            return f'{y}.{m}.{d}.'
+        else:
+            raise ValueError(f'Invalid parameter: {len_}')
+
+
+class IOManager(SettingsManager):
     """Common functionality for file managers"""
 
-    def __init__(self, **kwargs):
-        """Define default properties, then overwrite them if values are provided"""
-
-        self.username = 'username'
-        self.credentials_path = '/credentials.txt'
-        self.pools_path = f'data/{self.username}/pools'
-        self.old_db_path = f'data/{self.username}/old_database'
-        self.lists_path = f'data/{self.username}/lists'
-        self.db_path = f'data/{self.username}/{self.username}.yaml'
-        self.groups_path = 'data/groups.txt'
-        self.stores_path = 'data/stores'
-        self.default_store = None
-        self.__dict__ = {**self.__dict__, **kwargs}  # Overwrite some or all defaults with custom values
+    def __init__(self):
+        kwargs = self.preload_settings('data/global_settings.yaml', {})
+        if path_ := kwargs.get('user_settings_location'):
+            kwargs = self.preload_settings(path_, kwargs)
+        super().__init__(**kwargs)  # `kwargs` has been updated with user values supplied form global/user settings
 
         self.writer = None  # List formatting object
         self.should_update = False  # Whether or not to update database with new values
 
-    @classmethod
-    def custom_manager(cls, **kwargs):
-        """Create a manager with custom attributes"""
-
-        new = cls()
-        for key, value in kwargs.items():
-            setattr(new, key, value)
-        return new
+    @staticmethod
+    def preload_settings(path, kwargs):
+        """Check a location for settings, use them to update our keyword-value pairs"""
+        filepath = os.path.join(os.getcwd(), path)
+        with open(filepath) as f:
+            new_defaults = yaml.load(f, Loader=yaml.Loader)
+        kwargs.update(new_defaults)
+        return kwargs
 
     @staticmethod
     def format_database(database):
@@ -72,8 +152,11 @@ class IOManager:
                          }
         return data
 
-    def make_list(self, item_pool: ItemPool, store_name='shoppers'):
+    def make_list(self, item_pool: ItemPool, store_name=None):
         """Map a store to items"""
+        if not store_name:
+            store_name = 'default'
+
         db = MDApp.get_running_app().db
         store = db.stores[store_name]
         self.dump_pool(item_pool)
@@ -140,42 +223,12 @@ class IOManager:
 
         return pool
 
-    @property
-    def db_save_location(self):
-        new_filename = self.get_date(5) + self.username + '.yaml'
-        return os.path.join(self.old_db_path, new_filename)
-
-    @staticmethod
-    def get_date(length):
-        date, dtime = str(datetime.now()).split(" ")
-        y, m, d = date.split('-')
-        hour, minute, _ = dtime.split(':')
-        if length == 5:
-            return f'{y}.{m}.{d}.{hour}.{minute}.'
-        elif length == 3:
-            return f'{y}.{m}.{d}.'
-        else:
-            raise NotImplementedError(f'Incorrect parameter for method `get_date` {length}')
-
     def dump_pool(self, item_pool):
         raise NotImplementedError
 
 
 class NetworkManager(IOManager):
     """Network specific functionality"""
-
-    def __init__(self, **kwargs):
-        """Some additional network-only default properties"""
-
-        self.host = '192.168.1.241'
-        self.read_port = 42209
-        self.send_list_port = 42210
-        self.db_port = 42211
-        self.pool_port = 42212
-
-        super().__init__(**kwargs)  # Defaults may be overwritten by `super().__init__`
-
-        self.host = '127.0.0.1'  # TODO: remove me
 
     def dump_database(self):
         """Send updated data to server which will handle renaming old data and saving new data"""
@@ -221,14 +274,13 @@ class NetworkManager(IOManager):
                 mapping = yaml.load(content, Loader=yaml.Loader)
                 yield name, mapping
 
-    def load_databse(self):
+    def create_database(self):
         """Get sources for groups, stores, and items via network; use them to construct `Database.`"""
 
         groups_path = f'http://{self.host}:{self.read_port}/groups.txt'
         r = requests.get(groups_path)
         groups_raw = r.content.decode()
         groupnames = [n for n in groups_raw.split('\n') if n]
-        print(groupnames)
 
         stores = {k: v for k, v in self._construct_store_pairs()}
 
@@ -319,7 +371,7 @@ class LocalManager(IOManager):
         self.make_list(pool)
         self.dump_list(pool)
 
-        with open('data\\credentials.txt') as f:
+        with open(self.credentials_path) as f:
             sender_email, receiver_email, password = [line.split(':')[1][:-1] for line in f]
 
         port = 465  # For SSL
@@ -339,19 +391,19 @@ class LocalManager(IOManager):
                     mapping = yaml.load(file, Loader=yaml.Loader)
                     yield name, mapping
 
-    def load_databse(self):
+    def create_database(self):
         """Get sources for groups, stores, and items via local filesystem;
         Use sources to construct `Database.`
         """
-        with open(self.groups_path) as f:
-            groups_raw = f.read()
-            groupnames = groups_raw.split('\n')
-        stores = {k: v for k, v in self._construct_store_pairs()}
+        with open(self.groups_path) as f:  # Build data for groups
+            groups = f.read().split('\n')
 
-        with open(self.db_path) as f:
+        stores = {k: v for k, v in self._construct_store_pairs()}  # Build data for stores
+
+        with open(self.db_path) as f:  # Build data for items
             items = yaml.load(f, Loader=yaml.Loader)
 
-        return Database(groups=groupnames,
+        return Database(groups=groups,
                         stores=stores,
                         items=items,
                         default_store=self.default_store,
