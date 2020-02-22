@@ -1,3 +1,6 @@
+from logical import UIDRoot
+
+
 class Basket:
     # TODO
     baskets = set()
@@ -15,7 +18,7 @@ class Basket:
         return ...
 
 
-class Location:
+class Location(UIDRoot):
     """Location object representing a physical location or aisle inside a store"""
 
     def __init__(self, name, items=None, uid=None, special=False):
@@ -24,20 +27,11 @@ class Location:
         self.uid = uid
         self.items = items if items else set()
 
-    def __lt__(self, other):
-        return self.uid < other.uid
-
-    def __eq__(self, other):
-        return self.uid == other.uid
-
-    def __hash__(self):
-        return hash(self.__repr__())
-
     def add_item(self, item):
         return self.items.add(item)
 
 
-class Store:
+class Store(UIDRoot):
     """Maps item uids to locations in store"""
 
     default = None

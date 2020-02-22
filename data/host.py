@@ -1,7 +1,6 @@
 #! python3
 """Host script for database, pools, lists, etc."""
 
-
 import datetime
 import os
 import socket
@@ -30,19 +29,6 @@ class MyHandler(server.SimpleHTTPRequestHandler):
             return HTTPStatus.FORBIDDEN
 
 
-def interpret_and_dump(c, filename):
-    list_text = ''
-    incoming = c.recv(1024)
-
-    while incoming:
-        list_text += incoming.decode()
-        incoming = c.recv(1024)
-
-    c.close()
-    with open(filename, 'w') as f:
-        f.write(list_text)
-
-
 def get_date(length):
     date, dtime = str(datetime.datetime.now()).split(" ")
     y, m, d = date.split('-')
@@ -53,6 +39,20 @@ def get_date(length):
         return f'{y}.{m}.{d}.'
 
 
+def listen_to_connection(s):
+    c, addr = s.accept()
+    # print('Got connection from ', addr)
+
+    message = ''
+    incoming = c.recv(1024)
+
+    while incoming:
+        message += incoming.decode()
+        incoming = c.recv(1024)
+
+    return message
+
+
 def _serve(_):
     handler = MyHandler
     address = ('', 42209)
@@ -60,48 +60,37 @@ def _serve(_):
     myserver.serve_forever()
 
 
-def _list_text(_):
+def _write(_):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     port = 42210
     s.bind(('0.0.0.0', port))
     s.listen(3)
 
     while True:
-        c, addr = s.accept()
-        print('Got connection from ', addr)
-
-        directory = os.path.join(os.getcwd(), 'username/lists/')
-        base = 'ShoppingList.txt'
-
-        filename = os.path.join(directory, get_date(3) + base)
-
-        interpret_and_dump(c, filename)
+        message = listen_to_connection(s)
+        relative_path, body = message.split('::')
+        filepath = os.path.join(os.getcwd(), relative_path)
+        with open(filepath, 'w') as f:
+            f.write(body)
 
 
-def _yaml_db(_):
+def _rename_database(_):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     port = 42211
     s.bind(('0.0.0.0', port))
     s.listen(3)
 
     while True:
-        c, addr = s.accept()
-        print('Got connection from ', addr)
-
-        root = os.getcwd()
-        path = os.path.join(root, 'username/old_database')
-        db_path = os.path.join(root, 'username/username.yaml')
-        new_filename = os.path.join(get_date(5) + 'username.yaml')
-        new_filepath = os.path.join(path, new_filename)
-        os.rename(db_path, new_filepath)
-
-        interpret_and_dump(c, db_path)
+        message = listen_to_connection(s)
+        current, new_name = message.split('::')
+        os.rename(current, new_name)
 
 
 def main():
-    x, y, z = threading.Thread(target=_serve, args=(1,)), \
-              threading.Thread(target=_yaml_db, args=(1,)), \
-              threading.Thread(target=_list_text, args=(1,))
+    x, y, z = (threading.Thread(target=_serve, args=(1,)),
+               threading.Thread(target=_write, args=(1,)),
+               threading.Thread(target=_rename_database, args=(1,)),
+               )
     for thread in [x, y, z]:
         thread.start()
 

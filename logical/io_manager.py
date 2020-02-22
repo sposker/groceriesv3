@@ -29,10 +29,9 @@ class SettingsManager:
                  db_path=None,
                  default_store=None,
                  host='127.0.0.1',
-                 readport=42209,
-                 send_list_port=42210,
-                 db_port=42211,
-                 pool_port=42212,
+                 read_port=42209,
+                 write_port=42210,
+                 rename_port=42211,
                  ):
 
         # Basic properties
@@ -43,10 +42,9 @@ class SettingsManager:
 
         # Network properties
         self.host = host
-        self.read_port = readport
-        self.send_list_port = send_list_port
-        self.db_port = db_port
-        self.pool_port = pool_port
+        self.read_port = read_port
+        self.write_port = write_port
+        self.rename_port = rename_port
 
         # Can be replaced with custom values or inferred using @property decorator
         self._credentials_path = credentials_path
@@ -91,6 +89,15 @@ class SettingsManager:
         return os.path.join(self.old_db_path, new_filename)
 
     @staticmethod
+    def preload_settings(path, kwargs):
+        """Check a location for settings, use them to update our keyword-value pairs"""
+        filepath = os.path.join(os.getcwd(), path)
+        with open(filepath) as f:
+            new_defaults = yaml.load(f, Loader=yaml.Loader)
+        kwargs.update(new_defaults)
+        return kwargs
+
+    @staticmethod
     def get_date(len_):
         date_, time_ = str(datetime.now()).split(" ")
         y, m, d = date_.split('-')
@@ -114,15 +121,6 @@ class IOManager(SettingsManager):
 
         self.writer = None  # List formatting object
         self.should_update = False  # Whether or not to update database with new values
-
-    @staticmethod
-    def preload_settings(path, kwargs):
-        """Check a location for settings, use them to update our keyword-value pairs"""
-        filepath = os.path.join(os.getcwd(), path)
-        with open(filepath) as f:
-            new_defaults = yaml.load(f, Loader=yaml.Loader)
-        kwargs.update(new_defaults)
-        return kwargs
 
     @staticmethod
     def format_database(database):
@@ -234,13 +232,19 @@ class NetworkManager(IOManager):
         """Send updated data to server which will handle renaming old data and saving new data"""
         db = MDApp.get_running_app().db
         data = self.format_database(db)
-        s = socket()
-        s.connect((self.host, self.db_port))
+        s0 = socket()
+        s0.connect((self.host, self.rename_port))
+        with s0.makefile(mode='w') as f:
+            f.write('::'.join((self.db_path, self.db_save_location)))
 
-        with s.makefile(mode='w') as f:
-            yaml.dump(data, f)
+        s1 = socket()
+        s1.connect((self.host, self.write_port))
+        body = yaml.dump(data)
+        full_text = '::'.join((self.db_path, body))
+        with s1.makefile(mode='w') as f:
+            f.write(full_text)
 
-        s.close()
+        s1.close()
 
     def dump_list(self):
         ...  # TODO
@@ -249,10 +253,14 @@ class NetworkManager(IOManager):
         """Format pool before saving it to network destination"""
         data = self.format_pool(pool)
         s = socket()
-        s.connect((self.host, self.pool_port))
+        s.connect((self.host, self.write_port))
+
+        body = yaml.dump(data)
+        filename = os.path.join(self.pools_path, self.get_date(3) + 'itempool.yaml')
+        full_text = '::'.join((filename, body))
 
         with s.makefile(mode='w') as f:
-            yaml.dump(data, f)
+            f.write(full_text)
 
         s.close()
 
@@ -342,7 +350,6 @@ class LocalManager(IOManager):
         self.writer.format_plaintext()
 
         filename = self.get_date(3) + 'ShoppingList.txt'
-
         write_destination = os.path.join(self.lists_path, filename)
 
         with open(write_destination, 'w') as f:

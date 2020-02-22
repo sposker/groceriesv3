@@ -1,7 +1,9 @@
 import time
 
+from logical import UIDRoot
 
-class DisplayGroup:
+
+class DisplayGroup(UIDRoot):
     """Grouping items for display"""
     _names = {}
     _uids = {}
@@ -19,32 +21,8 @@ class DisplayGroup:
         DisplayGroup._names[self.name] = self
         DisplayGroup._uids[self.uid] = self
 
-    def __ge__(self, other):
-        return str.__ge__(self.uid, other.uid)
 
-    def __le__(self, other):
-        return str.__ge__(self.uid, other.uid)
-
-    def __gt__(self, other):
-        return str.__gt__(self.uid, other.uid)
-
-    def __lt__(self, other):
-        return str.__lt__(self.uid, other.uid)
-
-    def __eq__(self, other):
-        if self.uid == other:
-            return True
-        try:
-            if self.uid == other.uid:
-                return True
-        except (AttributeError, ValueError):
-            pass
-
-    def __hash__(self):
-        return hash(self.uid)
-
-
-class GroceryItem:
+class GroceryItem(UIDRoot):
     _uids = set()
 
     def __init__(self,
@@ -74,8 +52,8 @@ class GroceryItem:
 
         GroceryItem._uids.add(self.uid)  # Needed for uid calc
 
-    def __hash__(self):
-        return hash(self.__repr__())
+    def __str__(self):
+        return f'{self.name} ({self.uid})'
 
     def __repr__(self):
         return (
@@ -87,9 +65,6 @@ class GroceryItem:
             f'note={self.note}'
             f')'
         )
-
-    def __str__(self):
-        return f'{self.name} ({self.uid})'
 
     def _try_uid(self, n):
         uid_ = 'i' + str(len(self._uids) + n).zfill(3)

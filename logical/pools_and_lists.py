@@ -14,10 +14,13 @@ class ItemPool:
                 amount = int(amount)
             except (ValueError, TypeError):
                 amount = '\u00B7'
-            self._items[item.uid] = item.name, amount, note
+            self._items[item.uid] = item, amount, note
 
     def __getitem__(self, item):
         return self._items[item]
+
+    def __len__(self):
+        return len(self._items)
 
     def __add__(self, other):
         """Merge keys that exist in both dicts by iterating through items in `self`, then create a new dict
@@ -33,13 +36,13 @@ class ItemPool:
             try:
                 value1 = other[key]
             except KeyError:
-                pass
+                half_merged[key] = value0
             else:
                 item, amount0, note0 = value0
                 _, amount1, note1 = value1
 
                 if not amount0 or not amount1:
-                    amount2 = amount0 or amount1
+                    amount2 = amount0 if amount0 else amount1
                 else:
                     try:
                         amount2 = amount0 + amount1
@@ -47,16 +50,20 @@ class ItemPool:
                         amount2 = f'{amount0} + {amount1}'
 
                 if not note0 or not note1:
-                    note2 = note0 or note1
+                    note2 = note0 if note0 else note1
                 else:
                     note2 = f'{note0} + {note1}'
-
                 half_merged[key] = (item, amount2, note2)
 
-        return {**other, **half_merged}  # Concise syntax for copying as described in docstring
+        full_merged = {**other.items_dict, **half_merged}  # Concise syntax for copying as described in docstring
+        return ItemPool(full_merged.values())
 
     def items(self):
         return self._items.items()
+
+    @property
+    def items_dict(self):
+        return self._items
 
 
 class ListWriter:
@@ -134,8 +141,8 @@ class ListWriter:
             section = sorted(list(self.items[location_uid]), key=itemgetter(0))  # Alphabetized
 
             for triple in section:
-                name, amount, note = triple
-                item_line = f'  {name}'  # Two spaces for items, amount on same line
+                item, amount, note = triple
+                item_line = f'  {item.name}'  # Two spaces for items, amount on same line
                 try:
                     item_line += f': {int(amount)}'
                 except (TypeError, ValueError):
