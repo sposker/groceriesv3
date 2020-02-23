@@ -52,12 +52,10 @@
 
 <PredictiveButton>
     font_size: 24
-#    pos_hint: {'x': 0}
     theme_text_color: 'Custom'
     text_color: app.text_color
     halign: 'left'
     size_hint: None, None
-#    height: dp(60)
     size: self.width, self.height
 
 <PredictiveDropdown>
@@ -69,9 +67,17 @@
             size: self.size
             pos: self.pos
             radius: 0, 0, 25, 25
+    canvas.after:
+        Color:
+            rgba: app.theme_cls.primary_color
+        Line:
+            width: 1.1
+            rounded_rectangle:
+                (self.x, self.y, self.width, self.height,\
+                25, 25, 0, 0,\
+                self.height)
 
-#    auto_width: False
-#    width: self.attach_to.parent.width if self.attach_to else 0
+    padding: dp(16)
 
 
 <WinSearchBar>
@@ -90,6 +96,9 @@
     text: 'Coming Soon.'
     write_tab: False
 
+#    radius_bottom: dp(25)
+
+
     BoxLayout:
         id: box
         size_hint: None, None
@@ -102,7 +111,7 @@
             RoundedRectangle:
                 size: self.size
                 pos: self.pos
-                radius: [root.radius,]
+                radius: [root.radius, root.radius, root.radius_bottom, root.radius_bottom]
         canvas.after:
             Color:
                 rgba: root._outline_color
@@ -110,7 +119,7 @@
                 width: 1.1
                 rounded_rectangle:
                     (self.x, self.y, self.width, self.height,\
-                    root.radius, root.radius, root.radius, root.radius,\
+                    root.radius_bottom, root.radius_bottom, root.radius, root.radius,\
                     self.height)
 
         MDIconButton:

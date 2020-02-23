@@ -774,10 +774,3 @@ i104:
   group: g06
   name: Eggbeaters
   note: ''
-i105:
-  defaults:
-  - - 1582254797
-    - null
-  group: g04
-  name: Rye bread
-  note: ''

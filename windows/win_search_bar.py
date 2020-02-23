@@ -21,6 +21,8 @@ from kivymd.theming import ThemableBehavior
 from fuzzywuzzy import fuzz, process
 from kivymd.uix.button import MDFlatButton
 
+from logical.state import ListState
+
 
 class PredictiveButton(MDFlatButton, FocusBehavior):
     """Button inside predictive text dropdown"""
@@ -83,8 +85,15 @@ class PredictiveDropdown(DropDown):
         if self.attach_to is not None:
             return
         super().open(widget)
-        with self.attach_to.canvas:
-            ...  # TODO
+        self.attach_to.radius_bottom = dp(0)
+
+    def dismiss(self, *largs):
+        try:
+            self.attach_to.radius_bottom = dp(25)
+        except AttributeError:
+            pass
+        super().dismiss(*largs)
+
 
 
 class SearchTextInput(TextInput):
@@ -125,6 +134,7 @@ class SearchTextInput(TextInput):
         return True
 
     def on_text(self, *_):
+        self.root.icon_left_color = self.btn_active_color
         if not len(self.text) > 1:
             self.dropdown.dismiss()
             return
@@ -140,10 +150,7 @@ class SearchTextInput(TextInput):
             w = PredictiveButton(text=pair[0])
             self.dropdown.add_widget(w)
             self.buttons[index] = w
-        try:
-            self.dropdown.open(self.root)
-        except WidgetException:
-            print('widget_exception')
+        self.dropdown.open(self.root)
 
     @property
     def dropdown(self):
@@ -163,6 +170,8 @@ class SearchTextInput(TextInput):
 
 class WinSearchBar(ThemableBehavior, BoxLayout):
     __events__ = ("on_text_validate", "on_focus")
+
+    radius_bottom = NumericProperty(dp(25))
 
     # font related properties from TextInput
     font_context = StringProperty()
@@ -218,11 +227,11 @@ class WinSearchBar(ThemableBehavior, BoxLayout):
         else:
             self._outline_color = self.theme_cls.primary_color
 
-    def keyboard_on_key_down(self, window, keycode, text, modifiers):
-        if keycode in (273, 274):
-            print('consumed')
-            return True
-        super().keyboard_on_key_down(window, keycode, text, modifiers)
+    # def keyboard_on_key_down(self, window, keycode, text, modifiers):
+    #     if keycode in (273, 274):
+    #         print('consumed')
+    #         return True
+    #     super().keyboard_on_key_down(window, keycode, text, modifiers)
 
     def on_text_validate(self):
         try:
@@ -232,12 +241,17 @@ class WinSearchBar(ThemableBehavior, BoxLayout):
         self.icon_left_color = MDApp.get_running_app().text_color
         return self.fire_text(text)
 
-    def on_focus(self, *_):
-        pass
+    def on_focus(self, *value):
+        if not value:
+            self.icon_left_color = MDApp.get_running_app().text_color
+        if value and value[1] is False:
+            Clock.schedule_once(lambda _: setattr(self.global_focus, 'focus', True))
 
     def fire_text(self, text):
-        print(text)
-
-    # def on_focus(self, *args):
-    #     if args and args[1] is False:
-    #         Clock.schedule_once(lambda _: setattr(self.global_focus, 'focus', True))
+        for toggle in ListState.instance.toggles_dict.values():
+            if toggle.item.name == text:
+                toggle.trigger_action(duration=0)
+                self.dropdown.dismiss()
+                self.field.select_text(0, len(self.field.text))
+                self.icon_left_color = self.theme_cls.accent_color
+                break
