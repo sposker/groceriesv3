@@ -15,6 +15,21 @@ from logical.state import ListState
 class GroceriesAppBaseDialog(Popup):
     """Canvas, colors, etc for popups"""
 
+    def on_pre_open(self):
+        """Cancel the global focus listener from taking focus as popups don't show up in `walk()`"""
+        try:
+            Clock.unschedule(MDApp.get_running_app().listener.asking)
+        except AttributeError:  # Mostly for Android
+            pass
+
+    def on_dismiss(self):
+        """Re-enable global focus listening"""
+        try:
+            listener = MDApp.get_running_app().listener
+            listener.asking = Clock.schedule_interval(listener.ask, .2)
+        except AttributeError:  # Mostly for Android
+            pass
+
 
 class AddItemDialog(GroceriesAppBaseDialog):
     """Dialog for adding new item"""

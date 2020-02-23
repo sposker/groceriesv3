@@ -52,6 +52,7 @@ class WinApp(MDApp):
 
         self.db = None
         self.list_state = None
+        self.listener = None
         self.screen_manager = None
         self.io_manager = None
         self.toggle_cls = None
@@ -89,6 +90,7 @@ class WinApp(MDApp):
         # Populate selection widgets and associate them with app state (Controller in MVC)
         load = self.screen_manager.current_screen
         s = MainScreen(name='main')
+        self.listener = s.ids['global_focus']
         self.screen_manager.add_widget(s)
         self.screen_manager.remove_widget(load)
 
@@ -105,20 +107,21 @@ class WinApp(MDApp):
 class KeyboardListener(Widget, FocusBehavior):
     """Enables global focus behavior"""
 
-    # def __init__(self, **kwargs):
-    #     super().__init__(**kwargs)
-    #     Clock.schedule_once(lambda _: self._get_my_focus, 2)
-    #
-    # def _get_my_focus(self, *_):
-    #     print('_get_my_focus()')
-    #     self.focus = True
-    #     self._keyboard = Window.request_keyboard(
-    #         self._keyboard_closed, self, 'text')
-    #     if self._keyboard.widget:
-    #         # If it exists, this widget is a VKeyboard object which you can use
-    #         # to change the keyboard layout.
-    #         pass
-    #     self._keyboard.bind(on_key_down=self._on_keyboard_down)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.ask = Clock.create_trigger(self._ask_for_focus)
+        self.asking = Clock.schedule_interval(self.ask, .2)
+
+    def _ask_for_focus(self, *_):
+        if self.focus:
+            return
+        _all = self.all_focusable
+        # print(len(_all))
+        for widget in self.all_focusable:
+            if widget.focus is True:
+                break
+        else:
+            self.focus = True
 
     def get_focus_next(self):
         return self.search_bar
@@ -136,6 +139,17 @@ class KeyboardListener(Widget, FocusBehavior):
         # Return True to accept the key. Otherwise, it will be used by
         # the system.
         return True
+
+    @property
+    def all_focusable(self):
+        _all = set()
+        for w in MDApp.get_running_app().root.walk():
+            try:
+                if w.is_focusable is True:
+                    _all.add(w)
+            except AttributeError:
+                continue
+        return _all
 
 
 class GroManager(ScreenManager):

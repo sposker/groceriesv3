@@ -20,6 +20,7 @@ popup_scale = 2560/screenwidth
 # print(popup_scale)
 Window.borderless = True
 Window.position = 'custom'
+Window.exit_on_escape = False
 Window.left = screenwidth/2 - Window.size[0]/2
 Window.top = screenheight/2 - Window.size[1]/2
 Window.icon = 'data\\src\\main.ico'
