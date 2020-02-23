@@ -16,7 +16,7 @@ from logical.state import ListState
 
 
 class SettingsManager:
-    """Separation of concerns between storing info needed for I/O and coordinating it"""
+    """Separation of concerns between storing info needed for coordinating I/O and executing IO operations"""
 
     def __init__(self,
                  username='username',
@@ -32,6 +32,10 @@ class SettingsManager:
                  read_port=42209,
                  write_port=42210,
                  rename_port=42211,
+                 merge_always=None,
+                 merge_once=None,
+                 write_new_items=False,
+                 **kwargs
                  ):
 
         # Basic properties
@@ -52,6 +56,12 @@ class SettingsManager:
         self._old_db_path = old_db_path
         self._lists_path = lists_path
         self._db_path = db_path
+
+        # Other advanced properties
+        self.merge_always = merge_always
+        self.merge_once = merge_once
+        self._other_kwargs = kwargs
+        self.write_new_items = write_new_items
 
     @property
     def credentials_path(self):
@@ -122,10 +132,11 @@ class IOManager(SettingsManager):
         self.writer = None  # List formatting object
         self.should_update = False  # Whether or not to update database with new values
 
-    @staticmethod
-    def format_database(database):
+    def format_database(self, database):
         """Convert information stored inside `Database` to yaml-friendly object"""
-        all_items = list(database.items.values()) + list(database.new_items.values())
+        all_items = list(database.items.values())
+        if self.write_new_items:
+            all_items += list(database.new_items.values())
         data = {}
 
         for item in all_items:
@@ -158,6 +169,8 @@ class IOManager(SettingsManager):
         db = MDApp.get_running_app().db
         store = db.stores[store_name]
         self.dump_pool(item_pool)
+        if self.merge_always or self.merge_once:
+            item_pool = self.mix_pools(item_pool)
         self.writer = ListWriter(item_pool, store)
         self.should_update = True
 
@@ -183,7 +196,7 @@ class IOManager(SettingsManager):
         """Done in list writer"""
 
     @staticmethod
-    def _locate_pool(source, date):
+    def _locate_pool_by_date(source, date):
         """Helper method for finding pool by filename"""
         for filename in source:
             if date in filename:  # date matches the date of an item list
@@ -202,17 +215,23 @@ class IOManager(SettingsManager):
         pool = set()
         now = time.time()
 
+        for k, v in db.items.items():
+            print(k, v)
+
         for dict_ in generator_object:
             for uid, info in dict_.items():
                 try:
                     item = db.items[uid]
                 except KeyError:  # New item created during previous program run
+                    print(uid)
                     amount, note = info
-                    name, group = uid.split(';')
+                    item_str, group = uid.split(';')
+                    name, uid = item_str.rsplit(' ', maxsplit=1)
                     kwargs = {'name': name,
                               'group': group,
                               'defaults': [(now, amount)],
                               'note': note,
+                              'uid': uid[1:-1],
                               }
                     item = db.add_new_item(kwargs)
                 else:
@@ -222,6 +241,12 @@ class IOManager(SettingsManager):
         return pool
 
     def dump_pool(self, item_pool):
+        raise NotImplementedError
+
+    def load_pool(self, **kwargs):
+        raise NotImplementedError
+
+    def mix_pools(self, base):
         raise NotImplementedError
 
 
@@ -315,21 +340,30 @@ class NetworkManager(IOManager):
         if return_names:
             return items
 
-        return self._locate_pool(items.split('\n'), date)
+        return self._locate_pool_by_date(items.split('\n'), date)
 
-    def load_pool(self, date=None):
-        """If we find a pool in progress in the network location, load it."""
+    def load_pool(self, netpath=None, date=None):
+        """If we receive a network path parameter, load that pool.
+        If not, look for a pool matching the date provided, or today's date, if none is provided.
+        If we find a matching pool in progress in the network location, load it.
+        """
 
-        if not date:
-            date = self.get_date(3)
-        if not (self.locate_pool(date)):
-            return  # No pool matching date
+        if netpath:
+            network_path = netpath
+        else:
+            if not date:
+                date = self.get_date(3)
+            if not (self.locate_pool(date)):
+                return  # No pool matching date
+            network_path = f'http://{self.host}:{self.read_port}/{self.username}/pools/{date}itempool.yaml'
 
-        network_path = f'http://{self.host}:{self.read_port}/{self.username}/pools/{date}itempool.yaml'
         with requests.get(network_path) as req:
             content = req.content.decode()
         pool_params = self.interpret_pool_data(content)
         ListState.instance.populate_from_pool(ItemPool(pool_params))
+
+    def mix_pools(self, base):
+        ...  # TODO
 
 
 class LocalManager(IOManager):
@@ -421,19 +455,45 @@ class LocalManager(IOManager):
 
         root, dirs, filenames = next(os.walk(self.pools_path))
         if return_names:
-            return filenames
-        return self._locate_pool(filenames, date)
+            return root, filenames
+        return self._locate_pool_by_date(filenames, date)
 
-    def load_pool(self, date=None):
-        """If we find a pool in progress in the local filesystem, load it."""
-        if not date:
-            date = self.get_date(3)
-        if not (file := self.locate_pool(date)):
-            return  # No pool matching date
-        filepath = os.path.join(self.pools_path, file)
+    def load_pool(self, filename=None, date=None):
+        """If we receive a filename parameter, load that pool.
+        If not, look for a pool matching the date provided, or today's date, if none is provided.
+        If we find a matching pool in progress in the local filesystem, load it.
+        """
+
+        if filename:
+            filepath = filename
+        else:
+            if not date:
+                date = self.get_date(3)
+            if not (file := self.locate_pool(date)):
+                return  # No pool matching date
+            filepath = os.path.join(self.pools_path, file)
 
         with open(filepath) as f:
             content = f.read()
-            # print(content)
             pool_params = self.interpret_pool_data(content)
-            ListState.instance.populate_from_pool(ItemPool(pool_params))
+            return ItemPool(pool_params)
+
+    def mix_pools(self, base: ItemPool):
+        """Load and merge pools based on user settings"""
+
+        always_ = self.load_pool(filename=self.merge_always) if self.merge_always else None
+        if self.merge_once:
+            root, _, file = next(os.walk(self.merge_once))
+            try:
+                filepath = os.path.join(root, file[0])
+            except IndexError:
+                once_ = None
+            else:
+                once_ = self.load_pool(filename=filepath)
+                os.remove(filepath)
+        else:
+            once_ = None
+        base += always_
+        base += once_
+
+        return base

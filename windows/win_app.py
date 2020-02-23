@@ -94,8 +94,8 @@ class WinApp(MDApp):
         self.screen_manager.add_widget(s)
         self.screen_manager.remove_widget(load)
 
-        # Automatically load a pool in progress, if available (adjusts View in MVC)
-        self.io_manager.load_pool()
+        # Automatically load a pool in progress, if available
+        self.list_state.request_pool_load()
 
     def exit_routine(self, pool=None):
         if self.io_manager.should_update:

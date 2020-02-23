@@ -1,9 +1,10 @@
 /venv/
-/data/username/credentials.txt
 /TODO.txt
+/buildozer.spec
+/data/username/credentials.txt
 /data/username/lists/
 /data/username/old_database/
+/data/username/merge/
 /data/username/pools/
-/buildozer.spec
 /_demos/
 

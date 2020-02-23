@@ -1,1 +1,3 @@
 default_store: giant
+user_settings_location: data/username/username_settings.yaml
+

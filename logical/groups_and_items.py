@@ -41,9 +41,12 @@ class GroceryItem(UIDRoot):
         if not uid:
             self.uid = self._try_uid(0)
         elif 'i' in str(uid):
-            self.uid = uid
+            if uid not in self._uids:
+                self.uid = uid
+            else:
+                self.uid = self._try_uid(int(uid[1:]))
         else:
-            self.uid = f'i{uid}'
+            self.uid = f'i{self._try_uid(uid)}'
 
         self._group = None  # Set by @group.setter
         self.group = group  # ibid

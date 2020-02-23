@@ -1,3 +1,10 @@
+<DialogButton@MDRectangleFlatIconButton>
+
+    font_size: self.parent.font_size
+    size_hint: (None, .7/3)
+    width: app.popup_width/6 - 20
+    pos_hint: {'center_x': .5}
+    text_color: app.text_color
 
 
 <GroceriesAppBaseDialog>
@@ -133,20 +140,22 @@
 
     BoxLayout:
         color: app.text_color
-        font_size: 24
+        font_size: 36
         orientation: 'vertical'
+        padding: dp(12)
 
         Label:
             text: root.message
             color: self.parent.color
             font_size: self.parent.font_size
-            size_hint: (1,.6)
+            size_hint: (1,.7)
 
-        Button:
-            text: 'EXIT APP'
-            color: self.parent.color
+        MDRectangleFlatButton:
+            text: 'Exit'
             font_size: self.parent.font_size
-            size_hint: (1,.2)
+            pos_hint: {'center_x': .5}
+            text_color: app.text_color
+            size_hint: (.6, .3)
             on_release:
                 root.do_exit()
 
@@ -192,14 +201,6 @@
         GridLayout:
             cols: 3
             size_hint: 1, .6
-
-<DialogButton@MDRectangleFlatIconButton>
-
-    font_size: self.parent.font_size
-    size_hint: (None, .7/3)
-    width: app.popup_width/6 - 20
-    pos_hint: {'center_x': .5}
-    text_color: app.text_color
 
 
 <ExitDialog>

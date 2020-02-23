@@ -1,0 +1,3 @@
+default_store: giant
+merge_once: 'data/username/merge/one_time_merge'
+merge_always: 'data/username/merge/2020.02.23.itempool.yaml'

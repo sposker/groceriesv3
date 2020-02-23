@@ -1,3 +1,5 @@
+import os
+
 from kivy.clock import Clock
 from kivy.factory import Factory
 from kivy.properties import NumericProperty
@@ -157,19 +159,20 @@ class FilePickerButton(MDFlatButton, ToggleButtonBehavior):
 
     instances = 0
 
-    def __init__(self, parent_, filename, **kwargs):
-        self.filename = filename
-        y, m, d, _filename, _ext = filename.split('.')
+    def __init__(self, parent_, filepath, **kwargs):
+        self.filename = filepath
+        _, filename = os.path.split(filepath)
+        y, m, d, _name_text, _ext = filename.split('.')
         self.display_name = f'{m}-{d}'
-        self.date = f'{y}.{m}.{d}.'
         self.parent_ = parent_
         super().__init__(**kwargs)
         self.__class__.instances += 1
 
     def on_release(self):
         self.parent_.clear_list()
-        io = MDApp.get_running_app().io_manager
-        io.load_pool(date=self.date)
+        app = MDApp.get_running_app()
+        pool = app.io_manager.load_pool(filename=self.filename)
+        app.list_state.populate_from_pool(pool)
         self.parent_.dismiss()
         self.__class__.instances = 0
 
@@ -181,9 +184,10 @@ class FilePickerDialog(GroceriesAppBaseDialog):
 
     def __init__(self, **kwargs):
         io = MDApp.get_running_app().io_manager
-        names = io.locate_pool(return_names=True)
+        root, names = io.locate_pool(return_names=True)
+        filepaths = [os.path.join(root, n) for n in names]
         super().__init__(**kwargs)
-        self.display_options(names)
+        self.display_options(filepaths)
 
     def display_options(self, names):
         """Load the list of choices"""

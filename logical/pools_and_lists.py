@@ -31,6 +31,9 @@ class ItemPool:
          - Values not present in `self` are preserved.
          - Values present in both `self` and `other` are merged.
          """
+        if other is None:
+            return self
+
         half_merged = {}
         for key, value0 in self.items():
             try:
@@ -167,7 +170,7 @@ class ListWriter:
         return IOManager.get_date(3)[:-1]
 
 
-#
+
 if __name__ == '__main__':
     from tests.test_groups_items import itm0, itm1, itm2, itm3
     item_set0 = {(itm0, '·', 'ok'), (itm1, '2', ''), (itm2, '5', 'yeet'), }

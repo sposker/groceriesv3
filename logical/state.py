@@ -311,6 +311,12 @@ class ListState:
                 self.container.add_widget(next_node.card)
             nl.extend(nodes_list)
 
+    def request_pool_load(self):
+        io = MDApp.get_running_app().io_manager
+        pool = io.load_pool()
+        if pool:
+            self.populate_from_pool(pool)
+
     # noinspection PyUnboundLocalVariable
     def populate_from_pool(self, pool: ItemPool):
         """For loading an incomplete list back into the app"""
