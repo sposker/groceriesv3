@@ -165,3 +165,18 @@ class ListWriter:
     def get_date():
         from logical.io_manager import IOManager
         return IOManager.get_date(3)[:-1]
+
+
+#
+if __name__ == '__main__':
+    from tests.test_groups_items import itm0, itm1, itm2, itm3
+    item_set0 = {(itm0, '·', 'ok'), (itm1, '2', ''), (itm2, '5', 'yeet'), }
+    item_set1 = {(itm2, '5', 'yeah'), (itm3, '·', '')}
+
+    pool0 = ItemPool(item_set0)
+    pool1 = ItemPool(item_set1)
+
+    pool_merged = pool0 + pool1
+    for k, v in pool_merged.items():
+        a, b, c = v
+        print(k, a, b, c)

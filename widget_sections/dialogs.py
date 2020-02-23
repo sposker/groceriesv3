@@ -138,7 +138,7 @@ class ExitDialog(GroceriesAppBaseDialog):
 
 
 class FilePickerButton(MDFlatButton, ToggleButtonBehavior):
-    """Button for picking files"""
+    """Button for picking pools to load"""
 
     instances = 0
 

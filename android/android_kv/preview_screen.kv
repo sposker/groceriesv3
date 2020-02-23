@@ -1,7 +1,7 @@
 #:import GroupScrollBar widget_sections.selection
 
 
-<MyMDIconButton>
+<FunctionsBarButton>
     user_font_size: app.text_base_size * 4/3
     size_hint: 1/5, 1
     theme_text_color: 'Custom'
@@ -12,31 +12,31 @@
 
 <ListFunctionsBar>
 
-    MyMDIconButton:
+    FunctionsBarButton:
         name: 'toggle_asc_desc'
         icon: "sort-descending"
         tooltip_text: "Current: Descending"
 
-    MyMDIconButton:
+    FunctionsBarButton:
         name: 'alphabetical'
         icon: "sort-alphabetical"
         tooltip_text: 'SortBy: A-Z'
         group: 'members'
 
-    MyMDIconButton:
+    FunctionsBarButton:
         name: 'group'
         icon: "cards-outline"
         tooltip_text: 'SortBy: Group'
         group: 'members'
 
-    MyMDIconButton:
+    FunctionsBarButton:
         name: 'time'
         icon: "clock-fast"
         tooltip_text: "SortBy: Time Added"
         group: 'members'
         text_color: app.theme_cls.accent_color
 
-    MyMDIconButton:
+    FunctionsBarButton:
         name: 'reset'
         icon: "restart"
         tooltip_text: 'Clear List'

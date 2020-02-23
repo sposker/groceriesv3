@@ -1,6 +1,8 @@
 from kivy.clock import Clock
 from kivy.lang import Builder
+from kivy.uix.behaviors import FocusBehavior
 from kivy.uix.screenmanager import Screen, ScreenManager
+from kivy.uix.widget import Widget
 from kivymd.app import MDApp
 from kivymd.theming import ThemeManager
 
@@ -98,6 +100,42 @@ class WinApp(MDApp):
             self.db.set_new_defaults(pool)
             self.io_manager.dump_database()
         MDApp.get_running_app().stop()
+
+
+class KeyboardListener(Widget, FocusBehavior):
+    """Enables global focus behavior"""
+
+    # def __init__(self, **kwargs):
+    #     super().__init__(**kwargs)
+    #     Clock.schedule_once(lambda _: self._get_my_focus, 2)
+    #
+    # def _get_my_focus(self, *_):
+    #     print('_get_my_focus()')
+    #     self.focus = True
+    #     self._keyboard = Window.request_keyboard(
+    #         self._keyboard_closed, self, 'text')
+    #     if self._keyboard.widget:
+    #         # If it exists, this widget is a VKeyboard object which you can use
+    #         # to change the keyboard layout.
+    #         pass
+    #     self._keyboard.bind(on_key_down=self._on_keyboard_down)
+
+    def get_focus_next(self):
+        return self.search_bar
+
+    def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
+        print('The key', keycode, 'have been pressed')
+        print(' - text is %r' % text)
+        print(' - modifiers are %r' % modifiers)
+
+        # Keycode is composed of an integer + a string
+        # If we hit escape, release the keyboard
+        if keycode[1] == 'escape':
+            keyboard.release()
+
+        # Return True to accept the key. Otherwise, it will be used by
+        # the system.
+        return True
 
 
 class GroManager(ScreenManager):

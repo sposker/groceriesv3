@@ -2,7 +2,8 @@
 #:import Factory kivy.factory.Factory
 
 #: import ListPreview widget_sections.shared_preview
-#: import SearchBar widget_sections.search
+#: import ListFunctionsBar widget_sections.search
+#: import WinSearchBar windows.win_search_bar
 #: import GroupSelection widget_sections.selection
 #: import SpinnerDropdown windows.win_navbar
 
@@ -15,9 +16,13 @@
             size: self.size
             pos: self.pos
 
-    size_hint: .9, None
+    size_hint: .96, None
     height: dp(2)
     pos_hint: {'center_x': .5, 'center_y': .5}
+
+
+<KeyboardListener>
+
 
 <MainScreen>
     name: "main"
@@ -40,7 +45,7 @@
     BoxLayout:
         size_hint: 1, None
         height: root.height*.99 - toolbar.height
-        padding: dp(8)
+        padding: dp(6)
 
         GroupScrollHelper:
             id: selection
@@ -59,7 +64,9 @@
             padding: dp(8)
             spacing: dp(4)
 
-            SearchBar:
+            WinSearchBar:
+                id: search_bar
+                global_focus: global_focus
 
             Divider:
 
@@ -69,7 +76,9 @@
 
             ListScrollHelper:
 
-            Widget:
+            KeyboardListener:
+                id: global_focus
+                search_bar: search_bar
                 size_hint: .9, None
                 height: dp(2)
                 pos_hint: {'center_x': .5, 'center_y': .5}

@@ -1,6 +1,4 @@
-
-
-<MyMDIconButton>
+<FunctionsBarButton>
     user_font_size: '36sp'
     size_hint: 1/7, 1
     theme_text_color: 'Custom'
@@ -10,67 +8,124 @@
 
 
 <ListFunctionsBar>
-
     size_hint: 1, .1
 
-    MyMDIconButton:
+    FunctionsBarButton:
         name: 'toggle_asc_desc'
         icon: "sort-descending"
         tooltip_text: "Current: Descending"
 
-    MyMDIconButton:
+    FunctionsBarButton:
         name: 'alphabetical'
         icon: "sort-alphabetical"
         tooltip_text: 'SortBy: A-Z'
         group: 'members'
 
-    MyMDIconButton:
+    FunctionsBarButton:
         name: 'group'
         icon: "cards-outline"
         tooltip_text: 'SortBy: Group'
         group: 'members'
 
-    MyMDIconButton:
+    FunctionsBarButton:
         name: 'time'
         icon: "clock-fast"
         tooltip_text: "SortBy: Time Added"
         group: 'members'
         text_color: app.theme_cls.accent_color
 
-    MyMDIconButton:
+    FunctionsBarButton:
         name: 'open'
         icon: "folder-open-outline"
         tooltip_text: 'Load List'
 
-    MyMDIconButton:
+    FunctionsBarButton:
         name: 'reset'
         icon: "restart"
         tooltip_text: 'Clear List'
 
-    MyMDIconButton:
+    FunctionsBarButton:
         name: 'save'
         icon: "content-save-outline"
         tooltip_text: 'Save List'
 
 
-
-<SearchBar>
-    size_hint: 1, .105
-    normal_color: app.bg_color
-
-    icon_type: 'left'
-    icon_left: 'magnify'
-    background_disabled_horizontal: 0,0,0,0
+<WinSearchBar>
+    _instance_icon_left: icon_left
+    active_color: app.elem_color_list
     color: app.elem_color
     color_mode: 'custom'
-    cursor_color: app.text_color
     disabled_color: 0,0,0,0
-#    disabled: True
     focus: False
-    foreground_color: app.card_color
-    font_size: 24
-#    hint_text_color: (1,1,1,0)
-#    normal_color: app.elem_color
+    icon_left_color: app.text_color
     multiline: False
+    normal_color: app.bg_color
+    orientation: 'vertical'
+    size_hint: 1, .105
     text: 'Coming Soon.'
     write_tab: False
+
+    BoxLayout:
+        id: box
+        size_hint: None, None
+        size: root.size[0], dp(48)
+        pos_hint: {'center_x': .5}
+
+        canvas:
+            Color:
+                rgba: root._current_color
+            RoundedRectangle:
+                size: self.size
+                pos: self.pos
+                radius: [root.radius,]
+        canvas.after:
+            Color:
+                rgba: root._outline_color
+            Line:
+                width: 1.1
+                rounded_rectangle:
+                    (self.x, self.y, self.width, self.height,\
+                    root.radius, root.radius, root.radius, root.radius,\
+                    self.height)
+
+        MDIconButton:
+            id: icon_left
+
+            disabled: True
+            icon: root.icon_left
+            theme_text_color: 'Custom'
+            text_color: root.icon_left_color
+            user_font_size: dp(24)
+            pos_hint: {"center_y": .5}
+
+        SearchTextInput:
+            id: field
+
+            background_active: f'{images_path}transparent.png'
+            background_normal: f'{images_path}transparent.png'
+            focus: root.focus
+            cursor_color: app.text_color
+            font_family: root.font_family
+            font_name: root.font_name
+            font_size: sp(24)
+            foreground_color: app.text_color
+            hint_text: ''
+            hint_text_color: app.text_color
+            multiline: False
+            padding: (box.height / 2) - (self.line_height / 2)
+            selection_color: app.theme_cls.primary_color[:3] +[.6]
+            text: root.text
+            text_validate_unfocus: False
+            write_tab: root.write_tab
+
+            on_focus:
+                root._on_focus(self)
+            on_text:
+                root.text = self.text
+                root.dispatch("on_text")
+            on_text_validate:
+                root.dispatch("on_text_validate")
+
+        Widget:
+            size_hint_x: None
+            width: dp(48)
