@@ -8,18 +8,73 @@ a view class for child widgets, allowing for substitution?
 from kivy.clock import Clock
 from kivy.metrics import dp
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty, ListProperty, ObjectProperty
+from kivy.uix.behaviors import FocusBehavior
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.dropdown import DropDown
 from kivy.uix.textinput import TextInput
+from kivy.uix.widget import WidgetException
+from kivymd.app import MDApp
 from kivymd.theming import ThemableBehavior
+from fuzzywuzzy import fuzz, process
+from kivymd.uix.button import MDFlatButton
+
+
+class PredictiveButton(MDFlatButton, FocusBehavior):
+    """Button inside predictive text dropdown"""
+
+
+class PredictiveDropdown(DropDown):
+    """Dropdown for possible item names"""
+
+    def open(self, widget):
+        if self.attach_to is not None:
+            return
+        super().open(widget)
+        with self.attach_to.canvas:
+            ...
+
 
 
 class SearchTextInput(TextInput):
     """Custom hotkey behavior"""
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.db = MDApp.get_running_app().db
+
+    def keyboard_on_key_down(self, window, keycode, text, modifiers):
+
+        if keycode[0] in (273, 274) and len(self.text) > 1:
+            print('consumed')
+            return True
+        super().keyboard_on_key_down(window, keycode, text, modifiers)
+
+    def on_text(self, *_):
+        if not len(self.text) > 1:
+            self.dropdown.dismiss()
+            return
+        options = process.extractBests(self.text,
+                                       self.db.item_names,
+                                       scorer=(fuzz.token_sort_ratio if ' ' not in self.text
+                                               else fuzz.token_set_ratio),
+                                       # score_cutoff=min(40 + len(self.text)**2, 90),
+                                       limit=3)
+        self.dropdown.clear_widgets()
+        for pair in options:
+            w = PredictiveButton(text=pair[0])
+            self.dropdown.add_widget(w)
+        try:
+            self.dropdown.open(self.root)
+        except WidgetException:
+            print('widget_exception')
+
+    @property
+    def dropdown(self):
+        return self.root.dropdown
+
 
 class WinSearchBar(ThemableBehavior, BoxLayout):
-
-    __events__ = ("on_text_validate", "on_text", "on_focus")
+    __events__ = ("on_text_validate", "on_focus")
 
     # font related properties from TextInput
     font_context = StringProperty()
@@ -47,6 +102,7 @@ class WinSearchBar(ThemableBehavior, BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._current_color = self.normal_color
+        self.dropdown = PredictiveDropdown()
 
     def _on_focus(self, field):
         self._current_color = (
@@ -58,10 +114,10 @@ class WinSearchBar(ThemableBehavior, BoxLayout):
         self.focus = field.focus
         self.dispatch("on_focus")
         self._instance_icon_left.text_color = (
-                    self.theme_cls.accent_color
-                    if field.focus
-                    else self.icon_left_color
-                )
+            self.theme_cls.accent_color
+            if field.focus
+            else self.icon_left_color
+        )
         if field.focus:
             field.select_text(0, len(field.text))
 
@@ -74,13 +130,18 @@ class WinSearchBar(ThemableBehavior, BoxLayout):
         else:
             self._outline_color = self.theme_cls.primary_color
 
+    def keyboard_on_key_down(self, window, keycode, text, modifiers):
+        if keycode in (273, 274):
+            print('consumed')
+            return True
+        super().keyboard_on_key_down(window, keycode, text, modifiers)
+
     def on_text_validate(self):
         pass
 
-    def on_text(self, *args):
+    def on_focus(self, *_):
         pass
 
-    def on_focus(self, *args):
-        if args and args[1] is False:
-            Clock.schedule_once(lambda _: setattr(self.global_focus, 'focus', True))
-
+    # def on_focus(self, *args):
+    #     if args and args[1] is False:
+    #         Clock.schedule_once(lambda _: setattr(self.global_focus, 'focus', True))

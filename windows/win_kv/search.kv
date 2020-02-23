@@ -50,6 +50,30 @@
         tooltip_text: 'Save List'
 
 
+<PredictiveButton>
+    font_size: 24
+#    pos_hint: {'x': 0}
+    theme_text_color: 'Custom'
+    text_color: app.text_color
+    halign: 'left'
+    size_hint: None, None
+#    height: dp(60)
+    size: self.width, self.height
+
+<PredictiveDropdown>
+
+    canvas:
+        Color:
+            rgba: app.bg_color
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: 0, 0, 25, 25
+
+#    auto_width: False
+#    width: self.attach_to.parent.width if self.attach_to else 0
+
+
 <WinSearchBar>
     _instance_icon_left: icon_left
     active_color: app.elem_color_list
@@ -100,6 +124,7 @@
 
         SearchTextInput:
             id: field
+            root: root
 
             background_active: f'{images_path}transparent.png'
             background_normal: f'{images_path}transparent.png'
@@ -114,7 +139,7 @@
             multiline: False
             padding: (box.height / 2) - (self.line_height / 2)
             selection_color: app.theme_cls.primary_color[:3] +[.6]
-            text: root.text
+            text: ''
             text_validate_unfocus: False
             write_tab: root.write_tab
 
@@ -122,7 +147,6 @@
                 root._on_focus(self)
             on_text:
                 root.text = self.text
-                root.dispatch("on_text")
             on_text_validate:
                 root.dispatch("on_text_validate")
 

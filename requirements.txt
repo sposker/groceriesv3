@@ -6,7 +6,7 @@ colorama==0.4.3
 docutils==0.16
 entrypoints==0.3
 flake8==3.7.9
-fuzzywuzzy==0.17.0
+fuzzywuzzy==0.18.0
 idna==2.8
 Kivy==2.0.0rc1
 kivy-deps.glew==0.2.0

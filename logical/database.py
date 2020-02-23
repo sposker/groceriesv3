@@ -12,6 +12,7 @@ class Database:
     items = {}
     new_items = {}
     stores = {}
+    _item_names = set()
 
     def __init__(self, **kwargs):
         self._store_default = kwargs.get('default_store')
@@ -66,6 +67,11 @@ class Database:
         for uid, kwargs in source.items():
             item = GroceryItem(uid=uid, **kwargs)
             self.items[item.uid] = item
+            self._item_names.add(item.name)
+
+    @property
+    def item_names(self):
+        return self._item_names
 
     @property
     def items_by_group(self):
