@@ -5,7 +5,10 @@ widgets. How difficult would it really have been to subclass these building bloc
 a view class for child widgets, allowing for substitution?
 """
 
+from collections import defaultdict
+
 from kivy.clock import Clock
+from kivy.core.window import Window
 from kivy.metrics import dp
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty, ListProperty, ObjectProperty
 from kivy.uix.behaviors import FocusBehavior
@@ -21,6 +24,56 @@ from kivymd.uix.button import MDFlatButton
 
 class PredictiveButton(MDFlatButton, FocusBehavior):
     """Button inside predictive text dropdown"""
+    #
+    #
+    # def keyboard_on_key_down(self, window, keycode, text, modifiers):
+    #     if keycode[0] == 273:
+    #         self.get_focus_previous().focus = True
+    #         return True
+    #     elif keycode[1] == 274:
+    #         self.get_focus_next().focus = True
+    #         return True
+    #     elif keycode == ...:
+    #         ...
+    #
+    # def on_focus(self, *args):
+    #     value = args[1]
+    #     print(self, args)
+    #     if value:
+    #         self.text_color = MDApp.get_running_app().theme_cls.accent_color
+    #         self._keyboard = Window.request_keyboard(self._keyboard_closed, self, 'text')
+    #         self._keyboard.bind(on_key_down=self._on_keyboard_down)
+    #     else:
+    #         self.text_color = MDApp.get_running_app().text_color
+    #
+    # def _keyboard_closed(self):
+    #     print('My keyboard have been closed!')
+    #     self._keyboard.unbind(on_key_down=self._on_keyboard_down)
+    #     self._keyboard = None
+    #
+    # def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
+    #     print('The key', keycode, 'have been pressed')
+    #     print(' - text is %r' % text)
+    #     print(' - modifiers are %r' % modifiers)
+    #
+    #     # Keycode is composed of an integer + a string
+    #     # If we hit escape, release the keyboard
+    #     if keycode[1] == 'escape':
+    #         keyboard.release()
+    #
+    #     # Return True to accept the key. Otherwise, it will be used by
+    #     # the system.
+    #     return self.keyboard_on_key_down(keyboard, keycode, text, modifiers)
+    #
+    # def get_focus_next(self):
+    #     return self.indices[self.index + 1]
+    #
+    # def get_focus_previous(self):
+    #     return self.indices[self.index - 1]
+    #
+    # @property
+    # def base_widget(self):
+    #     return self.parent.attach_to.root.ids['field']
 
 
 class PredictiveDropdown(DropDown):
@@ -31,8 +84,7 @@ class PredictiveDropdown(DropDown):
             return
         super().open(widget)
         with self.attach_to.canvas:
-            ...
-
+            ...  # TODO
 
 
 class SearchTextInput(TextInput):
@@ -41,13 +93,36 @@ class SearchTextInput(TextInput):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.db = MDApp.get_running_app().db
+        self.buttons = {}
+        self._current_value = None
+        self.btn_text_color = MDApp.get_running_app().text_color
+        self.btn_active_color = MDApp.get_running_app().theme_cls.accent_color
 
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
 
-        if keycode[0] in (273, 274) and len(self.text) > 1:
-            print('consumed')
-            return True
+        if self.dropdown.attach_to:
+            if keycode[0] == 273:
+                return self.key_down_helper(-1)
+            elif keycode[0] == 274:
+                return self.key_down_helper(1)
         super().keyboard_on_key_down(window, keycode, text, modifiers)
+
+    def key_down_helper(self, value):
+        try:
+            self.current_value += value
+        except TypeError:
+            self.current_value = 2 if value == -1 else 0
+            self.root.icon_left_color = self.btn_text_color
+        color_icon = True
+        for index, widget in self.buttons.items():
+            if index == self.current_value:
+                widget.text_color = self.btn_active_color
+                color_icon = False
+            else:
+                widget.text_color = self.btn_text_color
+        if color_icon:
+            self.root.icon_left_color = self.btn_active_color
+        return True
 
     def on_text(self, *_):
         if not len(self.text) > 1:
@@ -60,9 +135,11 @@ class SearchTextInput(TextInput):
                                        # score_cutoff=min(40 + len(self.text)**2, 90),
                                        limit=3)
         self.dropdown.clear_widgets()
-        for pair in options:
+        self.current_value = None
+        for index, pair in enumerate(options):
             w = PredictiveButton(text=pair[0])
             self.dropdown.add_widget(w)
+            self.buttons[index] = w
         try:
             self.dropdown.open(self.root)
         except WidgetException:
@@ -71,6 +148,17 @@ class SearchTextInput(TextInput):
     @property
     def dropdown(self):
         return self.root.dropdown
+
+    @property
+    def current_value(self):
+        return self._current_value
+
+    @current_value.setter
+    def current_value(self, value):
+        if value not in range(3):
+            self._current_value = None
+        else:
+            self._current_value = value
 
 
 class WinSearchBar(ThemableBehavior, BoxLayout):
@@ -137,10 +225,18 @@ class WinSearchBar(ThemableBehavior, BoxLayout):
         super().keyboard_on_key_down(window, keycode, text, modifiers)
 
     def on_text_validate(self):
-        pass
+        try:
+            text = self.field.buttons[self.field.current_value].text
+        except KeyError:
+            text = self.field.text
+        self.icon_left_color = MDApp.get_running_app().text_color
+        return self.fire_text(text)
 
     def on_focus(self, *_):
         pass
+
+    def fire_text(self, text):
+        print(text)
 
     # def on_focus(self, *args):
     #     if args and args[1] is False:
