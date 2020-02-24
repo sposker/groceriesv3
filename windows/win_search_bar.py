@@ -4,7 +4,7 @@ or copy code to redefine an almost identical class, which will use subclasses of
 widgets. How difficult would it really have been to subclass these building blocks and allow the main widget to use
 a view class for child widgets, allowing for substitution?
 """
-
+from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.metrics import dp
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty, ListProperty, ObjectProperty
@@ -18,6 +18,8 @@ from fuzzywuzzy import fuzz, process
 from kivymd.uix.button import MDFlatButton
 
 from logical.state import ListState
+from widget_sections.selection import GroupScrollBar
+from widget_sections.shared_preview import ListScrollBar
 
 
 class PredictiveButton(MDFlatButton, FocusBehavior):
@@ -186,9 +188,20 @@ class WinSearchBar(ThemableBehavior, BoxLayout):
             Clock.schedule_once(lambda _: setattr(self.global_focus, 'focus', True))
 
     def fire_text(self, text):
+        for node in ListState.instance.nodes_list:
+            if node.item.name == text:
+                ListScrollBar.instance.scroll_to(node.card, padding=40)
+                node.card.item_title.text_color = self.theme_cls.accent_color
+                node.card.color_anim.start(node.card.item_title)
+                self.field.select_text(0, len(self.field.text))
+                self.dropdown.dismiss()
+                return
         for toggle in ListState.instance.toggles_dict.values():
             if toggle.item.name == text:
+                GroupScrollBar.instance.scroll_to(toggle, padding=40)
                 toggle.trigger_action(duration=0)
+                toggle.md_bg_color = self.theme_cls.primary_color
+                Animation(duration=1, md_bg_color=MDApp.get_running_app().card_color).start(toggle)
                 self.dropdown.dismiss()
                 self.field.select_text(0, len(self.field.text))
                 self.icon_left_color = self.theme_cls.accent_color

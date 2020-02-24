@@ -116,7 +116,6 @@ class KeyboardListener(Widget, FocusBehavior):
         if self.focus:
             return
         _all = self.all_focusable
-        # print(len(_all))
         for widget in self.all_focusable:
             if widget.focus is True:
                 break
@@ -126,19 +125,19 @@ class KeyboardListener(Widget, FocusBehavior):
     def get_focus_next(self):
         return self.search_bar
 
-    def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
-        print('The key', keycode, 'have been pressed')
-        print(' - text is %r' % text)
-        print(' - modifiers are %r' % modifiers)
-
-        # Keycode is composed of an integer + a string
-        # If we hit escape, release the keyboard
-        if keycode[1] == 'escape':
-            keyboard.release()
-
-        # Return True to accept the key. Otherwise, it will be used by
-        # the system.
-        return True
+    # def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
+    #     print('The key', keycode, 'have been pressed')
+    #     print(' - text is %r' % text)
+    #     print(' - modifiers are %r' % modifiers)
+    #
+    #     # Keycode is composed of an integer + a string
+    #     # If we hit escape, release the keyboard
+    #     if keycode[1] == 'escape':
+    #         keyboard.release()
+    #
+    #     # Return True to accept the key. Otherwise, it will be used by
+    #     # the system.
+    #     return True
 
     @property
     def all_focusable(self):
@@ -148,7 +147,7 @@ class KeyboardListener(Widget, FocusBehavior):
                 if w.is_focusable is True:
                     _all.add(w)
             except AttributeError:
-                continue
+                pass
         return _all
 
 

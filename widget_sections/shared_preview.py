@@ -18,7 +18,7 @@ class ListScrollBar(ScrollView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.instance = self
+        ListScrollBar.instance = self
         Clock.schedule_once(self._bar_width)
 
     def _bar_width(self, _):

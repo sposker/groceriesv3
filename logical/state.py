@@ -27,6 +27,7 @@ class ItemNode:
         self.toggle = toggle
 
         self._note = note
+        _ = amount  # kwarg is present in certain loading situations so we can't remove it
         self.creation_time = creation if creation else time.time()
 
         self.prev = None

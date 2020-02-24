@@ -4,6 +4,7 @@ from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.metrics import dp
 from kivy.uix.dropdown import DropDown
+from kivymd.app import MDApp
 from kivymd.uix.button import MDFlatButton, MDIconButton
 from kivymd.uix.card import MDCard
 from kivymd.uix.textfield import MDTextField
@@ -65,6 +66,8 @@ class WinItemCard(MDCard):
         self.contract_anim.bind(on_progress=lambda a_, b_, progress:
         self._anim_progress(-self.expansion_height, progress))
         self.contract_anim.bind(on_complete=lambda a_, b_: self._anim_complete())
+
+        self.color_anim = Animation(text_color=MDApp.get_running_app().text_color, duration=1, t='in_expo')
 
     @property
     def toggle(self):

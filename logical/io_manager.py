@@ -215,15 +215,11 @@ class IOManager(SettingsManager):
         pool = set()
         now = time.time()
 
-        for k, v in db.items.items():
-            print(k, v)
-
         for dict_ in generator_object:
             for uid, info in dict_.items():
                 try:
                     item = db.items[uid]
                 except KeyError:  # New item created during previous program run
-                    print(uid)
                     amount, note = info
                     item_str, group = uid.split(';')
                     name, uid = item_str.rsplit(' ', maxsplit=1)
