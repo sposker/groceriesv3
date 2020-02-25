@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from access_app.access_view_methods import GroupDetailLogic, LocationDetailLogic, LocationMapLogic, ItemDetailLogic
+
 
 class ViewElementLayout(ABC):
     """Layout for viewing relevant item information"""
@@ -20,7 +22,7 @@ class ViewElementLayout(ABC):
         return self.element.uid
 
 
-class GroupDetail(ViewElementLayout):
+class GroupDetail(ViewElementLayout, GroupDetailLogic):
     """First tab view-class; allows editing of group names and sort order"""
 
     @property
@@ -32,8 +34,9 @@ class GroupDetail(ViewElementLayout):
         return kv_pairs
 
 
-class ItemDetail(ViewElementLayout):
+class ItemDetail(ViewElementLayout, ItemDetailLogic):
     """Second tab view-class; allows editing of item details."""
+
 
     @property
     def kv_pairs(self):
@@ -55,7 +58,7 @@ class ItemDetail(ViewElementLayout):
         return kv_pairs
 
 
-class LocationMap(ViewElementLayout):
+class LocationMap(ViewElementLayout, LocationMapLogic):
     """Third tab view-class; allows editing of item-location mappings"""
 
     def __init__(self, element, store):
@@ -78,7 +81,7 @@ class LocationMap(ViewElementLayout):
         return self.store.locations[loc_uid]
 
 
-class LocationDetail(ViewElementLayout):
+class LocationDetail(ViewElementLayout, LocationDetailLogic):
     """Fourth tab view-class; allows editing of location names and sort order"""
 
     def __init__(self, element, store):
@@ -97,21 +100,5 @@ class LocationDetail(ViewElementLayout):
         return self.store.locations[loc_uid]
 
 
-class ObjectProcessor:
-    """The implementation of ObjectProcessor is completely generic, and it only requires a conversion-friendly
-     `object_` and a `format` as parameters.
-
-    The `format` is used to identify the concrete implementation of the `LayoutContainer` and is resolved
-    by the `self.factory` object. The `object_` parameter refers to another abstract interface that should be
-    implemented on any object type you want to convert into a layout representation.
-    """
-
-    factory = None
-
-    def convert(self, object_, format_):
-        container = self.factory.get(format_)
-        object_.generate_fields(container)
-        return container.to_layout
-
-
-
+class ViewFactory:
+    """"""
