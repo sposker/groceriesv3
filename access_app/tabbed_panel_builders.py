@@ -13,7 +13,7 @@ def populate_mod_group(db, producer, child_cls):
                           spacing=8,
                           )
 
-    for nested in group_details:
+    for nested in sorted(group_details, key=lambda x: x['group_uid']):
         widget = child_cls(nested)
         container.add_widget(widget)
 
@@ -34,7 +34,7 @@ def populate_location_mapping(db, producer, base, view_cls):
 
     pairs = producer.refreshed_store_mappings(db)
     dict_ = {}
-    values = ['fucker']
+    values = []
     for mapping, store in pairs:
         dict_[store.name] = mapping
         values.append(store.name)
@@ -58,19 +58,17 @@ def populate_location_details(db, producer, sub_tab_panel, child_cls):
                         tab_width=Window.width/len(pairs),
                         )
     for mapping, store in pairs:
+        print(len(mapping))
         header = TabbedPanelHeader(text=store.name)
         content_ = BoxLayout(orientation='vertical')
         header.content = content_
-        content_.add_widget(Widget())
+        content_.add_widget(Widget(size_hint=(1, .08)))
         sub.add_widget(header)
         bx = BoxLayout(orientation='vertical', size_hint=(1, .92))
         content_.add_widget(bx)
-        # header.content = bx
-        for store_ in mapping:
-            print(store_)
-            for nested in store_:
-                widget = child_cls(nested)
-                bx.add_widget(widget)
+        for dict_ in sorted(mapping, key=lambda x: x['location_uid']):
+            widget = child_cls(dict_)
+            bx.add_widget(widget)
         header.rv_ref = bx
 
     return sub

@@ -1,3 +1,5 @@
+#: import Window access_app
+
 # Various layouts for recycleviews and root widget for app
 
 
@@ -14,8 +16,26 @@
 
 <ModGroupLayout>
 #    default_size: None, dp(128)
-    size_hint: .4, 1
+    size_hint: .5, 1
     pos_hint: {'center_x': .5, 'center_y': .5}
+
+    MDIconButton:
+        size_hint_max_x: dp(48)
+        icon: 'chevron-up'
+        user_font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        on_release:
+            print(self.icon)
+
+    MDIconButton:
+        size_hint_max_x: dp(48)
+        icon: 'chevron-down'
+        user_font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        on_release:
+            print(self.icon)
 
     MDLabel:
         size_hint: .12, 1
@@ -50,8 +70,10 @@
         background_color: 1, 1, 1, .5
         background_normal: '.8, .8, .8, .5'
         text: root.item_name
-        font_size: 22
+        font_size: 18
         text_color: app.text_color
+        size_hint: .4, 1
+        write_tab: False
 
     MDLabel:
         halign: 'center'
@@ -66,6 +88,7 @@
     AccessSpinner:
         widget_name: 'group_name'
         text: root.item_group_name
+        size_hint: .3, 1
 
     AccessInputShort:
         widget_name: 'defaults0'
@@ -83,10 +106,13 @@
         widget_name: 'item_note'
         background_color: 1, 1, 1, .5
         background_normal: '.8, .8, .8, .5'
-        font_size: 22
+        font_size: 18
         theme_text_color: 'Custom'
         text_color: app.text_color
         text: root.item_note
+        size_hint: .3, 1
+        write_tab: False
+        multiline: False
 
     MDIconButton:
         size_hint_max_x: dp(48)
@@ -140,13 +166,16 @@
 
 <ModLocationsLayout>
 
+    size_hint: .4, 1
+    pos_hint: {'center_x': .5, 'center_y': .5}
+    padding: dp(2)
+
     MDLabel:
         size_hint: .12, 1
         text: root.location_uid
         font_size: 20
         theme_text_color: 'Custom'
         text_color: app.text_color
-
 
     TextInput:
         background_color: 1, 1, 1, .5
@@ -198,11 +227,11 @@
     size_hint: 1, 1
     default_tab: item_details
     default_tab_cls: 'AccessSpinnerButton'
-    tab_width: Window.width/4
+    tab_width: self.width/4
 
     TabbedPanelItem:
         id: mod_groups
-        text: 'Group Names & Order'
+        text: 'DisplayGroup Names & Order'
         BoxLayout:
             orientation: 'vertical'
 
@@ -213,12 +242,12 @@
 
         BoxLayout:
             orientation: 'vertical'
-            spacing: dp(8)
+            spacing: dp(16)
 #            padding: dp(8)
 
             BoxLayout:
-                default_size: None, dp(72)
-                default_size_hint: 1, None
+                default_size: self.width - dp(12), dp(72)
+                default_size_hint: None, None
                 font_size: 20
                 spacing: dp(4)
                 padding: dp(8)
@@ -239,7 +268,7 @@
                 ViewSortButton:
                     sort_key: 'item_name'
                     rv_base: item_details
-                    size_hint: 1, 1
+                    size_hint: .4, 1
                     text: "ITEM NAME"
 
                 ViewSortButton:
@@ -251,7 +280,7 @@
                 ViewSortButton:
                     sort_key: 'item_group_name'
                     rv_base: item_details
-                    size_hint: 1, 1
+                    size_hint: .3, 1
                     text: "GROUP NAME"
 
                 MDLabel:
@@ -281,7 +310,7 @@
                 ViewSortButton:
                     sort_key: 'item_note'
                     rv_base: item_details
-                    size_hint: 1, 1
+                    size_hint: .3, 1
                     text: "ITEM NOTE"
 
                 MDLabel:

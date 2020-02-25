@@ -21,8 +21,8 @@ class Basket:
 class Location(UIDRoot):
     """Location object representing a physical location or aisle inside a store"""
 
-    def __init__(self, name, items=None, uid=None, special=False):
-        self.name = name
+    def __init__(self, name: str, items=None, uid=None, special=False):
+        self.name = name.capitalize()
         self.is_special = special
         self.uid = uid
         self.items = items if items else set()
@@ -36,7 +36,7 @@ class Store(UIDRoot):
 
     default = None
 
-    def __init__(self, name, locations: set, basket=None):
+    def __init__(self, name: str, locations: set, basket=None):
 
         self.name = name.capitalize()
         self.locations = {}

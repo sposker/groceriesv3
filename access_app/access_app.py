@@ -2,23 +2,24 @@
 
 from kivy.clock import Clock
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty, StringProperty
+from kivy.properties import ObjectProperty, StringProperty, NumericProperty
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from kivy.uix.recycleview import RecycleView
 from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.spinner import Spinner
 from kivy.uix.tabbedpanel import TabbedPanel
+from kivymd.app import MDApp
 from kivymd.theming import ThemeManager
-from kivymd.uix.button import MDRectangleFlatIconButton, MDRectangleFlatButton
+from kivymd.uix.button import MDRectangleFlatIconButton, MDRectangleFlatButton, MDFlatButton
 
-from __init__ import *
 from access_app.access_dicts import GroupDetail, ItemDetail, LocationMap, LocationDetail
 from access_app.tabbed_panel_builders import populate_mod_group, populate_item_details, populate_location_mapping, \
     populate_location_details
-from logical.database import Database
 from logical.groups_and_items import DisplayGroup
 from logical.io_manager import LocalManager
-from windows import *
-from windows.win_navbar import *
+from __init__ import *
+from access_app import *
 
 
 class MySpinnerButton(MDFlatButton):
@@ -47,6 +48,9 @@ class ModGroupLayout(BoxLayout):
         super().__init__(**kwargs)
         self.group_name = attrs['group_name']
         self.group_uid = attrs['group_uid']
+
+    def shift_up(self):
+        ...
 
 
 class ViewSortButton(MDRectangleFlatButton):
@@ -171,21 +175,23 @@ class ItemDetailsLayout(AccessBaseLayout):
         new_data = []
 
 
-
 class ItemLocationLayout(AccessBaseLayout):
     """Entry for mapping location to item"""
 
 
-class ModLocationsLayout(AccessBaseLayout,):
+class ModLocationsLayout(BoxLayout):
     """Allows adjusting Location names and order"""
 
     location_name = StringProperty()
     location_uid = StringProperty()
 
+    pairs = {}
+
     def __init__(self, attrs, **kwargs):
         super().__init__(**kwargs)
-        self.group_name = attrs['location_name']
-        self.group_uid = attrs['location_uid']
+        self.location_name = attrs['location_name']
+        self.location_uid = attrs['location_uid']
+        ModLocationsLayout.pairs[self.location_uid] = self.location_name
 
 
 class RecycleViewContainer(RecycleBoxLayout):
@@ -216,6 +222,8 @@ class LocsMapBase(BoxLayout):
 
 class AccessTabbedPanel(TabbedPanel):
     """Tabbed panels root"""
+
+    win_width = NumericProperty(Window.size[0]/4)
 
     mapping = {
         'mod_groups': (populate_mod_group, GroupDetail, ModGroupLayout,),
@@ -306,7 +314,7 @@ class AccessLoadScreen(Screen):
 
     def swap_screen(self, _):
         """Once loading is complete, swap the screen"""
-        return setattr(self.app.sm, 'current', "Amain")
+        return setattr(self.app.screen_manager, 'current', "Amain")
 
     def on_enter(self, *args):
         self._trigger()
@@ -345,7 +353,7 @@ class AccessApp(MDApp):
 
         self.db = None
         self.list_state = None
-        self.manager = None
+        self.screen_manager = None
         self.io_manager = None
         self.toggle_cls = None
 
@@ -359,19 +367,17 @@ class AccessApp(MDApp):
         self.theme_cls.theme_style = 'Dark'
 
     def build(self):
-        Builder.load_file(APP_KV_PATH)
-        Builder.load_file('access_app/access_elements.kv')
-        Builder.load_file('access_app/access_layouts.kv')
-        Builder.load_file('windows/win_kv/navbar.kv')
-        self.sm = AccessManager()
-        return self.sm
+        for file in widgets_list:
+            Builder.load_file(file)
+        self.screen_manager = AccessManager()
+        return self.screen_manager
 
     def load_data(self):
         self.io_manager = LocalManager()
         self.db = self.io_manager.create_database()
 
         s = AccessMainScreen(name='Amain')
-        self.sm.add_widget(s)
+        self.screen_manager.add_widget(s)
 
 
 

@@ -85,10 +85,11 @@ class LocationMap:
     @classmethod
     def refreshed_store_mappings(cls, data: Database, ):
         pairs = []
-        for store in data.stores.values():
+        for k, store in data.stores.items():
+            if k == 'default':
+                continue
             pairs.append(([LocationMap(item, store).kv_pairs for item in data.items.values()], store))
         return pairs
-
 
         #
         # return [([LocationMap(item, store).kv_pairs], store)
@@ -116,12 +117,20 @@ class LocationDetail:
 
     @property
     def kv_pairs(self):
-        return [{'location_name': location.name,
+        pairs = [{'location_name': location.name,
                  'location_uid': luid} for luid, location in self.store.locations.items()]
+        # print(pairs)
+        return pairs
 
     @classmethod
     def refreshed_location_details(cls, data):
-        return [([LocationDetail(store).kv_pairs], store) for store in data.stores.values()]
+        pairs = []
+        for k, store in data.stores.items():
+            if k == 'default':
+                continue
+            pairs.append((LocationDetail(store).kv_pairs, store))
+            print(pairs)
+        return pairs
 
     @classmethod
     def new_location_and_details(cls, data: Database, store: Store = None, storename=None):
