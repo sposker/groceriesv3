@@ -24,5 +24,5 @@ Window.exit_on_escape = False
 Window.left = screenwidth/2 - Window.size[0]/2
 Window.top = screenheight/2 - Window.size[1]/2
 Window.icon = 'data\\src\\main.ico'
-widgets_list = ['windows/win_kv/' + s + '.kv' for s in KV_WIDGETS] + ['access_app/access_elements.kv',
-                                                                      'access_app/access_layouts.kv']
+widgets_list = ['windows/win_kv/' + s + '.kv' for s in KV_WIDGETS] + ['access_app/access_kv/access_elements.kv',
+                                                                      'access_app/access_kv/access_layouts.kv']

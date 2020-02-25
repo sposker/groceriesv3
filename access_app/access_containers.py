@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 from kivy.uix.boxlayout import BoxLayout
 
-
+from access_app.access_misc_widgets import AccessRecycleView
 # from access_app.view_classes import GroupDetail, ItemDetail, LocationMap, LocationDetail
 
 
@@ -39,7 +39,6 @@ class ItemDetailContainer(LayoutContainer):
     """Second tab layout; allows editing of item details."""
 
     def to_layout(self):
-        from access_app.access_app_2 import AccessRecycleView
         self.display = AccessRecycleView(self.data, viewclass=self.layout)
 
 
@@ -51,7 +50,6 @@ class StoreItemMapContainer(LayoutContainer):
         super().__init__()
 
     def to_layout(self):
-        from access_app.access_app_2 import AccessRecycleView
         self.display = AccessRecycleView(self.data, viewclass=self.layout)
 
 

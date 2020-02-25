@@ -101,4 +101,13 @@ class LocationDetail(ViewElementLayout, LocationDetailLogic):
 
 
 class ViewFactory:
-    """"""
+
+    def __init__(self, **kwargs):
+        self._creators = kwargs
+
+    def register(self, name, container):
+        self._creators[name] = container
+
+    def get_view(self, format_, *args):
+        view_cls = self._creators[format_]
+        return view_cls(*args)

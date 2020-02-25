@@ -2,23 +2,19 @@
 
 from kivy.clock import Clock
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty, StringProperty
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.recycleboxlayout import RecycleBoxLayout
-from kivy.uix.recycleview import RecycleView
 from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.uix.spinner import Spinner
 from kivymd.app import MDApp
 from kivymd.theming import ThemeManager
-from kivymd.uix.button import MDRectangleFlatIconButton, MDRectangleFlatButton, MDFlatButton
 
-from access_app.access_containers import ItemDetailContainer, GroupDetailContainer, StoreItemMapContainer, \
-    StoreLocationDetailContainer, ContainerFacotry
-from access_app.access_view_registers import GroupDetail, ItemDetail, LocationMap, LocationDetail
-from logical.groups_and_items import DisplayGroup
-from logical.io_manager import LocalManager
 from __init__ import *
 from access_app import *
+from access_app.access_containers import ItemDetailContainer, GroupDetailContainer, StoreItemMapContainer, \
+    StoreLocationDetailContainer, ContainerFactory
+from access_app.access_view_registers import GroupDetail, ItemDetail, LocationMap, LocationDetail, ViewFactory
+from logical.io_manager import LocalManager
+from access_app.access_misc_widgets import *
+from access_app.access_tabs import *
 
 
 class AccessRoot(BoxLayout):
@@ -52,13 +48,15 @@ class AccessApp(MDApp):
     popup_height = screenheight * popup_scale
     popup_width = screenwidth * popup_scale
 
-    factory_mapping = {
-        'mod_groups': GroupDetailContainer,
-        'item_details': ItemDetailContainer,
-        'locs_map': StoreItemMapContainer,
-        'mod_locs': StoreLocationDetailContainer,
+    container_mapping = {
+        'mod_groups': (GroupDetailContainer, GroupDetail),
+        'item_details': (ItemDetailContainer, ItemDetail),
+        'map_locations': (StoreItemMapContainer, LocationMap),
+        'mod_locs': (StoreLocationDetailContainer, LocationDetail),
     }
-    factory = ContainerFacotry(**factory_mapping)
+    view_mapping = {k: v[1] for k, v in container_mapping.items()}
+    container_factory = ContainerFactory(**container_mapping)
+    view_factory = ViewFactory(**view_mapping)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
