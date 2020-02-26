@@ -3,7 +3,7 @@
 # Various layouts for recycleviews and root widget for app
 
 
-<AccessBaseLayout>
+<AccessBaseRow>
     default_size: None, dp(72)
     default_size_hint: 1, None
     font_size: 20
@@ -14,7 +14,7 @@
     height: self.minimum_height
 
 
-<ModGroupLayout>
+<GroupDetail>
 #    default_size: None, dp(128)
     size_hint: .5, 1
     pos_hint: {'center_x': .5, 'center_y': .5}
@@ -53,7 +53,7 @@
         text_color: app.text_color
 
 
-<ItemDetailsLayout>
+<ItemDetail>
 
     MDLabel:
         halign: 'center'
@@ -186,29 +186,29 @@
 
 
 
-#<ItemLocationLayout>
-#
-#    size_hint: 1, None
-#    height: dp(64)
-#
-#    MDLabel:
-#        halign: 'center'
-#        theme_text_color: 'Custom'
-#        font_size: 16
-#        color: app.text_color
-#
-#    MDLabel:
-#        halign: 'center'
-#        theme_text_color: 'Custom'
-#        font_size: 16
-#        color: app.text_color
-#
-#    MDTextField:
-#        halign: 'center'
-#        theme_text_color: 'Custom'
-#        font_size: 16
-#        color: app.text_color
-#        write_tab: False
+<ItemLocationLayout>
+
+    size_hint: 1, None
+    height: dp(64)
+
+    MDLabel:
+        halign: 'center'
+        theme_text_color: 'Custom'
+        font_size: 16
+        color: app.text_color
+
+    MDLabel:
+        halign: 'center'
+        theme_text_color: 'Custom'
+        font_size: 16
+        color: app.text_color
+
+    MDTextField:
+        halign: 'center'
+        theme_text_color: 'Custom'
+        font_size: 16
+        color: app.text_color
+        write_tab: False
 
 
 <ViewSortButton>
@@ -223,26 +223,28 @@
         self.sort()
 
 <AccessTabbedPanel>
+    default_tab: default_tab_id
+    default_tab_cls: 'AccessSpinnerButton'
     pos_hint: {'center_x': .5, 'center_y': .5}
     size_hint: 1, 1
-    default_tab: item_details
-    default_tab_cls: 'AccessSpinnerButton'
     tab_width: self.width/4
 
     TabbedPanelItem:
-        id: mod_groups
         text: 'DisplayGroup Names & Order'
-        BoxLayout:
+        ModGroupContent:
+            id: mod_groups
             orientation: 'vertical'
+
 
 
     TabbedPanelItem:
-        id: item_details
         text: 'Item Details'
+        id: default_tab_id
 
-        BoxLayout:
+        ItemDetailsContent:
+            id: item_details
             orientation: 'vertical'
-            spacing: dp(16)
+#            spacing: dp(16)
 #            padding: dp(8)
 
             BoxLayout:
@@ -339,19 +341,25 @@
 
 
     TabbedPanelItem:
-        id: locs_map
         text: 'Item: Location Mapping'
-        LocsMapBase:
+        ItemLocationContent:
+            id: locs_map
             orientation: 'vertical'
-
+            TabbedPanel:
+                pos_hint: {'center_x': .5, 'center_y': .5}
+                size_hint: 1, 1
+                tab_width: self.width/4
 
 
     TabbedPanelItem:
-        id: mod_locs
         text: 'Location Names & Order'
-        BoxLayout:
+        ModLocationsContent:
+            id: mod_locs
             orientation: 'vertical'
-
+            TabbedPanel:
+                pos_hint: {'center_x': .5, 'center_y': .5}
+                size_hint: 1, 1
+                tab_width: self.width/4
 
 
 <AccessRoot>

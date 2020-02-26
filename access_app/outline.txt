@@ -1,8 +1,6 @@
-"""
+cls DataFactory
 
-cls ViewFactory
-
-cls ContainerFacotry
+cls ContainerFactory
 
 cls ItemView:
 
@@ -10,9 +8,9 @@ cls ItemView:
 
 cls TabA
     def populate:
-        container = ContainerFacotry['itemview']
+        container = ContainerFactory['itemview']
         for i in db.items:
-            viewlayout =  ViewFactory['itemview'](container, i)
+            viewlayout =  DataFactory['itemview'](container, i)
             viewlayout.generate_data()  # Appends data from object to container's data
         container.to_layout()
         self.content.add_widget(container.container)
@@ -21,9 +19,9 @@ cls TabA
 cls TabB
     def populate:
         for store in db.stores:
-            container = ContainerFacotry['loc_map'](store)
+            container = ContainerFactory['loc_map'](store)
             for item in store.locations.items:
-                ViewFactory['loc_map'](container, item)
+                DataFactory['loc_map'](container, item)
 
 ____
 
@@ -33,19 +31,3 @@ cls Root
         for t in tabs:
             t.populate()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"""

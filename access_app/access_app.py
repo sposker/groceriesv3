@@ -8,13 +8,13 @@ from kivymd.app import MDApp
 from kivymd.theming import ThemeManager
 
 from __init__ import *
-from access_app import *
-from access_app.access_containers import ItemDetailContainer, GroupDetailContainer, StoreItemMapContainer, \
-    StoreLocationDetailContainer, ContainerFactory
-from access_app.access_view_registers import GroupDetail, ItemDetail, LocationMap, LocationDetail, ViewFactory
+from access_app import TEXT_BASE_SIZE, ITEM_ROW_HEIGHT, screenheight, popup_scale, screenwidth, widgets_list
+from access_app.bases import ContainerFactory, DataFactory
+from access_app.group_details import GroupDetailContainer, GroupDetailRow
+from access_app.item_details import ItemDetailRow, ItemDetailContainer
+from access_app.item_location_mapping import StoreItemMapContainer, LocationMapRow
+from access_app.location_details import StoreLocationDetailContainer, LocationDetailRow
 from logical.io_manager import LocalManager
-from access_app.access_misc_widgets import *
-from access_app.access_tabs import *
 
 
 class AccessRoot(BoxLayout):
@@ -49,14 +49,14 @@ class AccessApp(MDApp):
     popup_width = screenwidth * popup_scale
 
     container_mapping = {
-        'mod_groups': (GroupDetailContainer, GroupDetail),
-        'item_details': (ItemDetailContainer, ItemDetail),
-        'map_locations': (StoreItemMapContainer, LocationMap),
-        'mod_locs': (StoreLocationDetailContainer, LocationDetail),
+        'group_details': (GroupDetailContainer, GroupDetailRow),
+        'item_details': (ItemDetailContainer, ItemDetailRow),
+        'map_locations': (StoreItemMapContainer, LocationMapRow),
+        'location_details': (StoreLocationDetailContainer, LocationDetailRow),
     }
-    view_mapping = {k: v[1] for k, v in container_mapping.items()}
+    data_mapping = {k: v[1] for k, v in container_mapping.items()}
     container_factory = ContainerFactory(**container_mapping)
-    view_factory = ViewFactory(**view_mapping)
+    data_factory = DataFactory(**data_mapping)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -96,7 +96,8 @@ class AccessManager(ScreenManager):
 
 
 class AccessMainScreen(Screen):
-    """Main Screen for access app"""
+    """Main Screen for access app; contains AccessRoot defined in kvlang.
+     The root holds a tabbed panel view with various tabs representing different data sets."""
 
 
 class AccessLoadScreen(Screen):

@@ -1,15 +1,13 @@
+from kivy.properties import ObjectProperty, StringProperty
+from kivy.uix.boxlayout import BoxLayout
 from kivymd.app import MDApp
 
+from access_app.access_misc_widgets import AccessRecycleView
+from access_app.bases import DataGenerator, LayoutContainer
 from logical.groups_and_items import DisplayGroup
 
 
-class GroupDetailLogic:
-    """"""
-
-    def shift_up(self):
-        ...
-
-class ItemDetailLogic:
+class ItemDetailLogic(BoxLayout):
     """"""
 
     def _gather_info(self):
@@ -29,7 +27,7 @@ class ItemDetailLogic:
             if nested['item_uid'] == self.item_uid:
                 break
 
-        new_value = ItemDetail(self.item).kv_pairs
+        new_value = ItemDetailRow(self.item).kv_pairs
         self.rv.data[index] = new_value
         self.rv.refresh_from_data()
 
@@ -71,7 +69,7 @@ class ItemDetailLogic:
     @property
     def data_copy(self):
         if self._old_data is None:
-            self._old_data = ItemDetail(self.item).kv_pairs
+            self._old_data = ItemDetailRow(self.item).kv_pairs
         return self._old_data
 
     @data_copy.deleter
@@ -94,13 +92,65 @@ class ItemDetailLogic:
 
     @classmethod
     def update_all(cls):
-        new_data = []
+        ...
 
 
-class LocationMapLogic:
-    """"""
+class ItemDetailRow(DataGenerator, ItemDetailLogic):
+    """A row representing a single `GroceryItem`.
+    Inherits `BoxLayout` properties from `DataGenerator`.
+    Factory must yield data rather than actual objects to be compatible with a `RecycleView`.
+    """
+
+    @property
+    def kv_pairs(self):
+        defaults_list = sorted(self.element.defaults.copy(), key=lambda i: i[0])
+        defaults_list = [str(num) for _, num in defaults_list]
+        while len(defaults_list) < 3:
+            defaults_list.append('')
+        kv_pairs = {
+            'item': self.element,
+            'item_uid': self.element.uid,
+            'item_name': self.element.name,
+            'item_group_uid': self.element.group.uid,
+            'item_group_name': self.element.group.name,
+            'item_default_0': defaults_list[0],
+            'item_default_1': defaults_list[1],
+            'item_default_2': defaults_list[2],
+            'item_note': self.element.note,
+        }
+        return kv_pairs
 
 
-class LocationDetailLogic:
-    """"""
+class ItemDetailContainer(LayoutContainer):
+    """The container which holds instances of `ItemDetailRow`"""
+
+    def generate_data(self, elements):
+        view_layouts = MDApp.get_running_app().data_factory.get('item_details', elements)
+        self.data = sorted(view_layouts, key=lambda x: x.get('item_uid'))
+
+    def to_layout(self):
+        self.container_display = AccessRecycleView(self.data, viewclass=ItemDetailRow)
+
+
+class ItemDetailsContent(BoxLayout):
+    """Builds the content of this tabbed panel (1).
+    Primary content is an `AccessRecycleView` instance.
+    """
+
+    item = ObjectProperty()
+    item_uid = StringProperty()
+    item_name = StringProperty()
+    item_group_uid = StringProperty()
+    item_group_name = StringProperty()
+    item_default_0 = StringProperty()
+    item_default_1 = StringProperty()
+    item_default_2 = StringProperty()
+    item_note = StringProperty()
+
+    def populate(self):
+        app = MDApp.get_running_app()
+        container = app.container_factory.get('item_details')
+        container.generate_data(app.db.items.values())
+        container.to_layout()
+        self.add_widget(container.container_display)
 

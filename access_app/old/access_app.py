@@ -13,7 +13,7 @@
 # from kivymd.theming import ThemeManager
 # from kivymd.uix.button import MDRectangleFlatIconButton, MDRectangleFlatButton, MDFlatButton
 #
-# from access_app.access_dicts import GroupDetail, ItemDetail, LocationMap, LocationDetail
+# from access_app.access_dicts import GroupDetailRow, ItemDetailRow, LocationMapRow, LocationDetailRow
 # from access_app.tabbed_panel_builders import populate_mod_group, populate_item_details, populate_location_mapping, \
 #     populate_location_details
 # from logical.groups_and_items import DisplayGroup
@@ -107,7 +107,7 @@
 #             if nested['item_uid'] == self.item_uid:
 #                 break
 #
-#         new_value = ItemDetail(self.item).kv_pairs
+#         new_value = ItemDetailRow(self.item).kv_pairs
 #         self.rv.data[index] = new_value
 #         self.rv.refresh_from_data()
 #
@@ -149,7 +149,7 @@
 #     @property
 #     def data_copy(self):
 #         if self._old_data is None:
-#             self._old_data = ItemDetail(self.item).kv_pairs
+#             self._old_data = ItemDetailRow(self.item).kv_pairs
 #         return self._old_data
 #
 #     @data_copy.deleter
@@ -226,10 +226,10 @@
 #     win_width = NumericProperty(Window.size[0]/4)
 #
 #     mapping = {
-#         'mod_groups': (populate_mod_group, GroupDetail, ModGroupLayout,),
-#         'item_details': (populate_item_details, ItemDetail, AccessRecycleView, ItemDetailsLayout, ),
-#         'locs_map': (populate_location_mapping, LocationMap, LocsMapBase, ItemLocationLayout, ),
-#         'mod_locs': (populate_location_details, LocationDetail, TabbedPanel, ModLocationsLayout),
+#         'mod_groups': (populate_mod_group, GroupDetailRow, ModGroupLayout,),
+#         'item_details': (populate_item_details, ItemDetailRow, AccessRecycleView, ItemDetailsLayout, ),
+#         'locs_map': (populate_location_mapping, LocationMapRow, LocsMapBase, ItemLocationLayout, ),
+#         'mod_locs': (populate_location_details, LocationDetailRow, TabbedPanel, ModLocationsLayout),
 #     }
 #
 #     def on_kv_post(self, base_widget):
