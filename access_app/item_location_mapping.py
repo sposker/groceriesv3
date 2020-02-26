@@ -18,7 +18,6 @@ class LocationMapData(DataGenerator):
 
     def __init__(self, args, **kwargs):
         self.store, self.location, element = args
-        print(self.store)
         super().__init__(element, **kwargs)
 
     @property
@@ -62,7 +61,7 @@ class StoreItemMapContainer(LayoutContainer):
         self.data = sorted(view_layouts, key=lambda x: x.get('item_uid'))
 
     def to_layout(self):
-        self.container_display = AccessRecycleView(self.data, viewclass=LocationMapRow,)
+        self.container_display = AccessRecycleView(self.data, viewclass=LocationMapRow, size_hint=(1,1))
 
 
 class ItemLocationContent(BoxLayout):
@@ -77,7 +76,7 @@ class ItemLocationContent(BoxLayout):
             if name == 'default':  # Duplicated store
                 continue
 
-            store_panel = TabbedPanelItem(text=name)
+            store_panel = TabbedPanelItem(text=name.capitalize())
             sub_panel.add_widget(store_panel)
             container = app.container_factory.get('map_locations', store)
             container.store = store
@@ -91,10 +90,11 @@ class ItemLocationContent(BoxLayout):
                         ALSO need it to work with factory
                         """
                         items.add((store, location, item))
-            print(len(items))
+            # print(len(items))
 
             container.generate_data(items)
             container.to_layout()
             store_panel.content = container.container_display
         # noinspection PyUnboundLocalVariable
         sub_panel.default_tab = store_panel
+        sub_panel.tab_width = MDApp.get_running_app().root.width/(len(app.db.stores) - 1)

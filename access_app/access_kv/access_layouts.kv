@@ -15,30 +15,41 @@
 
 
 <GroupDetailRow>
-#    default_size: None, dp(128)
-    size_hint: .5, 1
+    default_size: None, dp(128)
+    size_hint: 1, 1
     pos_hint: {'center_x': .5, 'center_y': .5}
 
-    MDIconButton:
-        size_hint_max_x: dp(48)
-        icon: 'chevron-up'
-        user_font_size: 20
-        theme_text_color: 'Custom'
-        text_color: app.text_color
-        on_release:
-            print(self.icon)
+#    canvas.before:
+#        Color:
+#            rgba: .6, .1, .6, .5
+#        RoundedRectangle:
+#            size: self.size
+#            pos: self.pos
+#            radius: [16, 16, 16, 16]
 
     MDIconButton:
         size_hint_max_x: dp(48)
-        icon: 'chevron-down'
-        user_font_size: 20
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        icon: 'chevron-up'
+        user_font_size: 32
         theme_text_color: 'Custom'
         text_color: app.text_color
         on_release:
-            print(self.icon)
+            root.swap(-1)
+
+    MDIconButton:
+        size_hint_max_x: dp(48)
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        icon: 'chevron-down'
+        user_font_size: 32
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        on_release:
+            root.swap(1)
 
     MDLabel:
         size_hint: .12, 1
+        pos_hint: {'center_x': .5, 'center_y': .5}
         text: root.group_uid
         font_size: 20
         theme_text_color: 'Custom'
@@ -48,6 +59,9 @@
     TextInput:
         background_color: 1, 1, 1, .5
         background_normal: '.8, .8, .8, .5'
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        size_hint: 1, 1
+        valign: 'center'
         text: root.group_name
         font_size: 22
         text_color: app.text_color
@@ -56,6 +70,7 @@
 <ItemDetailRow>
 
     spacing: dp(8)
+    padding: dp(8)
 
     MDLabel:
         halign: 'center'
@@ -157,7 +172,7 @@
 
     size_hint: .5, 1
     pos_hint: {'center_x': .5, 'center_y': .5}
-    padding: dp(2)
+    padding: [dp(32), 0]
 
     MDLabel:
         size_hint: .2, 1
@@ -188,16 +203,8 @@
 
 
 <LocationDetailRow>
-
-    canvas.before:
-        Color:
-            rgba: .6, .1, .6, .5
-        RoundedRectangle:
-            size: self.size
-            pos: self.pos
-            radius: [16, 16, 16, 16]
-
-    size_hint: .5, 1
+    default_size: None, dp(128)
+    size_hint: 1, 1
     pos_hint: {'center_x': .5, 'center_y': .5}
 
     MDIconButton:
@@ -253,12 +260,10 @@
     tab_width: self.width/4
 
     TabbedPanelItem:
-        text: 'DisplayGroup Names & Order'
+        text: 'Display Group Names & Order'
         ModGroupContent:
             id: mod_groups
-            orientation: 'vertical'
-
-
+#            orientation: 'vertical'
 
     TabbedPanelItem:
         text: 'Item Details'
@@ -277,34 +282,31 @@
                 spacing: dp(8)
                 padding: dp(8)
                 orientation: 'horizontal'
-                size_hint: 1, None
+                size_hint: None, None
                 height: self.minimum_height
-
-#                Widget:
-#                    size_hint: None, 1
-#                    width: dp(8)
+                width: self.parent.width
 
                 ViewSortButton:
                     sort_key: 'item_uid'
-                    rv_base: item_details
+                    container: item_details
                     text: 'I-ID'
                     size_hint_max_x: dp(48)
 
                 ViewSortButton:
                     sort_key: 'item_name'
-                    rv_base: item_details
+                    container: item_details
                     size_hint: .4, 1
                     text: "ITEM NAME"
 
                 ViewSortButton:
                     sort_key: 'item_group_uid'
-                    rv_base: item_details
+                    container: item_details
                     text: "G-ID"
                     size_hint_max_x: dp(42)
 
                 ViewSortButton:
                     sort_key: 'item_group_name'
-                    rv_base: item_details
+                    container: item_details
                     size_hint: .3, 1
                     text: "GROUP NAME"
 
@@ -314,7 +316,7 @@
                     font_size: 20
                     theme_text_color: 'Custom'
                     text_color: app.text_color
-                    size_hint_max_x: dp(44)
+                    size_hint_max_x: dp(48)
 
                 MDLabel:
                     halign: 'center'
@@ -322,7 +324,7 @@
                     font_size: 20
                     theme_text_color: 'Custom'
                     text_color: app.text_color
-                    size_hint_max_x: dp(44)
+                    size_hint_max_x: dp(48)
 
                 MDLabel:
                     halign: 'center'
@@ -330,11 +332,11 @@
                     font_size: 20
                     theme_text_color: 'Custom'
                     text_color: app.text_color
-                    size_hint_max_x: dp(44)
+                    size_hint_max_x: dp(48)
 
                 ViewSortButton:
                     sort_key: 'item_note'
-                    rv_base: item_details
+                    container: item_details
                     size_hint: .3, 1
                     text: "ITEM NOTE"
 
@@ -362,6 +364,9 @@
                     theme_text_color: 'Custom'
                     text_color: app.text_color
 
+#                Widget:
+#                    size_hint: None, 1
+#                    width: 0
 
     TabbedPanelItem:
         text: 'Item-Location Mapping'
@@ -371,8 +376,6 @@
             TabbedPanel:
                 pos_hint: {'center_x': .5, 'center_y': .5}
                 size_hint: 1, 1
-                tab_width: self.width/2
-
 
     TabbedPanelItem:
         text: 'Location Names & Order'
@@ -382,14 +385,12 @@
             TabbedPanel:
                 pos_hint: {'center_x': .5, 'center_y': .5}
                 size_hint: 1, 1
-                tab_width: self.width/2
 
 
 <AccessRoot>
 
     orientation: 'vertical'
-#    padding: dp(12)
-    spacing: dp(12)
+#    spacing: dp(12)
 
     BoxLayout:
         canvas.before:
@@ -431,7 +432,6 @@
 
 <AccessMainScreen>
     name: "Amain"
-
     AccessRoot:
 
 

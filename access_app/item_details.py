@@ -73,16 +73,6 @@ class ItemDetailLogic(BoxLayout):
                 if group.name == text:
                     return group
 
-    # @property
-    # def data_copy(self):
-    #     if self._old_data is None:
-    #         self._old_data = ItemDetailRow(self.item).kv_pairs
-    #     return self._old_data
-    #
-    # @data_copy.deleter
-    # def data_copy(self):
-    #     self._old_data = None
-
     @property
     def widget_refs(self) -> dict:
         """Create dict when needed rather than by default"""

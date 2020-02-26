@@ -1,6 +1,8 @@
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from kivy.uix.recycleview import RecycleView
 from kivy.uix.spinner import Spinner
+from kivy.uix.widget import Widget
 from kivymd.app import MDApp
 from kivymd.uix.button import MDFlatButton, MDRectangleFlatButton, MDRectangleFlatIconButton
 
@@ -19,17 +21,24 @@ class AccessSpinner(Spinner):
 class ViewSortButton(MDRectangleFlatButton):
     """Buttons for sorting"""
 
+    def __init__(self, **kwargs):
+        self._rv_instance = None
+        self.sort_desc = False
+        super().__init__(**kwargs)
+
     def sort(self):
-        # print(self.rv_base.content.children[0])
-        rv = self.rv_base.content.children[0]
-        data = sorted(rv.data, key=lambda x: x[self.sort_key])
-        if self.sort_dir == 'ascending':
-            self.sort_dir = 'descending'
-        else:
-            self.sort_dir = 'ascending'
-            data.reverse()
-        rv.data = data
-        rv.refresh_from_data()
+        data = sorted(self.rv.data, key=lambda x: x[self.sort_key], reverse=self.sort_desc)
+        self.sort_desc = not self.sort_desc
+        self.rv.data = data
+        self.rv.refresh_from_data()
+
+    @property
+    def rv(self):
+        if self._rv_instance is None:
+            for child in self.container.children:
+                if isinstance(child, AccessRecycleView):
+                    self._rv_instance = child
+        return self._rv_instance
 
 
 class RecycleViewContainer(RecycleBoxLayout):

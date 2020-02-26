@@ -22,7 +22,7 @@ class UIDRoot:
             if self.uid == other.uid:
                 return True
         except (AttributeError, ValueError):
-            pass
+            return
 
     def __hash__(self):
         return hash(self.__repr__())

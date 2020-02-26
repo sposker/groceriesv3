@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.tabbedpanel import TabbedPanel
+from kivy.uix.widget import Widget
 
 
 class AccessBaseRow(BoxLayout):
@@ -63,6 +64,24 @@ class LayoutContainer(ABC):
     @abstractmethod
     def to_layout(self):
         raise NotImplementedError
+
+    def fill_container(self, layouts, rows):
+        """`GridLayout`-like behavior for filling in widgets by column"""
+        all_sections = list(layouts)
+        sections = []
+        while all_sections:
+            sections.append(all_sections[:rows])
+            all_sections = all_sections[rows:]
+        else:
+            while len(sections[-1]) < rows:
+                sections[-1].append(Widget())
+
+        for widgets_list in sections:
+            child = BoxLayout(orientation='vertical', spacing=8)
+            self.container_display.add_widget(child)
+            for w in widgets_list:
+                child.add_widget(w)
+
 
 
 class ContainerFactory:
