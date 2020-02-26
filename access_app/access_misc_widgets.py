@@ -14,7 +14,6 @@ class AccessSpinner(Spinner):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.db = MDApp.get_running_app().db
-        self.values = [grp.name for grp in self.db.groups.values()]
 
 
 class ViewSortButton(MDRectangleFlatButton):
@@ -42,8 +41,8 @@ class AccessRecycleView(RecycleView):
 
     def __init__(self, data_dict, viewclass=None, **kwargs):
         super().__init__(**kwargs)
-        self.data = data_dict
         self.viewclass = viewclass
+        self.data = data_dict
 
 
 class AccessMidButton(MDRectangleFlatIconButton):

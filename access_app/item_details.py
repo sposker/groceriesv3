@@ -7,8 +7,14 @@ from access_app.bases import DataGenerator, LayoutContainer
 from logical.groups_and_items import DisplayGroup
 
 
-class ItemDetailLogic:
+class ItemDetailLogic(BoxLayout):
     """"""
+
+    rv_ref = None
+
+    def __init__(self, **kwargs):
+        self._widget_refs = None
+        super().__init__(**kwargs)
 
     def _gather_info(self):
         """Update item properties based on entered values"""
@@ -23,13 +29,16 @@ class ItemDetailLogic:
         if gather:
             self._gather_info()
 
-        for index, nested in enumerate(self.rv.data):
+        for index, nested in enumerate(self.rv_ref.data):
             if nested['item_uid'] == self.item_uid:
                 break
 
-        new_value = ItemDetailRow(self.item).kv_pairs
-        self.rv.data[index] = new_value
-        self.rv.refresh_from_data()
+        # Use factory to generate an updated set of data for this one item
+        new_value = next(MDApp.get_running_app().data_factory.get('item_details', (self.item,)))
+
+        # noinspection PyUnboundLocalVariable
+        self.rv_ref.data[index] = new_value
+        self.rv_ref.refresh_from_data()
 
     def reset_values(self):
         """Simply refresh the data without updating it, restoring previous values."""
@@ -60,21 +69,19 @@ class ItemDetailLogic:
         if text == self.item.group.name:
             return self.item.group
         else:
-            if not self.db:
-                ItemDetailsLayout.db = MDApp.get_running_app().db
-            for group in self.db.groups.values():
+            for group in MDApp.get_running_app().db.groups.values():
                 if group.name == text:
                     return group
 
-    @property
-    def data_copy(self):
-        if self._old_data is None:
-            self._old_data = ItemDetailRow(self.item).kv_pairs
-        return self._old_data
-
-    @data_copy.deleter
-    def data_copy(self):
-        self._old_data = None
+    # @property
+    # def data_copy(self):
+    #     if self._old_data is None:
+    #         self._old_data = ItemDetailRow(self.item).kv_pairs
+    #     return self._old_data
+    #
+    # @data_copy.deleter
+    # def data_copy(self):
+    #     self._old_data = None
 
     @property
     def widget_refs(self) -> dict:
@@ -95,9 +102,8 @@ class ItemDetailLogic:
         ...
 
 
-class ItemDetailData(DataGenerator, ItemDetailLogic):
-    """A row representing a single `GroceryItem`.
-    Inherits `BoxLayout` properties from `DataGenerator`.
+class ItemDetailData(DataGenerator):
+    """This class translates a `GroceryItem` into a dict representation.
     Factory must yield data rather than actual objects to be compatible with a `RecycleView`.
     """
 
@@ -121,8 +127,10 @@ class ItemDetailData(DataGenerator, ItemDetailLogic):
         return kv_pairs
 
 
-class ItemDetailRow(BoxLayout):
-    """View class for `RecycleView`"""
+class ItemDetailRow(ItemDetailLogic):
+    """View class for `RecycleView`.
+    Inherits `BoxLayout` properties and methods from `ItemDetailLogic`.
+    """
 
     item = ObjectProperty()
     item_uid = StringProperty()
@@ -144,6 +152,7 @@ class ItemDetailContainer(LayoutContainer):
 
     def to_layout(self):
         self.container_display = AccessRecycleView(self.data, viewclass=ItemDetailRow)
+        ItemDetailLogic.rv_ref = self.container_display
 
 
 class ItemDetailsContent(BoxLayout):

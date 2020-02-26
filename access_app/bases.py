@@ -26,6 +26,12 @@ class DataGenerator(AccessBaseRow):
 
 
 class DataFactory:
+    """data_mapping = {
+        'group_details': GroupDetailRow,
+        'item_details': ItemDetailData,
+        'map_locations': LocationMapData,
+        'location_details': LocationDetailRow,
+    }"""
 
     def __init__(self, **kwargs):
         self._creators = kwargs
@@ -60,6 +66,12 @@ class LayoutContainer(ABC):
 
 
 class ContainerFactory:
+    """container_mapping = {
+        'group_details': (GroupDetailContainer, GroupDetailRow),
+        'item_details': (ItemDetailContainer, ItemDetailData),
+        'map_locations': (StoreItemMapContainer, LocationMapData),
+        'location_details': (StoreLocationDetailContainer, LocationDetailRow),
+    }"""
 
     def __init__(self, **kwargs):
         self._creators = kwargs

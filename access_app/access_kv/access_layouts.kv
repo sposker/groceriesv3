@@ -14,7 +14,7 @@
     height: self.minimum_height
 
 
-<GroupDetail>
+<GroupDetailRow>
 #    default_size: None, dp(128)
     size_hint: .5, 1
     pos_hint: {'center_x': .5, 'center_y': .5}
@@ -53,7 +53,9 @@
         text_color: app.text_color
 
 
-<ItemDetail>
+<ItemDetailRow>
+
+    spacing: dp(8)
 
     MDLabel:
         halign: 'center'
@@ -89,6 +91,7 @@
         widget_name: 'group_name'
         text: root.item_group_name
         size_hint: .3, 1
+        values: [grp.name for grp in self.db.groups.values()]
 
     AccessInputShort:
         widget_name: 'defaults0'
@@ -142,33 +145,78 @@
             root.reset_values()
 
 
-<LocsMapBase>
-    values: []
-#    NavBarButton:
-#        color: app.elem_color
-#        size_hint: (None, None)
-#        size: (self.parent.height - 4, self.parent.height)
+<LocationMapRow>
 
-    Spinner:
-        values: root.values
-        background_color: app.bg_color
-        background_normal: app.elem_color_string
-        color: app.text_color
-        font_size: 26
-        foreground_color: app.text_color
-        size_hint: 1, .1
-        text_autoupdate: True
-        width: 246.0980634528224
-        text_color: app.text_color
-        on_text:
-            root.set_data()
+    canvas.before:
+        Color:
+            rgba: .1, .6, .1, .5
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [0, 0, 16, 16]
 
-
-<ModLocationsLayout>
-
-    size_hint: .4, 1
+    size_hint: .5, 1
     pos_hint: {'center_x': .5, 'center_y': .5}
     padding: dp(2)
+
+    MDLabel:
+        size_hint: .2, 1
+        text: root.item_uid
+        font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+
+    MDLabel:
+        size_hint: .2, 1
+        text: root.item_name
+        font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+
+    MDLabel:
+        size_hint: .2, 1
+        text: root.location_uid
+        font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+
+    AccessSpinner:
+        widget_name: 'location_name'
+        text: root.location_name
+        size_hint: .4, 1
+        values: root.location_names
+
+
+<LocationDetailRow>
+
+    canvas.before:
+        Color:
+            rgba: .6, .1, .6, .5
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [16, 16, 16, 16]
+
+    size_hint: .5, 1
+    pos_hint: {'center_x': .5, 'center_y': .5}
+
+    MDIconButton:
+        size_hint_max_x: dp(48)
+        icon: 'chevron-up'
+        user_font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        on_release:
+            print(self.icon)
+
+    MDIconButton:
+        size_hint_max_x: dp(48)
+        icon: 'chevron-down'
+        user_font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        on_release:
+            print(self.icon)
 
     MDLabel:
         size_hint: .12, 1
@@ -177,38 +225,13 @@
         theme_text_color: 'Custom'
         text_color: app.text_color
 
+
     TextInput:
         background_color: 1, 1, 1, .5
         background_normal: '.8, .8, .8, .5'
         text: root.location_name
         font_size: 22
         text_color: app.text_color
-
-
-
-<ItemLocationLayout>
-
-    size_hint: 1, None
-    height: dp(64)
-
-    MDLabel:
-        halign: 'center'
-        theme_text_color: 'Custom'
-        font_size: 16
-        color: app.text_color
-
-    MDLabel:
-        halign: 'center'
-        theme_text_color: 'Custom'
-        font_size: 16
-        color: app.text_color
-
-    MDTextField:
-        halign: 'center'
-        theme_text_color: 'Custom'
-        font_size: 16
-        color: app.text_color
-        write_tab: False
 
 
 <ViewSortButton>
@@ -251,7 +274,7 @@
                 default_size: self.width - dp(12), dp(72)
                 default_size_hint: None, None
                 font_size: 20
-                spacing: dp(4)
+                spacing: dp(8)
                 padding: dp(8)
                 orientation: 'horizontal'
                 size_hint: 1, None
@@ -341,14 +364,14 @@
 
 
     TabbedPanelItem:
-        text: 'Item: Location Mapping'
+        text: 'Item-Location Mapping'
         ItemLocationContent:
             id: locs_map
             orientation: 'vertical'
             TabbedPanel:
                 pos_hint: {'center_x': .5, 'center_y': .5}
                 size_hint: 1, 1
-                tab_width: self.width/4
+                tab_width: self.width/2
 
 
     TabbedPanelItem:
@@ -359,7 +382,7 @@
             TabbedPanel:
                 pos_hint: {'center_x': .5, 'center_y': .5}
                 size_hint: 1, 1
-                tab_width: self.width/4
+                tab_width: self.width/2
 
 
 <AccessRoot>

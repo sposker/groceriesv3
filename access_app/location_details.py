@@ -1,5 +1,6 @@
 from kivy.properties import StringProperty
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.tabbedpanel import TabbedPanelItem
 from kivymd.app import MDApp
 
@@ -10,25 +11,32 @@ class LocationDetailLogic(BoxLayout):
     """"""
 
 
+# noinspection PyRedeclaration
 class LocationDetailRow(DataGenerator, LocationDetailLogic):
     """A row representing a single `Location` within a given `Store`.
     Inherits `BoxLayout` properties from `DataGenerator`.
     Factory must yield actual objects to populate a `BoxLayout`.
     """
 
+    location_name = StringProperty()
+    location_uid = StringProperty()
+
     def __init__(self, element, **kwargs):
         super().__init__(element, **kwargs)
 
     @property
     def kv_pairs(self):
-        kv_pairs = {'location_name': self.location.name,
-                    'location_uid': self.location.uid}
+        kv_pairs = {'location_name': self.element.name,
+                    'location_uid': self.element.uid}
         return kv_pairs
 
     @property
-    def location(self):
-        loc_uid = self.store[self.element.uid]
-        return self.store.locations[loc_uid]
+    def location_name(self):
+        return self.element.name
+
+    @property
+    def location_uid(self):
+        return self.element.uid
 
 
 class StoreLocationDetailContainer(LayoutContainer):
@@ -39,15 +47,16 @@ class StoreLocationDetailContainer(LayoutContainer):
         super().__init__()
 
     def generate_data(self, elements):
-        for e in MDApp.get_running_app().data_factory.get('location_details', elements):
-            print(e.element)
         view_layouts = MDApp.get_running_app().data_factory.get('location_details', elements)
-        self.data = sorted(view_layouts, key=lambda x: str(x.element))
+        for row in sorted(view_layouts, key=lambda x: x.sort_key):
+            self.container_display.add_widget(row)
 
     def to_layout(self):
         self.container_display = BoxLayout(
+            size_hint=(1, 1),
+            pos_hint={'center_x': .5, 'center_y': .5},
             orientation='vertical',
-            spacing=8,
+            spacing=4,
         )
 
 
@@ -56,23 +65,27 @@ class ModLocationsContent(BoxLayout):
     Content is another tabbed panel, whose tabs contain `BoxLayout` instances.
     """
 
-    location_name = StringProperty()
-    location_uid = StringProperty()
-
-    pairs = {}
-
     def populate(self):
         app = MDApp.get_running_app()
         sub_panel = self.children[0]
-        for store in app.db.stores.values():
-            if store.name == 'default':  # Duplicated store
+        for name, store in app.db.stores.items():
+            if name == 'default':  # Duplicated store
                 continue
 
-            store_panel = TabbedPanelItem()
+            store_panel = TabbedPanelItem(text=name)
             sub_panel.add_widget(store_panel)
             container = app.container_factory.get('location_details', store)
+            container.store = store
 
             container.to_layout()
+            print(container.container_display)
+            store_panel.content = BoxLayout(size_hint=(1, 1),
+                                            pos_hint={'center_x': .5, 'center_y': .5},
+                                            orientation='vertical',
+                                            )
+            store_panel.content.add_widget(container.container_display)
             container.generate_data(store.locations.values())
-            store_panel.content = container.container_display
+            print(len(container.container_display.children))
 
+        # noinspection PyUnboundLocalVariable
+        sub_panel.default_tab = store_panel
