@@ -11,7 +11,7 @@ from __init__ import *
 from access_app import TEXT_BASE_SIZE, ITEM_ROW_HEIGHT, screenheight, popup_scale, screenwidth, widgets_list
 from access_app.bases import ContainerFactory, DataFactory
 from access_app.group_details import GroupDetailContainer, GroupDetailRow
-from access_app.item_details import ItemDetailRow, ItemDetailContainer
+from access_app.item_details import ItemDetailContainer, ItemDetailData
 from access_app.item_location_mapping import StoreItemMapContainer, LocationMapRow
 from access_app.location_details import StoreLocationDetailContainer, LocationDetailRow
 from logical.io_manager import LocalManager
@@ -50,7 +50,7 @@ class AccessApp(MDApp):
 
     container_mapping = {
         'group_details': (GroupDetailContainer, GroupDetailRow),
-        'item_details': (ItemDetailContainer, ItemDetailRow),
+        'item_details': (ItemDetailContainer, ItemDetailData),
         'map_locations': (StoreItemMapContainer, LocationMapRow),
         'location_details': (StoreLocationDetailContainer, LocationDetailRow),
     }

@@ -68,3 +68,4 @@ class ModGroupContent(BoxLayout):
         container.to_layout()
         container.generate_data(app.db.groups.values())
         self.add_widget(container.container_display)
+        print(self.children, len(self.children[0].children))

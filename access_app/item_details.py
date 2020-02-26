@@ -7,7 +7,7 @@ from access_app.bases import DataGenerator, LayoutContainer
 from logical.groups_and_items import DisplayGroup
 
 
-class ItemDetailLogic(BoxLayout):
+class ItemDetailLogic:
     """"""
 
     def _gather_info(self):
@@ -95,7 +95,7 @@ class ItemDetailLogic(BoxLayout):
         ...
 
 
-class ItemDetailRow(DataGenerator, ItemDetailLogic):
+class ItemDetailData(DataGenerator, ItemDetailLogic):
     """A row representing a single `GroceryItem`.
     Inherits `BoxLayout` properties from `DataGenerator`.
     Factory must yield data rather than actual objects to be compatible with a `RecycleView`.
@@ -121,6 +121,20 @@ class ItemDetailRow(DataGenerator, ItemDetailLogic):
         return kv_pairs
 
 
+class ItemDetailRow(BoxLayout):
+    """View class for `RecycleView`"""
+
+    item = ObjectProperty()
+    item_uid = StringProperty()
+    item_name = StringProperty()
+    item_group_uid = StringProperty()
+    item_group_name = StringProperty()
+    item_default_0 = StringProperty()
+    item_default_1 = StringProperty()
+    item_default_2 = StringProperty()
+    item_note = StringProperty()
+
+
 class ItemDetailContainer(LayoutContainer):
     """The container which holds instances of `ItemDetailRow`"""
 
@@ -136,16 +150,6 @@ class ItemDetailsContent(BoxLayout):
     """Builds the content of this tabbed panel (1).
     Primary content is an `AccessRecycleView` instance.
     """
-
-    item = ObjectProperty()
-    item_uid = StringProperty()
-    item_name = StringProperty()
-    item_group_uid = StringProperty()
-    item_group_name = StringProperty()
-    item_default_0 = StringProperty()
-    item_default_1 = StringProperty()
-    item_default_2 = StringProperty()
-    item_note = StringProperty()
 
     def populate(self):
         app = MDApp.get_running_app()
