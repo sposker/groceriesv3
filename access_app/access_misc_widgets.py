@@ -77,8 +77,9 @@ class AccessMidButton(MDRectangleFlatIconButton):
 
     def add_new_entry(self, tab):
         for widget in tab.content.walk(restrict=True):
-            print(widget)
+            # print(widget)
             if hasattr(widget, 'create_new'):
+                print(widget)
                 return widget.create_new()
             elif hasattr(widget, 'current_tab'):
                 if x := self.add_new_entry(widget.current_tab):

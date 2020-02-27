@@ -13,22 +13,26 @@ class LocationDetailLogic:
 
     element = None
 
+    def create_new(self):
+        """Add a new Location to our store via factory"""
+        store = self._find_store(self.element.uid)
+        uid_index = max(int(uid[1:]) for uid in store.locations)
+        loc = Location('New Location', uid='l'+str(uid_index + 1).zfill(3))
+        store.locations[loc.uid] = loc
+        self.refresh_from_data(store)
+        return True  # Prevents repeating creation for each tab
+
     @staticmethod
-    def create_new():
-        """Add a new DisplayGroup to display via factory"""
-        loc = Location('NewLocation')
-        return next(MDApp.get_running_app().data_factory.get('group_details', (loc,)))
+    def _find_store(uid):
+        for store_ in MDApp.get_running_app().db.stores.values():
+            if uid in store_.locations:
+                return store_
 
     def shift(self, direction):
         """Attempt to change a `Location`'s uid."""
 
-        def find_store(uid_):
-            for store_ in MDApp.get_running_app().db.stores.values():
-                if uid in store_.locations:
-                    return store_
-
         uid = self.element.uid
-        store = find_store(uid)
+        store = self._find_store(uid)
         z_factor = len(uid) - 1
         index = int(uid[1:])
 

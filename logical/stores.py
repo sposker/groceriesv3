@@ -48,7 +48,7 @@ class Store(UIDRoot):
             if loc.is_special:
                 self.specials.add(loc)
 
-        if 'l00' not in self.locations:
+        if 'l000' not in self.locations:
             self.create_unsorted()
 
     def __getitem__(self, item):
@@ -68,7 +68,7 @@ class Store(UIDRoot):
         return self._basket.index
 
     def create_unsorted(self):
-        loc = Location('Unsorted', uid='l00', special=True)
+        loc = Location('Unsorted', uid='l000', special=True)
         self.specials.add(loc)
         self.locations[loc.uid] = loc
 

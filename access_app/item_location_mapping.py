@@ -10,6 +10,9 @@ from access_app.bases import DataGenerator, LayoutContainer
 class LocationMapLogic(BoxLayout):
     """Methods bound to widgets that interact with the `LocationMapRow`"""
 
+    def create_new(self):
+        """There's no way to add a new mapping; only modify existing ones."""
+
 
 class LocationMapData(DataGenerator):
     """This class translates a `GroceryItem`-`Location` pair into a dict representation.
