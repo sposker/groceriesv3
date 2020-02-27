@@ -21,6 +21,7 @@ class LocationDetailLogic:
         loc = Location('New Location', uid=new_uid)
         store.locations[loc.uid] = loc
         self.refresh_from_data(store)
+        MDApp.get_running_app().refresh_rvs()
         return True  # Prevents repeating creation for each tab
 
     @staticmethod
@@ -79,6 +80,10 @@ class LocationDetailLogic:
             for w in widgets_list:
                 child.add_widget(w)
                 w.size_hint = (1, 1)
+
+    def on_text_validate(self, text):
+        self.element.name = text
+        MDApp.get_running_app().refresh_rvs()
 
 
 # noinspection PyRedeclaration,PyAbstractClass

@@ -16,6 +16,7 @@ class GroupDetailLogic:
         """Add a new DisplayGroup to display via factory"""
         g = DisplayGroup('NewGroup')
         MDApp.get_running_app().db.groups[g.uid] = g
+        MDApp.get_running_app().refresh_rvs()
         self.refresh_from_data()
 
     def shift(self, direction):
@@ -45,6 +46,10 @@ class GroupDetailLogic:
         tab = self.parent.parent.parent
         tab.remove_widget(tab.children[0])
         tab.populate()
+
+    def on_text_validate(self, text):
+        self.element.name = text
+        MDApp.get_running_app().refresh_rvs()
 
 
 class GroupDetailRow(DataGenerator, GroupDetailLogic):

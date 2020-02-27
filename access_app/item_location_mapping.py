@@ -1,8 +1,10 @@
+from kivy.factory import Factory
 from kivy.properties import StringProperty, ObjectProperty, ListProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.tabbedpanel import TabbedPanelItem
 from kivymd.app import MDApp
 
+from access_app.access_dialogs import MappingAttemptedNewItem
 from access_app.access_misc_widgets import AccessRecycleView
 from access_app.bases import DataGenerator, LayoutContainer
 
@@ -10,8 +12,12 @@ from access_app.bases import DataGenerator, LayoutContainer
 class LocationMapLogic(BoxLayout):
     """Methods bound to widgets that interact with the `LocationMapRow`"""
 
-    def create_new(self):
+    @staticmethod
+    def create_new():
         """There's no way to add a new mapping; only modify existing ones."""
+
+        Factory.MappingAttemptedNewItem().open()
+        return True
 
 
 class LocationMapData(DataGenerator):
@@ -25,16 +31,22 @@ class LocationMapData(DataGenerator):
 
     @property
     def kv_pairs(self):
-        locations = sorted(self.store.locations.values(), key=lambda x: x.uid)
         kv_pairs = {
             'store': self.store,
             'item_name': self.element.name,
             'item_uid': self.element.uid,
             'location_name': self.location.name,
-            'location_names': [loc.name for loc in locations],
+            'location_names': self.spinner_values,
             'location_uid': self.location.uid_short,
         }
         return kv_pairs
+
+    @property
+    def spinner_values(self):
+        locs = sorted((loc for loc in self.store.locations.values()), key=lambda x: x.uid)
+        return [loc.name for loc in locs]
+        # except AttributeError:
+        #     return []
 
 
 class LocationMapRow(LocationMapLogic):
@@ -71,6 +83,7 @@ class StoreItemMapContainer(LayoutContainer):
 
     def to_layout(self):
         self.container_display = AccessRecycleView(self.data, viewclass=LocationMapRow, size_hint=(1, 1))
+        MDApp.get_running_app().rv_refs.append(self.container_display)
 
 
 class ItemLocationContent(BoxLayout):

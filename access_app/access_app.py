@@ -66,6 +66,7 @@ class AccessApp(MDApp):
         self.screen_manager = None
         self.io_manager = None
         self.toggle_cls = None
+        self.rv_refs = []
 
     def set_theme(self):
         """Must be done as part of `__init__` method"""
@@ -89,6 +90,10 @@ class AccessApp(MDApp):
 
         s = AccessMainScreen(name='Amain')
         self.screen_manager.add_widget(s)
+
+    def refresh_rvs(self):
+        for rv in self.rv_refs:
+            rv.refresh_from_data()
 
 
 class AccessManager(ScreenManager):

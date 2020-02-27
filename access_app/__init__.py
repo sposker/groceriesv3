@@ -13,7 +13,13 @@ ITEM_ROW_HEIGHT = 72
 TEXT_BASE_SIZE = 40
 
 APP_KV_PATH = r'access_app/access_kv/_access_root.kv'
-KV_WIDGETS = ['access_elements', 'group_details', 'item_details', 'location_details', 'location_mapping']
+KV_WIDGETS = ['access_elements',
+              'group_details',
+              'item_details',
+              'location_details',
+              'location_mapping',
+              'access_dialogs',
+              ]
 
 Window.size = (2560 / 2, 1440 / 1.2)
 popup_scale = 2560/screenwidth

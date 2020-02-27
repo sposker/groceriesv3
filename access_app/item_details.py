@@ -22,7 +22,7 @@ class ItemDetailLogic(BoxLayout):
         MDApp.get_running_app().db.items[itm.uid] = itm
         new_value = next(MDApp.get_running_app().data_factory.get('item_details', (itm,)))
         self.rv_ref.data.append(new_value)
-        self.rv_ref.refresh_from_data()
+        MDApp.get_running_app().refresh_rvs()
 
     def _gather_info(self):
         """Update item properties based on entered values"""
@@ -150,6 +150,7 @@ class ItemDetailContainer(LayoutContainer):
 
     def to_layout(self):
         self.container_display = AccessRecycleView(self.data, viewclass=ItemDetailRow)
+        MDApp.get_running_app().rv_refs.append(self.container_display)
         ItemDetailLogic.rv_ref = self.container_display
 
 

@@ -1,0 +1,44 @@
+<GroceriesAppBaseDialog>
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, .25
+        Rectangle:
+            size: self._window.size if self._window else (0, 0)
+        Color:
+            rgba: 0,0,0,.1
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    auto_dismiss: False
+    font_size: 20
+    separator_color: app.trans
+    size: (app.popup_width/6, app.popup_height/5)
+    size_hint: (None, None)
+    title: ''
+    title_size: 0
+
+<MappingAttemptedNewItem>
+    size_hint: .4, .3
+#    pos_hint: {'center_x': .5, 'center_y': .5}
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(16), 0
+        spacing: dp(16)
+
+        MDLabel:
+            size_hint: (1, .7)
+            halign: 'center'
+            text: 'New mappings cannot be created directly.\n\nAdd a new item or location and then adjust that mapping.'
+            theme_text_color: 'Custom'
+            font_size: 32
+            color: app.text_color
+
+        MDRectangleFlatButton:
+            font_size: 24
+            size_hint: (1, .25)
+            text_color: app.text_color
+            text: "OK"
+            on_release:
+                root.dismiss()
