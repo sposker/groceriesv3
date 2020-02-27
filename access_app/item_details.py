@@ -4,7 +4,7 @@ from kivymd.app import MDApp
 
 from access_app.access_misc_widgets import AccessRecycleView
 from access_app.bases import DataGenerator, LayoutContainer
-from logical.groups_and_items import DisplayGroup
+from logical.groups_and_items import DisplayGroup, GroceryItem
 
 
 class ItemDetailLogic(BoxLayout):
@@ -15,6 +15,14 @@ class ItemDetailLogic(BoxLayout):
     def __init__(self, **kwargs):
         self._widget_refs = None
         super().__init__(**kwargs)
+
+    def create_new(self):
+        """Add a new item to the database via factory"""
+        itm = GroceryItem(name='New Item', group='g00')
+        MDApp.get_running_app().db.items[itm.uid] = itm
+        new_value = next(MDApp.get_running_app().data_factory.get('item_details', (itm,)))
+        self.rv_ref.data.append(new_value)
+        self.rv_ref.refresh_from_data()
 
     def _gather_info(self):
         """Update item properties based on entered values"""
