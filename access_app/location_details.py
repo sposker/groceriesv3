@@ -50,18 +50,22 @@ class LocationDetailLogic:
 
     def refresh_from_data(self, store):
         """Method is unique in each base class"""
+        rows = 14
         lower_grid = self.parent.parent
         app = MDApp.get_running_app()
         view_layouts = sorted(app.data_factory.get('location_details', store.locations.values()),
                               key=lambda x: x.sort_key)
         lower_grid.clear_widgets()
 
-        sections = []  # TODO: This is repeated code from LayoutContainer(ABC).fill_container(self, layouts, rows)
+        # TODO: This is repeated code from LayoutContainer(ABC).fill_container(self, layouts, rows)
+        # TODO: Find a clean way to refactor this part
+
+        sections = []
         while view_layouts:
-            sections.append(view_layouts[:14])
-            view_layouts = view_layouts[14:]
+            sections.append(view_layouts[:rows])
+            view_layouts = view_layouts[rows:]
         else:
-            while len(sections[-1]) < 14:
+            while len(sections[-1]) < rows:
                 sections[-1].append(Widget())
 
         for widgets_list in sections:
@@ -130,6 +134,7 @@ class ModLocationsContent(BoxLayout):
         sub_panel = self.children[0]
         for name, store in app.db.stores.items():
             if name == 'default':  # Duplicated store
+                default_store = store.name
                 continue
 
             store_panel = TabbedPanelItem(text=name.capitalize())
@@ -137,13 +142,13 @@ class ModLocationsContent(BoxLayout):
             container = app.container_factory.get('location_details', store)
 
             container.to_layout()
-            # print(container.container_display)
             store_panel.content = BoxLayout(orientation='vertical')
             store_panel.content.add_widget(LocationDetailHeader())
             store_panel.content.add_widget(container.container_display)
             container.generate_data(store.locations.values())
-            # print(len(container.container_display.children))
 
-        # noinspection PyUnboundLocalVariable
-        sub_panel.default_tab = store_panel
+        for panel in sub_panel.tab_list:
+            # noinspection PyUnboundLocalVariable
+            if panel.text == default_store:
+                sub_panel.default_tab = panel
         sub_panel.tab_width = MDApp.get_running_app().root.width / (len(app.db.stores) - 1)

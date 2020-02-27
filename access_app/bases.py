@@ -22,7 +22,6 @@ class DataGenerator(AccessBaseRow):
 
     @property
     def sort_key(self):
-        # print(self)
         return self.element.uid
 
 

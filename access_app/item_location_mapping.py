@@ -80,6 +80,7 @@ class ItemLocationContent(BoxLayout):
         sub_panel = self.children[0]
         for name, store in app.db.stores.items():
             if name == 'default':  # Duplicated store
+                default_store = store.name
                 continue
 
             store_panel = TabbedPanelItem(text=name.capitalize())
@@ -100,6 +101,9 @@ class ItemLocationContent(BoxLayout):
             store_panel.content = BoxLayout(orientation='vertical')
             store_panel.content.add_widget(LocationMapHeader(container=container))
             store_panel.content.add_widget(container.container_display)
-        # noinspection PyUnboundLocalVariable
-        sub_panel.default_tab = store_panel
-        sub_panel.tab_width = MDApp.get_running_app().root.width/(len(app.db.stores) - 1)
+
+        for panel in sub_panel.tab_list:
+            # noinspection PyUnboundLocalVariable
+            if panel.text == default_store:
+                sub_panel.default_tab = panel
+        sub_panel.tab_width = MDApp.get_running_app().root.width / (len(app.db.stores) - 1)
