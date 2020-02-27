@@ -1,56 +1,58 @@
 """Contains classes used for modifying `DisplayGroup` order and names"""
 
-from kivy.properties import StringProperty
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.widget import Widget
 from kivymd.app import MDApp
 
-from access_app.bases import DataGenerator, LayoutContainer, AccessBaseRow
+from access_app.bases import DataGenerator, LayoutContainer
 from logical.groups_and_items import DisplayGroup
 
 
 class GroupDetailLogic:
-    """"""
+    """Methods bound to widgets that interact with the `GroupDetailRow`"""
 
-    def create_new(self):
-        """Add a new DisplayGroup via factory"""
+    element = None
+
+    @staticmethod
+    def create_new():
+        """Add a new DisplayGroup to display via factory"""
         g = DisplayGroup('NewGroup')
         return next(MDApp.get_running_app().data_factory.get('group_details', (g,)))
 
     def shift(self, direction):
+        """Attempt to change a `DisplayGroup`s uid."""
+
         uid = self.element.uid
+        z_factor = len(uid) - 1
         index = int(uid[1:])
+        app = MDApp.get_running_app()
         try:
-            other_group = MDApp.get_running_app().db.groups['g' + str(index+direction).zfill(2)]
+            other_group = app.db.groups['g' + str(index + direction).zfill(z_factor)]
         except KeyError:
             return  # Invalid selection, usually first or last item
         else:
             other_group.uid = self.element.uid
-            self.element.uid = 'g' + str(index+direction).zfill(2)
-            MDApp.get_running_app().db.groups.update({self.element.uid: self.element, other_group.uid: other_group})
+            self.element.uid = 'g' + str(index + direction).zfill(z_factor)
+            app.db.groups.update({self.element.uid: self.element, other_group.uid: other_group})
             return True  # Successfully swapped group uids (and therefore sort order)
 
-    def refresh_from_data(self):
-        tab = self.parent.parent.parent
-        tab.clear_widgets()
-        tab.populate()
-
     def swap(self, value):
+        """Initiate swapping values between two groups."""
         result = self.shift(value)
         if result:
             self.refresh_from_data()
 
+    def refresh_from_data(self):
+        tab = self.parent.parent.parent
+        tab.remove_widget(tab.children[0])
+        tab.populate()
 
-# noinspection PyRedeclaration
+
 class GroupDetailRow(DataGenerator, GroupDetailLogic):
     """A row representing a single `DisplayGroup`.
     Inherits `BoxLayout` properties from `DataGenerator`.
     Inherits methods for manipulating widgets from `GroupDetailLogic`.
     Factory must yield actual objects to populate a `BoxLayout`.
     """
-
-    group_name = StringProperty()
-    group_uid = StringProperty()
 
     @property
     def kv_pairs(self):
@@ -75,7 +77,7 @@ class GroupDetailContainer(LayoutContainer):
     def generate_data(self, elements):
         app = MDApp.get_running_app()
         view_layouts = sorted(app.data_factory.get('group_details', elements), key=lambda x: x.sort_key)
-        self.fill_container(view_layouts, 16)
+        self.fill_container(view_layouts, 14)
 
     def to_layout(self):
         self.container_display = BoxLayout()
@@ -92,4 +94,3 @@ class ModGroupContent(BoxLayout):
         container.to_layout()
         container.generate_data(app.db.groups.values())
         self.add_widget(container.container_display)
-        # print(self.children, len(self.children[0].children))

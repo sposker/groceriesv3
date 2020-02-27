@@ -1,0 +1,184 @@
+
+<ItemDetailRow>
+
+    spacing: dp(8)
+    padding: dp(8)
+
+    MDLabel:
+        halign: 'center'
+        widget_name: 'item_uid'
+        size_hint: None, 1
+        text: root.item_uid
+        font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        width: dp(88)
+
+    TextInput:
+        widget_name: 'item_name'
+        background_color: 1, 1, 1, .5
+        background_normal: '.8, .8, .8, .5'
+        text: root.item_name
+        font_size: 18
+        text_color: app.text_color
+        size_hint: .4, 1
+        write_tab: False
+
+    MDLabel:
+        halign: 'center'
+        widget_name: 'group_uid'
+        size_hint: None, 1
+        text: root.item_group_uid
+        font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        width: dp(88)
+
+    AccessSpinner:
+        widget_name: 'group_name'
+        text: root.item_group_name
+        size_hint: .3, 1
+        values: [grp.name for grp in self.db.groups.values()]
+
+    AccessInputShort:
+        widget_name: 'defaults0'
+        text: root.item_default_0
+
+    AccessInputShort:
+        widget_name: 'defaults1'
+        text: root.item_default_1
+
+    AccessInputShort:
+        widget_name: 'defaults2'
+        text: root.item_default_2
+
+    TextInput:
+        widget_name: 'item_note'
+        background_color: 1, 1, 1, .5
+        background_normal: '.8, .8, .8, .5'
+        font_size: 18
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        text: root.item_note
+        size_hint: .3, 1
+        write_tab: False
+        multiline: False
+
+    MDIconButton:
+        size_hint_max_x: dp(48)
+        icon: 'content-save-outline'
+        user_font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        on_release:
+            root.update_value()
+
+    MDIconButton:
+        size_hint_max_x: dp(48)
+        icon: 'restart'
+        user_font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        on_release:
+            root.reset_values()
+
+    MDIconButton:
+        size_hint_max_x: dp(48)
+        icon: 'delete-alert'
+        user_font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        on_release:
+            root.reset_values()
+
+
+<ItemDetailHeader@BoxLayout>:
+    default_size: self.width - dp(12), dp(72)
+    default_size_hint: None, None
+    font_size: 20
+    spacing: dp(8)
+    padding: dp(8)
+    orientation: 'horizontal'
+    size_hint: None, None
+    height: self.minimum_height
+    width: self.parent.width
+    item_details: None
+
+    ViewSortButton:
+        sort_key: 'item_uid'
+        container: root.item_details
+        text: 'I-ID'
+        size_hint_max_x: dp(48)
+
+    ViewSortButton:
+        sort_key: 'item_name'
+        container: root.item_details
+        size_hint: .4, 1
+        text: "Item Name"
+
+    ViewSortButton:
+        sort_key: 'item_group_uid'
+        container: root.item_details
+        text: "G-ID"
+        size_hint_max_x: dp(42)
+
+    ViewSortButton:
+        sort_key: 'item_group_name'
+        container: root.item_details
+        size_hint: .3, 1
+        text: "Group Name"
+
+    MDLabel:
+        halign: 'center'
+        text: "1ST"
+        font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        size_hint_max_x: dp(48)
+
+    MDLabel:
+        halign: 'center'
+        text: "2ND"
+        font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        size_hint_max_x: dp(48)
+
+    MDLabel:
+        halign: 'center'
+        text: "3RD"
+        font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        size_hint_max_x: dp(48)
+
+    ViewSortButton:
+        sort_key: 'item_note'
+        container: root.item_details
+        size_hint: .3, 1
+        text: "Item Note"
+
+    MDLabel:
+        halign: 'center'
+        size_hint_max_x: dp(40)
+        text: 'SAVE'
+        user_font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+
+    MDLabel:
+        halign: 'center'
+        size_hint_max_x: dp(48)
+        text: 'RESET'
+        user_font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+
+    MDLabel:
+        halign: 'center'
+        size_hint_max_x: dp(40)
+        text: 'DEL'
+        user_font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+

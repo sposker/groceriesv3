@@ -8,7 +8,7 @@ from logical.groups_and_items import DisplayGroup
 
 
 class ItemDetailLogic(BoxLayout):
-    """"""
+    """Methods bound to widgets that interact with the `ItemDetailRow`"""
 
     rv_ref = None
 

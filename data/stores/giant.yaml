@@ -1,4 +1,4 @@
-l01:
+l001:
   _is_special: true
   _name: walmart
   items:
@@ -9,7 +9,7 @@ l01:
   - i069
   - i070
 
-l02:
+l002:
   _is_special: false
   _name: Produce
   items:
@@ -22,7 +22,7 @@ l02:
   - i006
   - i007
 
-l03:
+l003:
   _is_special: false
   _name: Aisle 3
   items:
@@ -30,7 +30,7 @@ l03:
   - i022
   - i023
 
-l04:
+l004:
   _is_special: false
   _name: Deli
   items:
@@ -43,7 +43,7 @@ l04:
   - i024
   - i028
   -
-l05:
+l005:
   _is_special: false
   _name: Aisle 6
   items:
@@ -51,7 +51,7 @@ l05:
   - i036
   - i035
 
-l06:
+l006:
   _is_special: false
   _name: Aisle 7
   items:
@@ -61,14 +61,14 @@ l06:
   - i060
   - i059
 
-l07:
+l007:
   _is_special: false
   _name: Aisle 8
   items:
   - i057
   - i056
 
-l08:
+l008:
   _is_special: false
   _name: Aisle 10
   items:
@@ -77,7 +77,7 @@ l08:
   - i052
   - i055
 
-l09:
+l009:
   _is_special: false
   _name: Aisle 11
   items:
@@ -90,7 +90,7 @@ l09:
   - i051
   - i049
 
-l10:
+l010:
   _is_special: false
   _name: Aisle 12
   items:
@@ -109,7 +109,7 @@ l10:
   - i031
   - i029
   - i037
-l11:
+l011:
   _is_special: false
   _name: Bakery
   items:
@@ -119,7 +119,7 @@ l11:
   - i011
   - i015
 
-l12:
+l012:
   _is_special: false
   _name: Toiletries
   items:
@@ -130,19 +130,19 @@ l12:
   - i088
   - i090
 
-l13:
+l013:
   _is_special: false
   _name: Aisle 16
   items:
   - i071
 
-l14:
+l014:
   _is_special: false
   _name: Aisle 17
   items:
   - i072
 
-l15:
+l015:
   _is_special: false
   _name: Aisle 18
   items:
@@ -151,13 +151,13 @@ l15:
   - i066
   - i064
 
-l16:
+l016:
   _is_special: false
   _name: Aisle 19
   items:
   - i068
 
-l17:
+l017:
   _is_special: false
   _name: Meat
   items:
@@ -167,7 +167,7 @@ l17:
   - i018
   - i017
   -
-l18:
+l018:
   _is_special: false
   _name: Aisle 24
   items:
@@ -180,7 +180,7 @@ l18:
   - i073
   - i103
 
-l19:
+l019:
   _is_special: false
   _name: Aisle 25
   items:
@@ -188,7 +188,7 @@ l19:
   - i080
   - i079
 
-l20:
+l020:
   _is_special: false
   _name: Aisle 26
   items:
@@ -200,7 +200,7 @@ l20:
   - i085
   - i100
 
-l21:
+l021:
   _is_special: false
   _name: Aisle 27
   items:

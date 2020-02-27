@@ -81,7 +81,7 @@ class LayoutContainer(ABC):
             self.container_display.add_widget(child)
             for w in widgets_list:
                 child.add_widget(w)
-
+                w.size_hint = (1, 1)
 
 
 class ContainerFactory:

@@ -8,7 +8,8 @@ from kivymd.app import MDApp
 from kivymd.theming import ThemeManager
 
 from __init__ import *
-from access_app import TEXT_BASE_SIZE, ITEM_ROW_HEIGHT, screenheight, popup_scale, screenwidth, widgets_list
+from access_app import TEXT_BASE_SIZE, ITEM_ROW_HEIGHT, screenheight, popup_scale, screenwidth, widgets_list, \
+    APP_KV_PATH
 from access_app.bases import ContainerFactory, DataFactory
 from access_app.group_details import GroupDetailContainer, GroupDetailRow
 from access_app.item_details import ItemDetailContainer, ItemDetailData
@@ -80,6 +81,7 @@ class AccessApp(MDApp):
     def build(self):
         for file in widgets_list:
             Builder.load_file(file)
+        Builder.load_file(APP_KV_PATH)
         self.screen_manager = AccessManager()
         return self.screen_manager
 

@@ -1,17 +1,78 @@
 from kivy.properties import StringProperty
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.gridlayout import GridLayout
 from kivy.uix.tabbedpanel import TabbedPanelItem
+from kivy.uix.widget import Widget
 from kivymd.app import MDApp
 
 from access_app.bases import DataGenerator, LayoutContainer
+from logical.stores import Location
 
 
-class LocationDetailLogic(BoxLayout):
-    """"""
+class LocationDetailLogic:
+    """Methods bound to widgets that interact with the `LocationDetailRow`"""
+
+    element = None
+
+    @staticmethod
+    def create_new():
+        """Add a new DisplayGroup to display via factory"""
+        loc = Location('NewLocation')
+        return next(MDApp.get_running_app().data_factory.get('group_details', (loc,)))
+
+    def shift(self, direction):
+        """Attempt to change a `Location`'s uid."""
+
+        def find_store(uid_):
+            for store_ in MDApp.get_running_app().db.stores.values():
+                if uid in store_.locations:
+                    return store_
+
+        uid = self.element.uid
+        store = find_store(uid)
+        z_factor = len(uid) - 1
+        index = int(uid[1:])
+
+        try:
+            other_location = store.locations['l' + str(index + direction).zfill(z_factor)]
+        except KeyError:
+            return  # Invalid selection, usually first or last item
+        else:
+            other_location.uid = self.element.uid
+            self.element.uid = 'l' + str(index + direction).zfill(z_factor)
+            store.locations.update({self.element.uid: self.element, other_location.uid: other_location})
+            return store  # Successfully swapped location uids (and therefore sort order)
+
+    def swap(self, value):
+        """Initiate swapping values between two groups."""
+        result = self.shift(value)
+        if result:
+            self.refresh_from_data(result)
+
+    def refresh_from_data(self, store):
+        """Method is unique in each base class"""
+        lower_grid = self.parent.parent
+        app = MDApp.get_running_app()
+        view_layouts = sorted(app.data_factory.get('location_details', store.locations.values()),
+                              key=lambda x: x.sort_key)
+        lower_grid.clear_widgets()
+
+        sections = []  # TODO: This is repeated code from LayoutContainer(ABC).fill_container(self, layouts, rows)
+        while view_layouts:
+            sections.append(view_layouts[:14])
+            view_layouts = view_layouts[14:]
+        else:
+            while len(sections[-1]) < 14:
+                sections[-1].append(Widget())
+
+        for widgets_list in sections:
+            child = BoxLayout(orientation='vertical', spacing=8)
+            lower_grid.add_widget(child)
+            for w in widgets_list:
+                child.add_widget(w)
+                w.size_hint = (1, 1)
 
 
-# noinspection PyRedeclaration
+# noinspection PyRedeclaration,PyAbstractClass
 class LocationDetailRow(DataGenerator, LocationDetailLogic):
     """A row representing a single `Location` within a given `Store`.
     Inherits `BoxLayout` properties from `DataGenerator`.
@@ -37,6 +98,10 @@ class LocationDetailRow(DataGenerator, LocationDetailLogic):
     @property
     def location_uid(self):
         return self.element.uid
+
+
+class LocationDetailHeader(BoxLayout):
+    """Labels for fields displayed in tabs"""
 
 
 class StoreLocationDetailContainer(LayoutContainer):
@@ -70,14 +135,11 @@ class ModLocationsContent(BoxLayout):
             store_panel = TabbedPanelItem(text=name.capitalize())
             sub_panel.add_widget(store_panel)
             container = app.container_factory.get('location_details', store)
-            container.store = store
 
             container.to_layout()
             # print(container.container_display)
-            store_panel.content = BoxLayout(size_hint=(1, 1),
-                                            pos_hint={'center_x': .5, 'center_y': .5},
-                                            orientation='vertical',
-                                            )
+            store_panel.content = BoxLayout(orientation='vertical')
+            store_panel.content.add_widget(LocationDetailHeader())
             store_panel.content.add_widget(container.container_display)
             container.generate_data(store.locations.values())
             # print(len(container.container_display.children))

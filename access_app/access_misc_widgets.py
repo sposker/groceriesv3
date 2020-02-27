@@ -35,10 +35,19 @@ class ViewSortButton(MDRectangleFlatButton):
     @property
     def rv(self):
         if self._rv_instance is None:
-            for child in self.container.children:
-                if isinstance(child, AccessRecycleView):
-                    self._rv_instance = child
+            try:
+                self._direct_rv()
+            except AttributeError:
+                self._nested_rv()
         return self._rv_instance
+
+    def _direct_rv(self):
+        for child in self.container.children:
+            if isinstance(child, AccessRecycleView):
+                self._rv_instance = child
+
+    def _nested_rv(self):
+        self._rv_instance = self.container.container_display
 
 
 class RecycleViewContainer(RecycleBoxLayout):

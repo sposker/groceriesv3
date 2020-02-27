@@ -1,4 +1,4 @@
-from kivy.properties import StringProperty, ObjectProperty
+from kivy.properties import StringProperty, ObjectProperty, ListProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.tabbedpanel import TabbedPanelItem
 from kivymd.app import MDApp
@@ -8,7 +8,7 @@ from access_app.bases import DataGenerator, LayoutContainer
 
 
 class LocationMapLogic(BoxLayout):
-    """"""
+    """Methods bound to widgets that interact with the `LocationMapRow`"""
 
 
 class LocationMapData(DataGenerator):
@@ -22,11 +22,13 @@ class LocationMapData(DataGenerator):
 
     @property
     def kv_pairs(self):
+        locations = sorted(self.store.locations.values(), key=lambda x: x.uid)
         kv_pairs = {
             'store': self.store,
             'item_name': self.element.name,
             'item_uid': self.element.uid,
             'location_name': self.location.name,
+            'location_names': [loc.name for loc in locations],
             'location_uid': self.location.uid,
         }
         return kv_pairs
@@ -38,15 +40,19 @@ class LocationMapRow(LocationMapLogic):
     item_name = StringProperty()
     item_uid = StringProperty()
     location_name = StringProperty()
+    location_names = ListProperty()
     location_uid = StringProperty()
     store = ObjectProperty()
 
-    @property
-    def location_names(self):
-        try:
-            return [loc.name for loc in self.store.locations.values()]
-        except AttributeError:
-            return []
+
+class LocationMapHeader(BoxLayout):
+    """Labels for fields displayed in tab"""
+
+    container = ObjectProperty()
+
+    def __init__(self, container=None, **kwargs):
+        self.container = container
+        super().__init__(**kwargs)
 
 
 class StoreItemMapContainer(LayoutContainer):
@@ -61,7 +67,7 @@ class StoreItemMapContainer(LayoutContainer):
         self.data = sorted(view_layouts, key=lambda x: x.get('item_uid'))
 
     def to_layout(self):
-        self.container_display = AccessRecycleView(self.data, viewclass=LocationMapRow, size_hint=(1,1))
+        self.container_display = AccessRecycleView(self.data, viewclass=LocationMapRow, size_hint=(1, 1))
 
 
 class ItemLocationContent(BoxLayout):
@@ -85,16 +91,15 @@ class ItemLocationContent(BoxLayout):
             for location in store.locations.values():
                 for item in location.items:
                     if item:
-                        item = app.db.items[item]  # TODO
-                        """Need to find a clean way to pass store instance along with items for creation
-                        ALSO need it to work with factory
-                        """
+                        item = app.db.items[item]
                         items.add((store, location, item))
             # print(len(items))
 
             container.generate_data(items)
             container.to_layout()
-            store_panel.content = container.container_display
+            store_panel.content = BoxLayout(orientation='vertical')
+            store_panel.content.add_widget(LocationMapHeader(container=container))
+            store_panel.content.add_widget(container.container_display)
         # noinspection PyUnboundLocalVariable
         sub_panel.default_tab = store_panel
         sub_panel.tab_width = MDApp.get_running_app().root.width/(len(app.db.stores) - 1)

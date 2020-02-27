@@ -1,4 +1,4 @@
-l01:
+l101:
   _is_special: true
   _name: walmart
   items:
@@ -6,7 +6,7 @@ l01:
   - i097
   - i096
   - i095
-l02:
+l102:
   _is_special: false
   _name: produce
   items:
@@ -18,21 +18,21 @@ l02:
   - i004
   - i005
   - i000
-l03:
+l103:
   _is_special: false
   _name: near_deli
   items:
   - i025
   - i027
   - i026
-l04:
+l104:
   _is_special: true
   _name: deli
   items:
   - i010
   - i008
   - i009
-l05:
+l105:
   _is_special: false
   _name: bakery
   items:
@@ -40,7 +40,7 @@ l05:
   - i013
   - i011
   - i028
-l07:
+l107:
   _is_special: false
   _name: Aisle 01
   items:
@@ -49,7 +49,7 @@ l07:
   - i017
   - i019
   - i020
-l08:
+l108:
   _is_special: false
   _name: Aisle 02
   items:
@@ -68,7 +68,7 @@ l08:
   - i036
   - i033
   - i030
-l09:
+l109:
   _is_special: false
   _name: Aisle 03
   items:
@@ -76,7 +76,7 @@ l09:
   - i014
   - i015
   - i016
-l10:
+l110:
   _is_special: false
   _name: Aisle 04
   items:
@@ -89,7 +89,7 @@ l10:
   - i098
   - i046
   - i047
-l11:
+l111:
   _is_special: false
   _name: Aisle 05
   items:
@@ -99,7 +99,7 @@ l11:
   - i054
   - i043
   - i053
-l12:
+l112:
   _is_special: false
   _name: Aisle 06
   items:
@@ -110,7 +110,7 @@ l12:
   - i058
   - i056
   - i059
-l13:
+l113:
   _is_special: false
   _name: Aisle 07
   items:
@@ -119,12 +119,12 @@ l13:
   - i066
   - i063
   - i068
-l14:
+l114:
   _is_special: false
   _name: Aisle 08
   items:
   - i067
-l15:
+l115:
   _is_special: false
   _name: Aisle 09
   items:
@@ -132,7 +132,7 @@ l15:
   - i072
   - i023
   - i071
-l16:
+l116:
   _is_special: false
   _name: Aisle 10
   items:
@@ -144,7 +144,7 @@ l16:
   - i075
   - i076
   - i103
-l17:
+l117:
   _is_special: false
   _name: Aisle 11
   items:
@@ -152,31 +152,31 @@ l17:
   - i079
   - i081
   - i100
-l18:
+l118:
   _is_special: false
   _name: Aisle 12
   items:
   - i085
   - i086
-l19:
+l119:
   _is_special: false
   _name: Aisle 13
   items:
   - i083
   - i082
   - i084
-l20:
+l120:
   _is_special: false
   _name: Aisle 14
   items:
   - i104
   - i069
-l21:
+l121:
   _is_special: false
   _name: Aisle 15
   items:
   - i087
-l22:
+l122:
   _is_special: false
   _name: toiletries
   items:
