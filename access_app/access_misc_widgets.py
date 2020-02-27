@@ -1,8 +1,6 @@
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from kivy.uix.recycleview import RecycleView
 from kivy.uix.spinner import Spinner
-from kivy.uix.widget import Widget
 from kivymd.app import MDApp
 from kivymd.uix.button import MDFlatButton, MDRectangleFlatButton, MDRectangleFlatIconButton
 
@@ -73,8 +71,18 @@ class AccessMidButton(MDRectangleFlatIconButton):
         # 'Location Names & Order': None
     }
 
+    # def do_callback(self, tab, attr):
+    #     cb = getattr(self, attr)
+    #     result = cb(tab)
+
     def add_new_entry(self, tab):
-        return self.mapping[tab.text]
+        for widget in tab.content.walk(restrict=True):
+            print(widget)
+            if hasattr(widget, 'create_new'):
+                return widget.create_new()
+            elif hasattr(widget, 'current_tab'):
+                if x := self.add_new_entry(widget.current_tab):
+                    return x
 
     def update_from_view(self, tab):
         ...

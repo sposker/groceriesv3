@@ -12,11 +12,11 @@ class GroupDetailLogic:
 
     element = None
 
-    @staticmethod
-    def create_new():
+    def create_new(self):
         """Add a new DisplayGroup to display via factory"""
         g = DisplayGroup('NewGroup')
-        return next(MDApp.get_running_app().data_factory.get('group_details', (g,)))
+        MDApp.get_running_app().db.groups[g.uid] = g
+        self.refresh_from_data()
 
     def shift(self, direction):
         """Attempt to change a `DisplayGroup`s uid."""

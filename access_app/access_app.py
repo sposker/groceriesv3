@@ -1,5 +1,3 @@
-"""Iterate through all items and adjust their group"""
-
 from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
@@ -110,12 +108,12 @@ class AccessLoadScreen(Screen):
         self.app = MDApp.get_running_app()
         self._trigger = Clock.create_trigger(self.real_load, 1)
 
-    def real_load(self, _):
+    def real_load(self, *_):
         """Displays load screen while app builds itself"""
         self.app.load_data()
         return Clock.schedule_once(self.swap_screen)
 
-    def swap_screen(self, _):
+    def swap_screen(self, *_):
         """Once loading is complete, swap the screen"""
         return setattr(self.app.screen_manager, 'current', "Amain")
 
