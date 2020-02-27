@@ -16,8 +16,9 @@ class LocationDetailLogic:
     def create_new(self):
         """Add a new Location to our store via factory"""
         store = self._find_store(self.element.uid)
-        uid_index = max(int(uid[1:]) for uid in store.locations)
-        loc = Location('New Location', uid='l'+str(uid_index + 1).zfill(3))
+        uid_index = max(int(uid[-2:]) for uid in store.locations)
+        new_uid = store.uid + 'l' + str(uid_index + 1).zfill(2)
+        loc = Location('New Location', uid=new_uid)
         store.locations[loc.uid] = loc
         self.refresh_from_data(store)
         return True  # Prevents repeating creation for each tab
@@ -33,16 +34,16 @@ class LocationDetailLogic:
 
         uid = self.element.uid
         store = self._find_store(uid)
-        z_factor = len(uid) - 1
-        index = int(uid[1:])
+        z_factor = 2
+        index = int(uid[-2:])
 
         try:
-            other_location = store.locations['l' + str(index + direction).zfill(z_factor)]
+            other_location = store.locations[store.uid + 'l' + str(index + direction).zfill(z_factor)]
         except KeyError:
             return  # Invalid selection, usually first or last item
         else:
             other_location.uid = self.element.uid
-            self.element.uid = 'l' + str(index + direction).zfill(z_factor)
+            self.element.uid = store.uid + 'l' + str(index + direction).zfill(z_factor)
             store.locations.update({self.element.uid: self.element, other_location.uid: other_location})
             return store  # Successfully swapped location uids (and therefore sort order)
 
@@ -87,8 +88,8 @@ class LocationDetailRow(DataGenerator, LocationDetailLogic):
     Factory must yield actual objects to populate a `BoxLayout`.
     """
 
-    location_name = StringProperty()
-    location_uid = StringProperty()
+    # location_name = StringProperty()
+    # location_uid = StringProperty()
 
     def __init__(self, element, **kwargs):
         super().__init__(element, **kwargs)
@@ -105,7 +106,7 @@ class LocationDetailRow(DataGenerator, LocationDetailLogic):
 
     @property
     def location_uid(self):
-        return self.element.uid
+        return self.element.uid_short
 
 
 class LocationDetailHeader(BoxLayout):

@@ -32,7 +32,7 @@ class LocationMapData(DataGenerator):
             'item_uid': self.element.uid,
             'location_name': self.location.name,
             'location_names': [loc.name for loc in locations],
-            'location_uid': self.location.uid,
+            'location_uid': self.location.uid_short,
         }
         return kv_pairs
 

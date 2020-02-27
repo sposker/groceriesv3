@@ -80,10 +80,7 @@ class ListWriter:
         self.items = {}
         for uid, triple in pool.items():  # item, num, note = triple
 
-            try:
-                location_key = self.store[uid]
-            except KeyError as e:
-                location_key = 'l00'  # unsorted item
+            location_key = self.store[uid]
             try:
                 loc_pool = self.items[location_key]
             except KeyError:
