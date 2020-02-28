@@ -16,8 +16,8 @@ APP_KV_PATH = r'access_app/access_kv/_access_root.kv'
 KV_WIDGETS = ['access_elements',
               'group_details',
               'item_details',
+              'item_location_mapping',
               'location_details',
-              'location_mapping',
               'access_dialogs',
               ]
 

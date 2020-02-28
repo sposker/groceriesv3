@@ -13,7 +13,7 @@ from access_app.group_details import GroupDetailContainer, GroupDetailRow
 from access_app.item_details import ItemDetailContainer, ItemDetailData
 from access_app.item_location_mapping import StoreItemMapContainer, LocationMapData
 from access_app.location_details import StoreLocationDetailContainer, LocationDetailRow
-from logical.io_manager import LocalManager
+from logical.io_manager import AccessManager
 
 
 class AccessRoot(BoxLayout):
@@ -81,11 +81,11 @@ class AccessApp(MDApp):
         for file in widgets_list:
             Builder.load_file(file)
         Builder.load_file(APP_KV_PATH)
-        self.screen_manager = AccessManager()
+        self.screen_manager = AccessScreenManager()
         return self.screen_manager
 
     def load_data(self):
-        self.io_manager = LocalManager()
+        self.io_manager = AccessManager()
         self.db = self.io_manager.create_database()
 
         s = AccessMainScreen(name='Amain')
@@ -96,7 +96,7 @@ class AccessApp(MDApp):
             rv.refresh_from_data()
 
 
-class AccessManager(ScreenManager):
+class AccessScreenManager(ScreenManager):
     """Manager for access app"""
 
 

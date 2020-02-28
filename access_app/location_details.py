@@ -1,6 +1,6 @@
 from kivy.properties import StringProperty
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.tabbedpanel import TabbedPanelItem
+from kivy.uix.tabbedpanel import TabbedPanelItem, TabbedPanelHeader
 from kivy.uix.widget import Widget
 from kivymd.app import MDApp
 
@@ -134,6 +134,10 @@ class StoreLocationDetailContainer(LayoutContainer):
         self.container_display = BoxLayout()
 
 
+class NewStoreTabContent(BoxLayout):
+    """Contains widget for the default tab, which allows creating a new store"""
+
+
 class ModLocationsContent(BoxLayout):
     """Builds the content of this tabbed panel (3).
     Content is another tabbed panel, whose tabs contain `BoxLayout` instances.
@@ -142,12 +146,16 @@ class ModLocationsContent(BoxLayout):
     def populate(self):
         app = MDApp.get_running_app()
         sub_panel = self.children[0]
+        add_new_store = TabbedPanelHeader(text='+')
+        add_new_store.content = NewStoreTabContent()
+        sub_panel.add_widget(add_new_store)
         for name, store in app.db.stores.items():
             if name == 'default':  # Duplicated store
+                print(store.name)
                 default_store = store.name
                 continue
 
-            store_panel = TabbedPanelItem(text=name.capitalize())
+            store_panel = TabbedPanelHeader(text=name.capitalize())
             sub_panel.add_widget(store_panel)
             container = app.container_factory.get('location_details', store)
 
@@ -158,7 +166,8 @@ class ModLocationsContent(BoxLayout):
             container.generate_data(store.locations.values())
 
         for panel in sub_panel.tab_list:
+            print(panel.text)
             # noinspection PyUnboundLocalVariable
             if panel.text == default_store:
                 sub_panel.default_tab = panel
-        sub_panel.tab_width = MDApp.get_running_app().root.width / (len(app.db.stores) - 1)
+        sub_panel.tab_width = app.root.width / (len(sub_panel.tab_list))

@@ -44,6 +44,15 @@
         on_text_validate:
             root.on_text_validate(self.text)
 
+    MDIconButton:
+        size_hint_max_x: dp(48)
+        icon: 'content-save-outline'
+        user_font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        on_release:
+            root.update_value()
+
 
 <GroupDetailHeaderSubsection@BoxLayout>
     orientation: 'horizontal'

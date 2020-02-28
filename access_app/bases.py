@@ -76,7 +76,7 @@ class LayoutContainer(ABC):
                 sections[-1].append(Widget())
 
         for widgets_list in sections:
-            child = BoxLayout(orientation='vertical', spacing=8)
+            child = BoxLayout(orientation='vertical', spacing=2)
             self.container_display.add_widget(child)
             for w in widgets_list:
                 child.add_widget(w)
