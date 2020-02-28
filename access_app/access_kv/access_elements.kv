@@ -48,6 +48,18 @@
     size_hint: 1, 1
 
 
+<ViewSortButton>
+    sort_dir: 'ascending'
+    halign: 'center'
+#    size_hint: 1, 1
+    font_size: 20
+    theme_text_color: 'Custom'
+    text_color: app.text_color
+    size_hint_min_x: None
+    on_release:
+        self.sort()
+
+
 <AccessSpinnerButton@MDFlatButton>
     font_size: 24
     theme_text_color: 'Custom'
@@ -57,6 +69,14 @@
 
 
 <AccessRecycleView>
+
+#    canvas.before:
+#        Color:
+#            rgba: .6, .1, .6, .5
+#        RoundedRectangle:
+#            size: self.size
+#            pos: self.pos
+#            radius: [0, 0, 16, 16]
 
     size_hint: 1, .9
 
@@ -73,3 +93,4 @@
         default_size_hint: 1, None
         height: self.minimum_height
         orientation: 'vertical'
+        spacing: dp(4)

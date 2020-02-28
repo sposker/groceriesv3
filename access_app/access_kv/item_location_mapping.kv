@@ -1,0 +1,80 @@
+
+<LocationMapRow>
+
+#    size_hint: .5, 1
+    pos_hint: {'center_x': .5, 'center_y': .5}
+    padding: [dp(32), 0]
+
+    MDLabel:
+        size_hint: .15, 1
+        text: root.item_uid
+        font_size: 20
+        halign: 'center'
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+
+    MDLabel:
+        size_hint: .2, 1
+        text: root.item_name
+        font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+
+    MDLabel:
+        size_hint: .15, 1
+        text: root.location_uid
+        font_size: 20
+        theme_text_color: 'Custom'
+        text_color: app.text_color
+        halign: 'center'
+
+    AccessSpinner:
+        size_hint: .5, 1
+        widget_name: 'location_name'
+        text: root.location_name
+        values: root.location_names
+
+
+<LocationMapHeader>:
+#    default_size: self.width - dp(12), dp(72)
+#    default_size_hint: None, None
+    font_size: 20
+    spacing: dp(8)
+    padding: dp(8)
+    orientation: 'horizontal'
+    size_hint: 1, None
+    height: dp(72)
+    padding: [dp(32), 0]
+
+    ViewSortButton:
+        sort_key: 'item_uid'
+        container: root.container
+        text: 'I-ID'
+        size_hint: .15, 1
+
+#    Widget:
+#        size_hint: .05, 1
+
+    ViewSortButton:
+        sort_key: 'item_name'
+        container: root.container
+        size_hint: .2, 1
+        text: "Item Name"
+#
+#    Widget:
+#        size_hint: .05, 1
+
+    ViewSortButton:
+        sort_key: 'location_uid'
+        container: root.container
+        text: "L-ID"
+        size_hint: .15, 1
+#
+#    Widget:
+#        size_hint: .175, 1
+
+    ViewSortButton:
+        sort_key: 'location_name'
+        container: root.container
+        size_hint: .5, 1
+        text: "Location Name"

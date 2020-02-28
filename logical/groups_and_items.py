@@ -46,7 +46,7 @@ class GroceryItem(UIDRoot):
             else:
                 self.uid = self._try_uid(int(uid[1:]))
         else:
-            self.uid = f'i{self._try_uid(uid)}'
+            self.uid = self._try_uid(uid)
 
         self._group = None  # Set by @group.setter
         self.group = group  # ibid

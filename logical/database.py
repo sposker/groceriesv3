@@ -46,17 +46,21 @@ class Database:
     def build_stores(self, source):
         """Build `Store` objects from data source"""
 
+        n = 0
         for name, data in source.items():
             loc_pool = set()
 
+            store_uid = 's' + str(n).zfill(2)
             for uid, values in data.items():
                 loc_name = values['_name']
                 special = values['_is_special']
                 item_pool = set(values['items'])
-                loc = Location(loc_name, items=item_pool, uid=uid, special=special)
+                loc_uid = ''.join((store_uid, uid))
+                loc = Location(loc_name, items=item_pool, uid=loc_uid, special=special)
                 loc_pool.add(loc)
 
-            self.stores[name] = Store(name, loc_pool)
+            self.stores[name] = Store(name, loc_pool, uid=store_uid)
+            n += 1
 
         if self._store_default:
             self.stores['default'] = self.stores[self._store_default]

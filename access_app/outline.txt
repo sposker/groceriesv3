@@ -1,0 +1,33 @@
+cls DataFactory
+
+cls ContainerFactory
+
+cls ItemView:
+
+----
+
+cls TabA
+    def populate:
+        container = ContainerFactory['itemview']
+        for i in db.items:
+            viewlayout =  DataFactory['itemview'](container, i)
+            viewlayout.generate_data()  # Appends data from object to container's data
+        container.to_layout()
+        self.content.add_widget(container.container)
+
+
+cls TabB
+    def populate:
+        for store in db.stores:
+            container = ContainerFactory['loc_map'](store)
+            for item in store.locations.items:
+                DataFactory['loc_map'](container, item)
+
+____
+
+cls Root
+    on_kv_post:
+        tabs = []
+        for t in tabs:
+            t.populate()
+

@@ -92,7 +92,7 @@ class LocationMap:
         return pairs
 
         #
-        # return [([LocationMap(item, store).kv_pairs], store)
+        # return [([LocationMapRow(item, store).kv_pairs], store)
         #         for item in data.items.values() for store in data.stores.values()]
 
     @classmethod
@@ -140,7 +140,7 @@ class LocationDetail:
         store.locations.add(loc)
         return cls.refreshed_location_details(data)
 
-# group_details = [GroupDetail(group).kv_pairs for group in db.groups.values()]
-# item_details = [ItemDetail(item).kv_pairs for item in db.items.values()]
-# loc_maps = [([LocationMap(item, store).kv_pairs], store) for item in db.items.values() for store in db.stores.values()]
-# loc_details = [([LocationDetail(store).kv_pairs], store) for store in db.stores.values()]
+# group_details = [GroupDetailRow(group).kv_pairs for group in db.groups.values()]
+# item_details = [ItemDetailRow(item).kv_pairs for item in db.items.values()]
+# loc_maps = [([LocationMapRow(item, store).kv_pairs], store) for item in db.items.values() for store in db.stores.values()]
+# loc_details = [([LocationDetailRow(store).kv_pairs], store) for store in db.stores.values()]

@@ -493,3 +493,41 @@ class LocalManager(IOManager):
         base += once_
 
         return base
+
+
+class AccessManager(LocalManager):
+    """Additional methods enabled for writing store and group data from `AccessApp`"""
+
+    def update_display_groups(self):
+        """Convert `DisplayGroup` names into text file"""
+        db = MDApp.get_running_app().db
+        groups = sorted((db.groups.values()), key=lambda x: x.uid)
+        names = [grp.name for grp in groups]
+        text = '\n'.join(names) + '\n'
+        with open(self.groups_path, 'w') as f:
+            f.write(text)
+
+    def update_store_mappings(self, store):
+        """Write store information to file"""
+
+        data = {}
+
+        for location in store.locations.values():
+            uid_key = location.uid_short
+            nested_dict = {'_is_special': location.is_special,
+                           '_name': location.name,
+                           'items': [itm.uid for itm in location.items]
+                           }
+            data[uid_key] = nested_dict
+
+        path = os.path.join(os.getcwd(), self.stores_path)
+        filepath = os.path.join(path, store.name.lower() + '.yaml')
+        with open(filepath, 'w') as f:
+            yaml.dump(data, f)
+
+
+
+
+
+
+
