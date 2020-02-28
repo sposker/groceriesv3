@@ -4,6 +4,7 @@ or copy code to redefine an almost identical class, which will use subclasses of
 widgets. How difficult would it really have been to subclass these building blocks and allow the main widget to use
 a view class for child widgets, allowing for substitution?
 """
+
 from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.metrics import dp
@@ -48,13 +49,22 @@ class SearchTextInput(TextInput):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.db = MDApp.get_running_app().db
+        app = MDApp.get_running_app()
+        self.db = app.db
         self.buttons = {}
         self._current_value = None
-        self.btn_text_color = MDApp.get_running_app().text_color
-        self.btn_active_color = MDApp.get_running_app().theme_cls.accent_color
+        self.low_spec = app.low_spec
+        self.btn_text_color = app.text_color
+        self.btn_active_color = app.theme_cls.accent_color
+        self._clockev = None
+
+        if self.low_spec:
+            self._clock_trigger = Clock.create_trigger(self._open_dropdown)
 
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
+
+        if self._clockev:
+            self._clockev.cancel()
 
         if self.dropdown.attach_to:
             if keycode[0] == 273:
@@ -85,12 +95,24 @@ class SearchTextInput(TextInput):
         if not len(self.text) > 1:
             self.dropdown.dismiss()
             return
-        options = process.extractBests(self.text,
-                                       self.db.item_names,
-                                       scorer=(fuzz.token_sort_ratio if ' ' not in self.text
-                                               else fuzz.token_set_ratio),
-                                       # score_cutoff=min(40 + len(self.text)**2, 90),
-                                       limit=3)
+        if self.low_spec:
+            return self._schedule_open()
+        self._open_dropdown()
+
+    def _schedule_open(self):
+        """Schedule opening the dropdown in low spec mode"""
+        self._clockev = Clock.schedule_once(self._clock_trigger, 1)
+
+    def _open_dropdown(self, *_):
+        """Fuzzy string matching for likely options based on current text"""
+        options = process.extractBests(
+            self.text,
+            self.db.item_names,
+            scorer=(fuzz.token_sort_ratio           # Match all chars by default.
+                    if ' ' not in self.text         # If there's a space char in our text,
+                    else fuzz.token_set_ratio),     # look for partial matches instead.
+            limit=3,
+        )
         self.dropdown.clear_widgets()
         self.current_value = None
         for index, pair in enumerate(options):
@@ -105,6 +127,7 @@ class SearchTextInput(TextInput):
 
     @property
     def current_value(self):
+        """Position of selection in dropdown"""
         return self._current_value
 
     @current_value.setter

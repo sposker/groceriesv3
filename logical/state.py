@@ -182,7 +182,7 @@ class ListState:
             cls.instance = super().__new__(cls, *args, **kwargs)
         return cls.instance
 
-    def __init__(self, low_spec=False):
+    def __init__(self):
 
         self.toggles_dict = {}
 
@@ -194,7 +194,7 @@ class ListState:
         self.nodes_list = ContextList()
         self.sort_type = 'time'
         self.frozen_pool = None
-        self.low_spec = low_spec
+        self._low_spec = None
 
     @classmethod
     def values_from_card(cls, **kwargs):
@@ -207,6 +207,12 @@ class ListState:
     @property
     def height_expanded(self):
         return self.view_cls.normal_height + 60
+
+    @property
+    def low_spec(self):
+        if self._low_spec is None:
+            self._low_spec = MDApp.get_running_app().low_spec
+        return self._low_spec
 
     @property
     def container_height(self):
@@ -247,6 +253,7 @@ class ListState:
 
         self.nodes_list.clear()
         self.container.clear_widgets()
+        self.container.height = 0
 
     def add_card(self, card_node=None, sort=True, **kwargs):
         """Add a `ItemNode` to our `ContextList(), sort the list by default, and return the node"""

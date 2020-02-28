@@ -3,16 +3,11 @@ from kivy.clock import Clock
 from kivy.factory import Factory
 from kivy.properties import StringProperty
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.textinput import TextInput
 from kivymd.app import MDApp
 from kivymd.uix.button import MDIconButton
 from kivymd.uix.tooltip import MDTooltip
 
 from logical.state import ListState
-
-
-def replacement_on_key_down(widget, window, keycode, text, modifiers):
-    super(TextInput, widget).keyboard_on_key_down(window, keycode, text, modifiers)
 
 
 class FunctionsBarButton(MDIconButton, MDTooltip):

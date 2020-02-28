@@ -54,7 +54,7 @@ class WinApp(MDApp):
         self.io_manager = None
         self.list_state = None
         self.listener = None
-        self.low_spec_mode = False
+        self.low_spec = False
         self.screen_manager = None
         self.toggle_cls = None
 
@@ -80,13 +80,13 @@ class WinApp(MDApp):
         # Load data from IO sources
         self.io_manager = LocalManager()
         self.db = self.io_manager.create_database()
-        self.low_spec_mode = self.io_manager.low_spec
+        self.low_spec = self.io_manager.low_spec
 
         # Set up widgets representing the state of the app (Model in MVC)
         ListState.container = ItemCardContainer()
         ListState.view_cls = WinItemCard
         self.toggle_cls = PairedToggleButtons
-        self.list_state = ListState(low_spec=self.low_spec_mode)
+        self.list_state = ListState()
         GroupDisplay._header_height = self.item_row_height * 11/8
 
         # Populate selection widgets and associate them with app state (Controller in MVC)
