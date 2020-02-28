@@ -182,7 +182,7 @@ class ListState:
             cls.instance = super().__new__(cls, *args, **kwargs)
         return cls.instance
 
-    def __init__(self):
+    def __init__(self, low_spec=False):
 
         self.toggles_dict = {}
 
@@ -194,6 +194,7 @@ class ListState:
         self.nodes_list = ContextList()
         self.sort_type = 'time'
         self.frozen_pool = None
+        self.low_spec = low_spec
 
     @classmethod
     def values_from_card(cls, **kwargs):
@@ -257,7 +258,7 @@ class ListState:
             self.container.add_widget(card_node.card)
 
         self.normal_cards += 1
-        if sort:
+        if not self.low_spec and sort:
             self.sort_cards()
 
         return card_node

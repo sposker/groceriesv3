@@ -35,6 +35,7 @@ class SettingsManager:
                  merge_always=None,
                  merge_once=None,
                  write_new_items=False,
+                 low_spec=False,
                  **kwargs
                  ):
 
@@ -50,7 +51,7 @@ class SettingsManager:
         self.write_port = write_port
         self.rename_port = rename_port
 
-        # Can be replaced with custom values or inferred using @property decorator
+        # Can be replaced with custom path values or inferred using @property decorator
         self._credentials_path = credentials_path
         self._pools_path = pools_path
         self._old_db_path = old_db_path
@@ -58,9 +59,10 @@ class SettingsManager:
         self._db_path = db_path
 
         # Other advanced properties
+        self._other_kwargs = kwargs
+        self.low_spec = low_spec
         self.merge_always = merge_always
         self.merge_once = merge_once
-        self._other_kwargs = kwargs
         self.write_new_items = write_new_items
 
     @property
